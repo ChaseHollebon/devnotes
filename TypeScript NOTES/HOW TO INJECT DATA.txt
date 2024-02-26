@@ -1,0 +1,21 @@
+HOW TO INJECT DATA INTO A DIALOG BOX
+
+1. 
+
+ private openDeleteDialog(aParams: ICellRendererParams) {
+    let dialogData : ConfirmDeleteAllowedFileTypeDialogDTO = new ConfirmDeleteAllowedFileTypeDialogDTO();
+    dialogData.extension = aParams.data.extension;
+    dialogData.allowedFileTypeId = aParams.data.id;
+
+2. 
+    // Open the dialog box and pass in the allowed file type ID and the extension
+    let dialogRef = this.matDialog.open(ConfirmDeleteAllowedFileTypeDialogComponent, {
+      width: '400px',
+      data: dialogData
+    });
+	
+	
+3. 
+
+  constructor(private dialogRef: MatDialogRef<ConfirmDeleteAllowedFileTypeDialogComponent>,
+              @Inject(MAT_DIALOG_DATA) public data: ConfirmDeleteAllowedFileTypeDialogDTO ){
