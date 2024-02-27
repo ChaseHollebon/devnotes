@@ -1,0 +1,80 @@
+Boring Lecture 2 / Bulk Updates Modes
+-------------------------------------
+    Bulk Update uses a funny 2-line syntax
+        Line 1 is the operation
+        Line 2 is the data
+
+
+
+
+    Bulk Update Modes
+    -----------------
+    A) "Index" mode
+        -- If this record does not exist, then insert it
+        -- If this record exists,         then replace it
+ 
+            POST _bulk
+            { "index": { "_index": "reports",  "_id": 1 }}
+            { "priority": "low", "actors": "John Smith", "description": "he really likes o'reilly"}
+
+
+
+    B) "Create" mode 
+        -- If this record does not exist, then insert it
+        -- If this record exists,         then BLOW UP with version_conflict_engine_exception
+
+            POST _bulk
+            { "create": { "_index": "reports",  "_id": 1 }}                     
+            { "priority": "low", "actors": "John Smith", "description": "he really likes o'reilly"}
+  
+
+
+     C) "Update" mode
+        -- If this record does not exist, then BLOW UP with a "document_missing_exception"
+        -- If this record exists,         then update the fields provided
+
+            POST _bulk
+            { "update" : {"_index" : "reports", "_id" : "1"} }
+            { "doc" : {"priority" : "high"} }
+
+        
+
+
+Exercise 2a / Create a bulk update that will update records #4 and #5 to have the priority of "Medium"
+-----------------------------------------------------------------------------------------------------
+
+POST /reports/_bulk
+{
+  "update": {
+    "_id" : "4"
+  }
+}
+{
+  "doc": {
+  "priority": "Medium"
+  }
+}
+{
+   "update": {
+    "_id" : "5"
+  }
+}
+{
+  "doc": {
+    "priority": "Medium"
+  }
+}
+
+
+
+Exercise 2b / Create a bulk update that will create 2 additional records and update record #4 to High and #5 to low
+----------------------------------------------------------------------------------------------------------------  
+
+
+
+Exercise 2c / Create a bulk update that will update records #5 and set the actors to hold this:  "Lady Gaga", "Taylor Swift"
+----------------------------------------------------------------------------------------------------------------------------
+
+
+
+

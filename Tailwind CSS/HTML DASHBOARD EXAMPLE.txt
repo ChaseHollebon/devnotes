@@ -1,0 +1,183 @@
+HTML DASHBOARD
+
+<div class="page-background w-full h-full" style="height: calc(100vh - 82px); overflow-y: auto">
+  <div class="w-full h-full overflow-auto">
+
+    <div class="bg-white h-[60px] flex items-center">
+
+      <div class="flex text-3xl font-normal items-center ml-5">My Dashboard
+      </div>
+
+    </div>
+
+    <div class="flex flex-col">
+
+      <!-- Alert Status cards -->
+      <div class="m-5">
+        <!--      <h2 class="text-sm font-medium text-gray-500">Alert Status</h2>-->
+        <ul role="list" class="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+          <li class="col-span-1 flex rounded-md shadow-sm">
+            <div
+              class="flex w-16 flex-shrink-0 items-center justify-center bg-quaternary rounded-l-md text-xl font-medium text-white">
+              <i class="fa-solid fa-file-exclamation"></i></div>
+            <div
+              class="flex flex-1 items-center justify-between truncate rounded-r-md border-b border-r border-t border-gray-200 bg-white">
+              <div class="flex-1 truncate px-4 py-2 text-sm">
+                <a href="#" class="text-gray-500">Events In Queue</a>
+                <p class="font-bold text-xl text-gray-900 hover:text-gray-600">300</p>
+              </div>
+              <div class="flex-shrink-0 pr-2">
+                <button type="button"
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                  <span class="sr-only">Open options</span>
+                  <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </li>
+          <li class="col-span-1 flex rounded-md shadow-sm">
+            <div
+              class="flex w-16 flex-shrink-0 items-center justify-center bg-quaternary rounded-l-md text-xl font-medium text-white">
+              <i class="fa-regular fa-hand-holding-box"></i></div>
+            <div
+              class="flex flex-1 items-center justify-between truncate rounded-r-md border-b border-r border-t border-gray-200 bg-white">
+              <div class="flex-1 truncate px-4 py-2 text-sm">
+                <a href="#" class="text-gray-500">New Events</a>
+                <p class="font-bold text-xl text-gray-900 hover:text-gray-600">200</p>
+              </div>
+              <div class="flex-shrink-0 pr-2">
+                <button type="button"
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                  <span class="sr-only">Open options</span>
+                  <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </li>
+          <li class="col-span-1 flex rounded-md shadow-sm">
+            <div
+              class="flex w-16 flex-shrink-0 items-center justify-center bg-quaternary rounded-l-md text-xl font-medium text-white">
+              <i class="fa-solid fa-file-pen"></i></div>
+            <div
+              class="flex flex-1 items-center justify-between truncate rounded-r-md border-b border-r border-t border-gray-200 bg-white">
+              <div class="flex-1 truncate px-4 py-2 text-sm">
+                <a href="#" class="text-gray-500">Events-In Progress</a>
+                <p class="font-bold text-xl text-gray-900 hover:text-gray-600">150</p>
+              </div>
+              <div class="flex-shrink-0 pr-2">
+                <button type="button"
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                  <span class="sr-only">Open options</span>
+                  <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </li>
+          <li class="col-span-1 flex rounded-md shadow-sm">
+            <div
+              class="flex w-16 flex-shrink-0 items-center justify-center bg-quaternary rounded-l-md text-xl font-medium text-white">
+              <i class="fa-solid fa-files"></i></div>
+            <div
+              class="flex flex-1 items-center justify-between truncate rounded-r-md border-b border-r border-t border-gray-200 bg-white">
+              <div class="flex-1 truncate px-4 py-2 text-sm">
+                <a href="#" class="text-gray-500">Events Returned</a>
+                <p class="font-bold text-xl text-gray-900 hover:text-gray-600">100</p>
+              </div>
+              <div class="flex-shrink-0 pr-2">
+                <button type="button"
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                  <span class="sr-only">Open options</span>
+                  <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path
+                      d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+<!--Navigation Links-->
+      <div class="pr-4">
+      <mat-form-field subscriptSizing="dynamic" style="width: 165px" class="narrow-dropdown">
+        <mat-label>Go to Events</mat-label>
+
+        <mat-select>
+          <mat-option (click)="this.router.navigateByUrl('page/my-work-queue')"               value="report1">Events In Queue</mat-option>
+          <mat-option (click)="this.router.navigateByUrl('page/my-work-queue')"               value="report2">New Events</mat-option>
+          <mat-option (click)="this.router.navigateByUrl('page/my-work-queue')"               value="report3">Events In-Progress</mat-option>
+          <mat-option (click)="this.router.navigateByUrl('page/my-work-queue')"               value="report4">Events Returned</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+
+      <!--Charts-->
+
+      <div class="flex flex-row flex-wrap justify-center gap-4 bg-gray-300  bg-white rounded-md border-borderColor border">
+
+
+
+        <div class="flex flex-col w-100 bg-white rounded-lg shadow-md p-4 text-center" (click)="this.router.navigateByUrl('page/my-work-queue')">
+          <img class="clickable" [routerLink]="'/'" src="./assets/images/Typical-sequence-of-events-in-queue.png"
+               alt="Events In Queue" title="Events In Queue">
+          <h2 class="text-lg font-semibold mb-2">Events In Queue</h2>
+          <p>Track the total Events in Queue.</p>
+        </div>
+        <div class="flex flex-col w-100 bg-white rounded-lg shadow-md p-4 text-center" (click)="this.router.navigateByUrl('page/my-work-queue')">
+          <img class="clickable" [routerLink]="'/'" src="./assets/images/Typical-sequence-of-events-in-queue.png"
+               alt="New Events" title="New Events">
+          <h2 class="text-lg font-semibold mb-2">New Events</h2>
+          <p>Track the total amount of New Events.</p>
+        </div>
+        <div class="flex flex-col w-100 bg-white rounded-lg shadow-md p-4 text-center" (click)="this.router.navigateByUrl('page/my-work-queue')">
+          <img class="clickable" [routerLink]="'/'" src="./assets/images/Typical-sequence-of-events-in-queue.png"
+               alt="Events In-Progress" title="Events In-Progress">
+          <h2 class="text-lg font-semibold mb-2">Events In-Progress</h2>
+          <p>Track the total Events in Progress.</p>
+        </div>
+        <div class="flex flex-col w-100 bg-white rounded-lg shadow-md p-4 text-center" (click)="this.router.navigateByUrl('page/my-work-queue')">
+          <img class="clickable" [routerLink]="'/'" src="./assets/images/Typical-sequence-of-events-in-queue.png"
+               alt="Events Returned" title="Events Returned">
+          <h2 class="text-lg font-semibold mb-2">Events Returned</h2>
+          <p>Track the total Events Returned.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+TS DASHBOARD
+
+import { Component } from '@angular/core';
+import {Router} from "@angular/router";
+
+@Component({
+  selector: 'app-my-dashboard',
+  templateUrl: './my-dashboard.component.html',
+  styleUrls: ['./my-dashboard.component.scss']
+})
+export class MyDashboardComponent {
+  constructor(public router: Router){
+
+  }
+}
+
+
+SCSS DASHBOARD
+
+.page-background{
+  background-color: #f4fcff;
+}

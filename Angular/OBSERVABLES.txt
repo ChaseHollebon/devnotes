@@ -1,0 +1,81 @@
+
+
+        TypeScript                                        HTML
+    -----------------------------------------------+-----------------------------------
+                                                        3. HTML is rendered and we get to line 1
+                                                            
+                                                                <!-- At this point, nothing is displayed because the bannerService has not returned anything yet -->
+                                                                
+                                                                <ng-container *ngIf="(this.bannerHeightInPixelsObs | async) as bannerHeight">    
+                                                                                    
+      public bannerHeightInPixelsObs: Observable<string>
+                                                                   
+
+    1. constructor is called
+        -- pass-in the bannerService
+
+
+    2. ngOnInit()
+            // Initialize this observable
+            this.bannerHeightInPixelsObs = ...                 </ng-container>
+
+
+
+
+                                                        4. the bannerService is invoked and we get a response
+                                                                        -- We get a string back "20px"
+
+
+
+                                                        5. bannerHeight="20px"
+
+
+
+                                                        6. R E N D E R      T H E    R E S T     O F     T H E      P A G E
+                                                            -- We render the rest of the html
+
+
+
+                                                        7.    <div style="height: calc(100vh - 220px - {{ bannerHeight }}">
+
+
+                                                            </div>    
+
+
+
+
+                                                            <div style="height: calc(100vh - 220px - 20px">
+
+
+                                                            </div>    
+
+
+
+    Plan for adjusting your web page to account for additional 20px banner at the top
+    ---------------------------------------------------------------------------------
+
+    In the TypeScript
+     1. Create a class variable that is public 
+            bannerHeightInPixelsObs
+
+     2. Inject the bannerService
+
+     3. Use the bannerService to initialize the observable
+
+
+     4. Add to the top
+
+             <ng-container *ngIf="(this.bannerHeightInPixelsObs | async) as bannerHeight">    
+
+
+
+            </ng-container>
+
+
+     5. Adjust the calc function so it has the banner Height:
+
+            <div style="height: calc(100vh - 220px - {{ bannerHeight }}">
+
+        
+
+        

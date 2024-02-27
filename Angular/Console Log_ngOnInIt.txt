@@ -1,0 +1,292 @@
+Lesson 4:  TypeScript Variables
+-------------------------------
+
+We can define a variable as having multiple tpyes
+
+		public userId: number;
+		public userId: number | null;              
+		public userId: number | string | null;     
+
+
+
+
+
+
+	public stuff: string | null = null;
+	let lowerCaseOfStuff: string = this.stuff.toLowerCase();
+
+	Will it compile?  Marc says Yes
+	Will it run?      Marc sa
+
+
+
+
+
+
+
+
+
+
+
+Exercise 4a:  Difference between undefined and null
+--------------------------------------------------
+ 1. Add these 4 variables to the top of any page
+
+  public userId1: number;
+  public userName1: string;              // Is it undefined or null?
+
+- CHECK
+
+ 2. In your ngOnInit() add a console.log call
+
+		public ngOnInit(): void {
+			console.log('ngOnInit started');              // Set a breakpoint here
+
+			console.log('ngOnInit finished');
+		}
+
+- CHECK
+
+ 3. Set a breakpoint in your console.log call
+
+- CHECK
+
+ 4. Activate your debugger 
+    QUESTION:  Are these class variables null or undefined?
+
+- UNDEFINED
+
+
+
+Exercise 4b:  Difference between undefined and null
+--------------------------------------------------
+ 1. Change the variables to this
+
+  public userId1: number; 
+  public userId2: number | null;
+
+  public userName1: string; 
+  public userName2: string | null; 
+
+
+ 2. Activate your debugger 
+    QUESTION:  Are these class variables null or undefined?
+
+
+- NULL
+
+
+Exercise 4c:  Add a console log that displays a message if the both userid1 and useri2 are both null
+---------------------------------------------------------------------------------------------------
+
+    if ( (this.userid1 == null) && (this.userid2 == null)) {
+      console.log("both userids are null");
+    }
+
+- CHECK
+
+Exercise 4d:  Add a console log that displays a message if the both userid1 and useri2 are both undefined
+--------------------------------------------------------------------------------------------------------
+
+    if ( (this.userid1 === undefined) && (this.userid2 === undefined)) {
+      console.log("both userIds are undefined");
+    }
+
+- CHECK
+
+Exercise 4e:  Add a console log that displays a message if the both userid1 and useri2 are both null *OR* undefined
+-------------------------------------------------------------------------------------------------------------------
+
+    if ( !this.userid1 && !this.userid2 )
+      console.log("both userIds are undefined");
+    }
+
+    if ( (this.userid1 == null) && (this.userid2 == null)) {
+      console.log("both userids are null");
+    }
+
+
+
+- CHECK
+
+
+
+
+
+Exercise 4f:  Is this valid code?    [if it's not valid, how would you fix it?]
+-------------------------------------------------------------------------------
+
+ 1. Change your ngOnInit() to this:
+
+		  public userName1: string = 'JOHN'; 
+
+
+	public ngOnInit(): void {
+		console.log('ngOnInit started');
+
+
+ 	    let username1LowerCase: string = this.userName1.toLowerCase();
+		console.log('username1LowerCase=', username1LowerCase);
+
+
+		console.log('ngOnInit finished');
+	}
+
+- CHECK
+
+
+ 2. Step through the ngOnInit() with a debugger
+
+
+
+
+
+
+
+
+Exercise 4g:  Is this valid code?    [if it's not valid, how would you fix it?]
+-------------------------------------------------------------------------------
+
+ 1. Change your ngOnInit() to this:
+
+		  public userName1: string = ''; 
+
+
+	public ngOnInit(): void {
+		console.log('ngOnInit started');
+
+
+ 	    let username1LowerCase: string = this.userName1.toLowerCase();
+		console.log('username1LowerCase=', username1LowerCase);
+
+
+		console.log('ngOnInit finished');
+	}
+
+- CHECK
+
+ 2. Step through the ngOnInit() with a debugger
+
+
+
+
+
+
+
+Exercise 4h:  Is this valid code?    [if it's not valid, how would you fix it?]
+-------------------------------------------------------------------------------
+
+ 1. Change your ngOnInit() to this:
+
+		  public userName1: string; 
+
+
+	public ngOnInit(): void {
+		console.log('ngOnInit started');
+
+
+ 	    let username1LowerCase: string = this.userName1.toLowerCase();
+		console.log('username1LowerCase=', username1LowerCase);
+
+
+		console.log('ngOnInit finished');
+	}
+
+- CHECK
+
+ 2. Step through the ngOnInit() with a debugger
+
+
+
+
+
+
+
+
+
+Exercise 4i:  Is this valid code?    [if it's not valid, how would you fix it?]
+-------------------------------------------------------------------------------
+
+ 1. Change your ngOnInit() to this:
+
+		  public userName1: string; 
+
+
+	public ngOnInit(): void {
+		console.log('ngOnInit started');
+
+
+  		let useridAsString: string = this.userid1.toString();
+		console.log('useridAsString=', useridAsString);
+
+
+		console.log('ngOnInit finished');
+	}
+
+- CHECK
+
+ public userName1: string; 
+
+
+	public ngOnInit(): void {
+		console.log('ngOnInit started');
+		
+ if (this.userId1) {
+    let useridAsString: string = this.userId1.toString();
+    console.log('useridAsString=', useridAsString);
+
+    console.log('ngOnInit finished');
+  }
+
+ 2. Step through the ngOnInit() with a debugger
+
+
+
+
+
+
+Exercise 4j:  Create a DTO called MyDTO
+---------------------------------------
+ terminal> cd frontend
+ terminal> ng generate class models/myDTO
+
+ Add some public fields:
+       public userid: number;
+       public description: string;
+
+
+
+
+
+
+Exercise 4k:  Is this valid code?    [if it's not valid, how would you fix it?]
+-------------------------------------------------------------------------------
+
+ 1. Change your ngOnInit() to this:
+
+		  public myDTO: MyDTO; 
+
+
+	public ngOnInit(): void {
+		console.log('ngOnInit started');
+
+
+  		myDTO.userid = 7;
+		myDTO.description = 'some long string';
+
+
+		console.log('ngOnInit finished');
+	}
+
+
+
+ 2. Step through the ngOnInit() with a debugger
+
+
+
+
+
+
+
+
+

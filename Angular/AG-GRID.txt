@@ -1,0 +1,57 @@
+Ag-grid: (TRAINING LESSON) 
+
+Client-Side Grid----------
+
+Why do users like grid pages?
+1. Store info in a more organized way
+2. They're customizable - change colums/filters/order
+3. The're user friendly 
+4. Allows users to filter lots of data
+5. Looks good
+
+Why do we like grids (developers)?
+1. Easy to understand (better then bunch of cards)
+2. Lots of docs on ag-grids website/Internet 
+3. Easy layout, provide a lot of value  
+
+
+Fundamental Design Decision:
+1. Client-side or Server-side?
+2. Columns (Lots of columns, Few columns)
+
+
+Behavior: 
+1. Loading all data into browser
+
+
+Advantages:
+1. Easier to implement (loading)
+2. Free filtering (just turn it on)
+3. Free license 
+4. Works well with small data sets
+
+
+Disadvantages: 
+1. If data is greater than 5,000 rows, can be wasteful 
+2. Does not scale up 
+
+
+Server-Side Grid----------
+
+
+Behavior: 
+1. Loading page of data at a time into browser
+2. You get infite scroll 
+
+
+Advantages:
+1. Enables better searching/more detailed searching 
+2. It scales up 
+3. Works well with LARGE data sets 
+ 
+
+Disadvantages:
+1. Complicated (bitch to implement)
+2. Complicated due to rest calls (complicated contract)
+3. Frontend is more complicated 
+4. Make sure Elastic Search has data

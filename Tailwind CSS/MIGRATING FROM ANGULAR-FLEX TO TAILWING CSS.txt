@@ -1,0 +1,145 @@
+Migrating from Angular-Flex to Tailwind CSS
+-------------------------------------------
+
+
+What is Tailwind CSS?
+---------------------
+Tailwind CSS is a utility-first CSS framework
+-- The main feature of this library is that, unlike other CSS frameworks like Bootstrap, it does not provide a series of predefined classes for elements such as buttons or tables.
+-- Instead, it creates a list of "utility" CSS classes that can be used to style each element by mixing and matching.
+ 
+<button class="h-10 px-6 font-semibold rounded-md bg-black text-white" type="submit">Submit</button>
+
+    h-10:  			This class sets the button to a fixed height of 10 units.
+    px-6: 			This class sets the horizontal padding of the button to 6 units.
+    font-semibold: 	This class sets the font weight of the button to semibold.
+    rounded-md: 	This class sets the border radius of the button so it has rounded corners.
+    bg-black: 		This class sets the background color of the button to black.
+    text-white: 	This class sets the text color of the button to white.
+
+
+
+
+Benefits of Tailwind CSS
+------------------------
+ + You write less custom CSS
+ + You keep CSS files small
+ + These "utility classes" are local to a specific page.  So, if you make a change, at most you can mess-up one page
+
+
+
+			Angular Flex								Tailwind CSS
+			------------								---------------------
+			JavaScript framework						CSS classes
+			+ Has been around awhile                    + Simple
+	        - Complex library							+ Modular (provides a wide range of utility classes that can be combined)
+            - No longer supported                       + Lighter (in that the frontend does not have the weight of a heavy framework like angular-flex)
+            - Stopped working with Angular 15 and later
+
+
+The CVF project uses openJDK 17, Maven 3.6.3, and Angular 16.2
+
+
+Setup the CVF Project
+---------------------
+ 1. Install openJDK 17
+    a. Download the installer / You can download it here:
+        https://drive.google.com/file/d/1vGhDxZbULxcYQ0YfKnsoKWP0ilzH4Xyk/view?usp=drive_link
+
+    b. RUn the installer
+
+    c. Verify that you're running openJDK
+       Open a new terminal
+       terminal> java -version
+       -- Verify that it shows java 17
+
+
+ 2. Install maven 3.6.3 here:
+    a. Follow the steps here:
+        https://github.com/traderres/webClass/blob/master/learnMaven/howToInstallMaven_3.6.3.OnWindows.txt
+
+    b. Verify that you're running maven 3.6.3
+       Open a new terminal
+       terminal> mvn -version
+
+		Apache Maven 3.6.3 (cecedd343002696d0abb50b32b541b8a6ba2883f)
+		...
+
+
+ 3. Install Intellij 2023.2.5
+    https://download.jetbrains.com/idea/ideaIU-2023.2.5.exe
+
+
+ 4. Use the Node Version Manager to install Node v18.17.0
+    terminal> nvm install 18.17.0
+    terminal> nvm alias default 18.17.0             # Set the default version in your shell to this version
+    terminal> nvm use 18.17.0
+
+
+
+ 5. Verify that Node is v18.17.0 / npm is 9.6.7
+    a. Open a new terminal
+
+    b. Verify that node is 18.17.0
+       terminal> node -v
+       v18.17.0
+
+    c. Verify that NPM is 9.6.7
+       terminal> npm -v
+       9.6.7 
+
+
+ 6. Install the Angular CLI 16.2
+    a. Uninstall the previous version of your Angular CLI
+       terminal> npm uninstall @angular/cli        # uninstall the local angular CLI
+       terminal> npm uninstall -g @angular/cli     # uninstall the global angular CLI
+
+    b. Install Angular CLI 16.2.2
+       terminal> npm install -g @angular/cli@16.2.2
+
+    c. terminal that you have the Angular CLI 16.2 installed
+       unix> npm list -g --depth 0
+		  @angular/cli@16.2.2          Verify that you see Angular CLI 16.2.2
+		  corepack@0.18.0
+		  npm@9.6.7
+
+
+
+Build & Run the CVF Web App
+---------------------------
+ 1. Clone the project
+    terminal> git clone git@gitlab.rbr-tech.com:RBR-Dev-Team/cvf.git
+    terminal> cd cvf
+    terminal> git checkout development
+
+ 2. Verify that the webapp works
+    a. Compile the project (into an executable JAR)
+       terminal> mvn clean package -Pprod
+
+    b. Run the executable jar
+       terminal> java -jar ./backend/target/backend-1.0-SNAPSHOT-exec.jar
+
+    c. Connect to the webapp at
+       http://localhost:8080/cvf
+ 
+    d. Press control-c in your terminal to stop the web app
+
+
+ 3. Setup Debugging in IntelliJ Ultimate
+    a. Open the project in IntelliJ
+    b. <a href="https://github.com/traderres/webClass/blob/master/learnAngular/lessons/lesson01_debug_existing_webapp.txt">Setup debugging (so you can debug TypeScript and Java code)</a>
+
+
+ 
+OPTIONAL:  Stop Intellij 2023.2.5 from showing that stupid error with the MultiRun plugin
+-----------------------------------------------------------------------------------------
+NOTE:  To disable the "IDE Error" when opening an IntelliJ [caused by MultiRun 1.13], follow these steps:
+ a. Pull File -> Settings -> Appearance & Behaviors -> System Settings -> Updates -> Uncheck "Check for plugin updates"
+ 
+ b. Pull File -> Settings -> Appearance & Behavior -> Notifications -> IDE Errors -> Uncheck "Show in tool window"
+    NOTE:   (but Enable system notifications is checked)
+ 
+ c. When you see the IDE Error appear, press "See details and submit report"  -> press "Clear All"
+
+
+

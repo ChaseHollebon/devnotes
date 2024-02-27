@@ -1,0 +1,72 @@
+Classification Banner HTML:
+
+<ng-container *ngIf="( this.classifiedBannerObs | async ) as classifiedBanner">
+
+    <div class="flex flex-row place-content-center cui-banner"  *ngIf="classifiedBanner.banner_mode == 'cui'">
+      Controlled Unclassified Information
+    </div>
+
+  <div class="flex flex-row place-content-center demo-banner"  *ngIf="classifiedBanner.banner_mode == 'demo'">
+    Controlled Unclassified Information
+  </div>
+
+</ng-container>
+
+
+
+Classification Banner SCSS:
+
+/*
+ * Classification Banners have *SPECIFIC* colors
+ * NOTE:  Do **NOT** change these colors casually
+ */
+.cui-banner{
+  width: 100%;
+  line-height: 20px;     /* Determines the height of the banner */
+  font-family: Roboto;
+  font-size: 12px !important;
+  font-weight: 500;
+  text-align: center;
+  background-color: #502b85;
+  color: white
+}
+
+.demo-banner{
+  width: 100%;
+  line-height: 20px;
+  font-family: Roboto;
+  font-size: 12px !important;
+  font-weight: 500;
+  text-align: center;
+  background-color: #007a33;
+  color: white
+}
+
+
+
+Classification Banner TS:
+
+import {Component, OnInit} from '@angular/core';
+import {BannerService} from "../../services/banner.service";
+import {ClassifiedBannerDTO} from "../../models/classified-banner-dto";
+import {Observable} from "rxjs";
+
+@Component({
+  selector: 'app-classification-banner',
+  templateUrl: './classification-banner.component.html',
+  styleUrls: ['./classification-banner.component.scss']
+})
+export class ClassificationBannerComponent implements OnInit {
+
+  public classifiedBannerObs: Observable<ClassifiedBannerDTO>;
+
+  public constructor(private bannerService: BannerService) {
+  }
+
+  public ngOnInit(): void {
+    // Initialize the observable to get classification banner info
+    this.classifiedBannerObs = this.bannerService.getClassifiedBanner();
+  }
+
+
+}

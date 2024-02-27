@@ -1,0 +1,269 @@
+LESSSON 1: 
+
+Tech Stack:( FRONT )
+	1. TypeScipt 
+	2. Angular 
+	3. NPM
+	4. Angular Material 
+	5. HTML / CSS
+	
+Tech Stack: ( BACKEND )
+	1. Maven 
+	2. Java
+	3. PostGres
+	4. SQL
+	5. GIT
+
+Tech Stack: ( Library )
+	1. Spring Boot
+	2. Kabana
+	3. Spring Security
+
+Uber JAR consist of:
+	1. Backend 
+	2. Frontend
+	3. Server 
+	
+	
+	
+Every Linix Server ont he plant comes with a 
+	1. JRE ( Java Runtime Envormemnt )
+	2. Java -jar my.jar ( needs java to run )
+	3. JDK: Java Development Kit  ( Uses the complier to complie your java code )
+	
+Notes:	
+	* Java is lightsavber and Maven is the force
+	* Maven brings in library
+	* npm brings in frontend javascript library
+	* To add in a library just go to the pom.xml file and add with the other  "<dependency>...<dependency>"
+		Ex:   
+				<dependency>
+				  <groupId>junit</groupId>
+				  <artifactId>junit</artifactId>
+				  <version>4.11</version>
+				  <scope>test</scope>
+				</dependency>
+
+
+
+
+
+
+
+LESSON 2:
+
+Advantage of Angular 
+	*Light weight
+        *Allows seperation of Client and Live Server 
+        *You can use TypeScript 
+	*ng Command
+            Ex: ( ng new frontend = make a new frontend )
+                ( ng generate service = makes a new service file )
+                ( ng generate class = makes a new DTO )
+                ( ng generate component = makes a new component ( page ) )
+	* Two way binding ( watches for changes in data coming in from the users end )
+Vocab:
+	* Observable - a stream of data
+
+
+SMART DEVELOPER
+	* Make a Plan FIRST
+        * Keep all notes that you have learned in a github site so you always have access to it even if your computer crashs
+	* More than one way to skin a Cat
+	* Keep Learning 
+	
+	
+	
+
+
+Lesson 3: Angular Components & Services
+Components: 
+- Page
+- Resuable Entity
+- HTML
+- Building Block
+- Has a Life Cycle
+- TypeScript Code 
+Services: 
+- Help Page
+- In webpage (header, nav bar) 
+- It's injectable (Dependency Injection: Single Tins/created once and stick around)
+- Passed-in to any service or component
+- No HTML
+- Common Logic
+- Injector stays around(caches all the services), whenevr you generate a servuce you see (Injectable), with the constructor the injector will automaticall inject the page for you
+
+(DTO: Data Transfer Object (object with getters and senders) 
+
+<ng-container   *ngIF="this.myTextbox == 'marc' ">
+	<span> Hi marc </span>
+</ng-container> (HTML)
+
+
+
+
+Lesson 4: Variables
+
+FINISH!!!!
+
+
+
+
+
+Lesson 5:
+
+
+
+FINISH!!!
+
+
+
+
+
+Lesson 6: Layouts, CSS, and divs oh my!!!	 Exersice 6a: git checkout lessons of/add-gradient-to-header
+
+1. Fundamentals of Angular-Flex
+2. Fundamentals of CSS
+3. Divs and Height 
+
+
+Tactics:
+
+1. Copy an exsiting page and modify it (THE DARK SIDE)
+2. Or build something new from scratch (THE LIGHT SIDE)
+
+Angular FLex:
+
+<div fxFlex = "   ">
+
+</div>
+
+a. CSS Layouts (CSS Grid, Accordian, FlexBot)
+b. JavaScript Layouts (Angular Flex)
+c. HTML Table (Please don't use)
+
+(If you wanted a red background)
+
+<div style= "background-color:red"
+</div>
+
+CSS Specificity 
+1. !important css clause="   " (!important overrides everything!!!)
+2. Style= '   '
+3. id= "   "
+4. class= "    "
+
+What does overflow-y: auto do?
+- if actual height > visible height, show scrollbar
+
+What does style ="height": calc(100vh - 300px)" do?
+- Variable Height
+
+Angular Flex PitFalls/Div Hell!!!
+
+Learned:
+1. How to creat fixed header
+2. You can put an array inside *ngFor
+3. the *ngFor includes what its attached to
+4. Fixed page title uses both tricks 
+5. If having problems, go with the wrapper div
+6. When you get in div hell, comment out code and start simple 
+
+
+
+
+Lesson 7: Forms, Feedback, and Validation
+
+Smart Developers will...
+1. Make a plan
+2. Write things down
+3. Keep getting better (stay thirsty my friend)
+
+
+Feeback:
+1. Punish user (Assumption: Users read)
+2. Reward user (Show checkbox)
+3. Do nothing (no feedback)
+
+When do we leave feedback?
+1. As they type
+2. On "touching" a field
+3. Click a button
+4. Mouse Events
+5. Asynchronous 
+
+
+TO MAKE A TEXTBOX DISAPPEAR!!!
+
+- <div fxFlex="33%">
+      <mat-form-field>
+        <mat-label>Order Type</mat-label>
+        <mat-select #orderType>
+          <mat-option [value]=1>Market Order</mat-option>
+          <mat-option [value]=2>Limit Order</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+	
+	  <div fxFlex="33%">
+      <mat-form-field *ngIf="orderType.value==2">
+        <mat-label>Limit Price</mat-label>
+        <input type="text" matInput/>
+      </mat-form-field>
+    </div>
+	
+	CODE!!!
+	<mat-select #orderType> AND *ngIf="orderType.value==2">
+	
+	Custome Validators!!!
+	- HTML:
+	[disable]="
+		this.myForm.invalid "
+	
+	
+	<form [formGroup]="this.myForm">
+		<mat-form-field>
+		<input matInput formControlName="Field1"/>  
+		<mat-error *ngIf="this.myFormControl.field1?errors?error_key'>
+		OR 
+		this.myFormControl.field1.errors
+		{
+			'error_key'= '   '
+			}
+		</mat-form-field>
+	</form>
+	
+	
+	
+	- TypeScript:
+	public myForm: FormGroup;
+	
+	public ngOnInIt() {
+		this.myForm = this.formBuilder.group({
+			field1: [null, [Validators.required, Validators. ()]
+			field2: [null(initial value), [this.myCustomValidator()]]
+
+
+
+private myCustomValidator (): ValidatorFn {
+	return (aControl: AbstractControl) => {
+		if (...field is good...) {
+		return null;
+		else}
+		return { 'error_key':'you did something bad'}
+		}
+		}
+
+
+Lesson 8: More Layouts/Scroll into view 
+
+
+HOW TO CREATE A ICON!!!
+- Go to fontawesome.com
+- Select Icon you want (copy it)
+- Paste into intelliji
+
+REMINDER!!!!!!!
+- MR's
+- Firefox profiles (make them)
+- Synch service no flyway

@@ -1,0 +1,563 @@
+Grid Lesson 4 / How to Change the Theme
+---------------------------------------
+
+Key Lessons:
+ A) How to switch the ag-grid theme manually
+ B) Keeping text and CellRenderers vertically aligned in DIFFERENT themes can be tricky -- here's how to address it
+ C) How to send a message to your grid page so that the grid will change to a different theme in real-time 
+
+
+Problem from Lesson 3:  The margin-top: .25em was a hack to get some of the cells to vertically align
+-- Now, that will come to haunt us
+-- That margin-top: .25em WORKS         with the alpine theme
+-- That margin-top: .25em DOES NOT WORK with other themes
+
+So, if we switch between alpine and another theme, then our cells will *NOT* be vertically align
+-- And, that sucks
+-- So, we need a way to vertically align cells without using precise measurements
+
+
+
+Exercise 4a / Create a new client-side grid page
+------------------------------------------------
+1. Create the component:  ClientGridPage4
+    terminal> cd frontend
+    terminal> ng generate component ClientGridPage4 --skipTests
+
+
+ 2. Tell the router that "page/client-grid-4" takes you to the new component
+    a. Edit app.module.ts
+    b. Add this route:
+          { path: 'page/client-grid-4',       component: ClientGridPage4Component },
+
+
+ 
+ 3. Add a link in the navbar that says "Client Grid Page 4"
+    a. Edit navbar.component.html
+    b. Add the <mat-list-item>....</mat-list-item>
+
+      <!-- Scroll Into View -->
+      <mat-list-item class="navItem" [routerLink]="'page/client-grid-4'" routerLinkActive="active">
+        <a title="Client Grid Page 4">Client Grid Page 1</a>
+        <div fxFlex fxLayoutAlign="end end">
+          <a [routerLink]="'page/scroll-into-view'" target="_blank">
+            <i class="fas fa-external-link-alt navItemIcon" title="Open 'Client Grid Page 4' in a new window"></i>
+          </a>
+        </div>
+      </mat-list-item>
+
+
+ 4. Verify that the navbar link works
+    a. Activate the debugger
+    b. Go to http://localhost:4200/
+    c. Verify that you see the link called "Client Grid Page 4"
+    d. Click on the link
+       -- Verify it says, "client-grid-page-4 works!"
+
+
+
+
+Exercise 4b / Setup the Layout of this Page
+-------------------------------------------
+
+    Layout Choice #1
+    +-----------------------------------------------------------------------------+
+    | Client Grid Lesson 4                                                        |
+    +-----------------------------------------------------------------------------+
+    |  <Reset Btn>  <Dropdown of Themes>                                          |      Dropdown of Themes is next to the "Reset" Btn
+    |  +------------------------------------------------------------------------+ | 
+    |  | Action           |  Id   |   Report Name   |   Status   | Created Date | |
+    |  +------------------+-------+-----------------+------------+--------------+ |
+    |  |  <Edit> <Delete> |   1   |   Report 1      |   Pending  |  08/23/2023  | |   
+    |  |  <Edit> <Delete> |   2   |   Report 2      |    Open    |  08/23/2023  | |      
+    |  |  <Edit> <Delete> |   3   |   Report 3      |   Approved |  08/23/2023  | |      
+    |  +------------------+-------+-----------------+------------+--------------+ |
+    +-----------------------------------------------------------------------------+
+    NOTE:  The grid should use the remaining height of the page
+
+
+    Layout Choice #2
+    +-----------------------------------------------------------------------------+
+    | Client Grid Lesson 4                                                        |
+    +-----------------------------------------------------------------------------+
+    |  <Reset Btn>                                           <Dropdown of Themes> |      Dropdown of Themes is right-aligned
+    |  +------------------------------------------------------------------------+ |
+    |  | Action           |  Id   |   Report Name   |   Status   | Created Date | |
+    |  +------------------+-------+-----------------+------------+--------------+ |
+    |  |  <Edit> <Delete> |   1   |   Report 1      |   Pending  |  08/23/2023  | |   
+    |  |  <Edit> <Delete> |   2   |   Report 2      |    Open    |  08/23/2023  | |      
+    |  |  <Edit> <Delete> |   3   |   Report 3      |   Approved |  08/23/2023  | |      
+    |  +------------------+-------+-----------------+------------+--------------+ |
+    +-----------------------------------------------------------------------------+
+    NOTE:  The grid should use the remaining height of the page
+
+    
+    1. Create the layout in HTML
+
+    2. Add the grid to the HTML
+
+    3. Add the gridOptions
+
+    4. Add the column definitions
+
+    5. Add any default column definitions
+
+    6. Add the ActionRenderer and StatusCellRenderer for those columns
+
+    7. Add any frameworkComponents to the grid
+
+    8. Create an onGridyReady() method that is called when the grid is fully initialized
+        -- This method should initialize your gridApi and columnApi class variables
+        -- Have it load the same data you loaded into client-grid-page3
+
+
+     9. Add the "Reset" Btn
+       -- Pressing it should reset the client-side grid
+
+   10. Add the Dropdown of Themes
+       The dropdown of themes should show the user to 5 different theme names:
+               alpine        (light)
+               alpine-dark   (dark)
+               balham        (light)
+               balham-dark   (dark)
+               fresh         (light)   
+
+
+
+
+
+
+
+
+ Exercise 4c / How to get that Dropdown of Themes to look good when it's adjacent to the "Reset" button?
+ -------------------------------------------------------------------------------------------------------
+ Problem:  I want the dropdown to be next to the "Reset" button but they don't look good
+
+
+     Approach 1 for theme dropdown:  use mat-form-field
+     --------------------------------------------------
+            <div fxLayout="row" fxLayoutGap="20px" style="margin-bottom: 5px">
+              <!-- Button Row -->
+              <button mat-raised-button type="button" title="Reset" aria-label="Reset">
+                Reset
+              </button>
+
+              <mat-form-field appearance="standard" style="width: 150px">
+                  <mat-label></mat-label>
+                  <mat-select [(ngModel)]="this.selectedTheme" >
+                      <mat-option value="ag-theme-alpine">Alpine (Light)</mat-option>
+                      <mat-option value="ag-theme-alpine-dark">Alpine (Dark)</mat-option>
+                      <mat-option value="ag-theme-balham">Balham (Light)</mat-option>
+                      <mat-option value="ag-theme-balham-dark">Balham (Dark)</mat-option>
+                      <mat-option value="ag-theme-fresh">Fresh (Light)</mat-option>
+                  </mat-select>
+              </mat-
+
+
+
+            :host ::ng-deep .mat-form-field-wrapper{
+              /* remove the huge margin on the bottom of the dropdowns */
+              margin-bottom: -1.25em;
+            }
+
+            /* Removes the extra padding on the top of the form field */
+            /* Padding comes from the MAT_FORM_FIELD_DEFAULT_OPTIONS */
+            :host  ::ng-deep .mat-form-field-appearance-standard .mat-form-field-flex{
+              padding-top: 0 !important;
+            }
+
+            :host  ::ng-deep .mat-form-field-infix {
+              /* Adjust the drop down so it aligns with the "Drag & Drop Mode" button */
+              padding-top: 0 !important;
+            }
+
+
+
+     Approach 2 for theme dropdown:  Put the <mat-select> on the right and do *NOT* use the mat-form-field
+     -----------------------------------------------------------------------------------------------------
+
+        <div style="margin-top: 10px">
+            <div fxLayout="row">
+              <!-- Button Row -->
+
+              <div fxFlex="50%">
+                  <button mat-raised-button type="button" title="Reset" aria-label="Reset"  style="margin-bottom: 5px">
+                    Reset
+                  </button>
+              </div>
+l)]="this.selectedTheme" style="width: 115px">
+                    <mat-option value="ag-theme-alpine">Alpine (Light)</mat-option>
+                    <mat-option value="ag-theme-alpine-dark">Alpine (Dark)</mat-option>
+                    <mat-option value="ag-theme-balham">Balham (Light)</mat-option>
+                    <mat-option value="ag-theme-balham-dark">Balham (Dark)</mat-option>
+                    <mat-option value="ag-theme-fresh">Fresh (Light)</mat-option>
+                </mat-select>
+            </div>
+        </div>
+          
+
+        No CSS
+
+
+
+
+    Completed HTML looks like this for approach 2
+    ---------------------------------------------
+    <div class="page-container">
+
+
+      <div fxLayout="column">
+
+        <div fxLayout="row">
+
+          <div fxFlex="50%">
+            <!-- Top left side of the page -->
+            <mat-card-title>Client Grid Page 4</mat-card-title>
+          </div>
+
+          <div fxFlex="50%" fxLayoutAlign="end start">
+            <!-- Top right side of the page -->
+
+          </div>
+        </div>
+
+        <div style="margin-top: 10px">
+            <div fxLayout="row">
+              <!-- Button Row -->
+
+              <div fxFlex="50%">
+                  <button mat-raised-button type="button" title="Reset" aria-label="Reset"  style="margin-bottom: 5px">
+                    Reset
+                  </button>
+              </div>
+
+              <div fxFlex="50%" fxLayoutAlign="end center">
+                <mat-select [(ngModel)]="this.selectedTheme" style="width: 115px">
+                    <mat-option value="ag-theme-alpine">Alpine (Light)</mat-option>
+                    <mat-option value="ag-theme-alpine-dark">Alpine (Dark)</mat-option>
+                    <mat-option value="ag-theme-balham">Balham (Light)</mat-option>
+                    <mat-option value="ag-theme-balham-dark">Balham (Dark)</mat-option>
+                    <mat-option value="ag-theme-fresh">Fresh (Light)</mat-option>
+                </mat-select>
+            </div>
+        </div>
+
+
+
+        <div>
+          <div style="height: calc(100vh - 190px)" class="mat-elevation-z4">
+
+            <ag-grid-angular
+              class="ag-theme-alpine"
+              style="width: 100%; height: 100%;"
+              [gridOptions]="this.gridOptions"
+              [columnDefs]="this.columnDefs"
+              [defaultColDef]="this.defaultColDefs"
+              (gridReady)="this.onGridReady($event)">
+            </ag-grid-angular>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
+Exercise 4d / Bind the Theme dropdown to a class variable 
+---------------------------------------------------------
+Question:  When a user changes the "Selected Theme" dropdown, we need that value stored in a variable
+           -- So, if the user selects "Alpine (Light)", what is stored in our variable?   Is the selected value a number?  A string?  or a DTO?
+
+            -- Will you create a reactive form?
+            -- Will you create a model-based form?
+
+
+     
+     Approach 1:  Use a Reactive Form / Create a public class variable called MyForm, inject the formBuilder service, initialize the myForm2 object in ngOnInit
+     ------------------------------------------------------------------------------------------------------------------------------------
+        a. Add a public class variable called myForm
+                public myForm: FormGroup;
+
+        b. Inject the formBuilder into the constructor
+                
+        c. In ngOnInit() initialize the myForm
+
+              public ngOnInit(): void {
+                // Initialize the form object
+                this.myForm = this.formBuilder.group({
+                  selectedTheme: [null, null]
+                })
+
+              }
+
+        d. Add the <form> to the html
+            <form [formGroup]="this.myForm" novalidate autocomplete="off">
+
+            </form>
+
+
+        e. Change the <mat-select so it has a formControlName="selectedTheme"
+                <mat-select formControlName="selectedTheme" placeholder="Select Theme" style="width: 115px">
+                    <mat-option value="ag-theme-alpine">Alpine (Light)</mat-option>
+                    <mat-option value="ag-theme-alpine-dark">Alpine (Dark)</mat-option>
+                    <mat-option value="ag-theme-balham">Balham (Light)</mat-option>
+                    <mat-option value="ag-theme-balham-dark">Balham (Dark)</mat-option>
+                    <mat-option value="ag-theme-fresh">Fresh (Light)</mat-option>
+                </mat-select>
+
+
+
+     Approach 2:  Use a Model Based Form / Create a public class variable called selectedTheme and bind it to the control
+     -------------------------------------------------------------------------------------------
+                     public selectedTheme: string = "ag-theme-alpine";    // Set a default theme initially
+
+
+                <mat-select [(ngModel)]="this.selectedTheme" placeholder="Select Theme" style="width: 115px">
+                    <mat-option value="ag-theme-alpine">Alpine (Light)</mat-option>
+                    <mat-option value="ag-theme-alpine-dark">Alpine (Dark)</mat-option>
+                    <mat-option value="ag-theme-balham">Balham (Light)</mat-option>
+                    <mat-option value="ag-theme-balham-dark">Balham (Dark)</mat-option>
+                    <mat-option value="ag-theme-fresh">Fresh (Light)</mat-option>
+                </mat-select>
+
+
+
+
+Exercise 4e / How to switch between the Alpine and Belham themes manually
+-------------------------------------------------------------------------
+ a. Edit angular.json
+
+ b. Change architect -> build -> options -> styles 
+    Include every theme you want available
+
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "outputPath": "dist/static",
+            "index": {
+              "input": "src/index.dev.html",
+              "output": "index.html"
+            },
+            "main": "src/main.ts",
+            "polyfills": "src/polyfills.ts",
+            "tsConfig": "other/tsconfig.app.json",
+            "aot": true,
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "styles": [
+              "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
+              "./node_modules/@fortawesome/fontawesome-free/css/all.css",
+              "./node_modules/ag-grid-enterprise/dist/styles/ag-grid.min.css",
+              "./node_modules/ag-grid-enterprise/dist/styles/ag-theme-alpine.min.css",
+              "./node_modules/ag-grid-enterprise/dist/styles/ag-theme-alpine-dark.min.css",
+              "./node_modules/ag-grid-enterprise/dist/styles/ag-theme-balham.min.css",
+              "./node_modules/ag-grid-enterprise/dist/styles/ag-theme-balham-dark.min.css",
+              "./node_modules/ag-grid-enterprise/dist/styles/ag-theme-blue.min.css",
+              "./node_modules/ag-grid-enterprise/dist/styles/ag-theme-fresh.min.css",
+              "src/styles.css"
+            ],
+
+   
+
+ c. Set the theme to alpine-dark by changing the class="..." attribute
+       If you want the theme to be alpine,      set the class="ag-theme-alpine"
+       If you want the theme to be alpine dark, set the class="ag-theme-alpine-dark"
+
+      <!-- AG-Grid -->
+      <ag-grid-angular
+        style="width: 100%; height: 100%"
+        class="ag-theme-alpine-dark"                    
+        (gridReady)="this.onGridReady($event)"
+        [gridOptions]="this.gridOptions"
+        [frameworkComponents]="this.frameworkComponents"
+        [columnDefs]="this.columnDefs"
+        [defaultColDef]="this.defaultColDefs">
+      </ag-grid-angular>
+
+ d. Verify that the grid shows up dark
+
+ e. Set the theme to balham
+
+ f. Set the theme to balham-dark
+
+ g. Set the theme to fresh
+
+    
+    QUESTION:  When you switch between the themes, are the rows still vertically-aligned?  Or, are they messed-up?
+
+
+
+
+Exercise 4f / The alpine and balham themes have different paddings / how to fix the vertical alignment in BOTH
+---------------------------------------------------------------------------------------------------------------
+Problem:  In ag-theme-alpine, the grid looks good
+          In ag-theme-balham, the text is not vertically aligned correct
+
+Solution: For the shorter columns that have cellRenderers, use cellClass='vertically-align-icon-buttons' 
+          For the taller  columns that have cellRenderers, use autoHeight=TRUE
+          For the columns that have text,                  use cellClass='grid-text-cell-format'        
+          
+ 
+ 1. Make sure you have these 2 CSS classes defined in styles.css
+
+        .grid-text-cell-format {
+          font-family: 'Roboto';
+          font-size: 1.1em;
+          font-weight: 400;
+
+          /* vertically-align the text in the ag-grid */
+          display: flex !important;
+          align-items: center;
+        }
+
+        .vertically-align-icon-buttons {
+          /* vertically-align the icon buttons in the ag-grid */
+          display: flex !important;
+          align-items: center;
+        }
+
+ 
+ 2. For the StatusCellRenderer, autoHeight: true
+
+ 3. For the ActionCellRenderer,  cellClass: 'vertically-align-icon-buttons',
+
+ 4. For the remaining columns:   cellClass: 'grid-text-cell-format'
+
+ 5. Now switch back & forth between alpine and belham
+    -- Verify that the rows are vertically-centered
+
+
+
+ 
+
+The action-cell-renderer has this for the HTML
+----------------------------------------------
+<div>
+  <button mat-icon-button title="Edit Report" aria-label="Edit Report">
+     <i class="fas fa-edit" style="font-size: 22px"></i>
+  </button>
+
+  <button color="warn" mat-icon-button title="Delete Report" aria-label="Delete Report" style="margin-left: 10px">
+     <i class="fas fa-trash" style="font-size: 24px;"></i>
+  </button>
+</div>
+
+
+
+The Status Cell Renderer has this HTML
+--------------------------------------
+<div style="padding: 5px">
+  <div [ngClass]="{
+           'report-pending':    this.statusId == 1,
+           'report-open':       this.statusId == 2,
+           'report-approved':   this.statusId == 3
+        }">
+
+    <!-- Display the status label -->
+    {{params.value}}
+  </div>
+</div>
+
+
+The gridOptions, columnDefs and defaultColDefs look like this:
+-------------------------------------------------------------
+  public gridOptions: GridOptions = {
+    debug: false,                     // Tell ag-grid to show console logging
+    rowModelType: 'clientSide',      // Tell ag-grid that this is a client-grid
+    domLayout: 'normal',
+    suppressCellSelection: true,
+    suppressContextMenu: true
+  };
+
+  public columnDefs: any = [
+    {
+      headerName: "Action",
+      cellRenderer: 'actionCellRenderer',
+      cellClass: 'vertically-align-icon-buttons',
+    },
+    {
+      field: 'id',
+      headerName: "Id",
+      cellClass: 'grid-text-cell-format'
+    },
+    {
+      field: 'report_name',
+      headerName: "Report Name ",
+      cellClass: 'grid-text-cell-format'
+    },
+    {
+      field: 'status_label',
+      headerName: "Status",
+      cellRenderer: 'statusCellRenderer',
+      autoHeight: true
+    },
+    {
+      field: 'created_date',
+      headerName: "Created Date",
+      cellClass: 'grid-text-cell-format'
+    }
+  ];
+
+  public defaultColDefs: any = {
+    sortable: true,
+    resizable: true,
+  };
+
+
+
+
+Exercise 4g / How to change the ag-grid theme from a dropdown on the page
+-------------------------------------------------------------------------
+Problem:  User 1 really likes the "alpine" theme
+          User 2 really likes the "fresh" theme
+Solution: Give users the option to change the theme by providing a dropdown on this page
+
+ 
+ Approach 1 / Using model-based form
+ -----------------------------------
+
+    1. Edit the client-grid-page4.component.html
+
+    2. Change the grid so that the class is *NOT* hard-coded
+
+        <ag-grid-angular
+          [ngClass]="this.selectedTheme"
+          style="width: 100%; height: 100%;"
+          [frameworkComponents]="this.frameworkComponents"
+          [gridOptions]="this.gridOptions"
+          [columnDefs]="this.columnDefs"
+          [defaultColDef]="this.defaultColDefs"
+          (gridReady)="this.onGridReady($event)">
+        </ag-grid-angular>
+
+
+
+ Approach 2 / Using Reactive-form
+ ---------------------------------
+    1. Edit the client-grid-page4.component.html
+
+    2. Change the grid so that the class is *NOT* hard-coded
+
+        <ag-grid-angular
+          [ngClass]="this.myForm.controls.selectedTheme.value"
+          style="width: 100%; height: 100%;"
+          [frameworkComponents]="this.frameworkComponents"
+          [gridOptions]="this.gridOptions"
+          [columnDefs]="this.columnDefs"
+          [defaultColDef]="this.defaultColDefs"
+          (gridReady)="this.onGridReady($event)">
+        </ag-grid-angular>
+
+
+
+
+
+
+
+                   
+

@@ -1,0 +1,125 @@
+ElasticSearch Search Exercises 5 / Create a Simple Java Program to Run a Search
+-------------------------------------------------------------------------------
+Problem:  I need to run a search from Java
+Solution: Create a Java program that can run an ElasticSearch query
+
+
+Design
+------
+             Java Program     --------------> ElasticSearch
+                                              (listening on port http://localhost:9201)
+
+
+Approach
+--------
+ 1. Create a simple Java program 
+
+ 2. Add maven dependencies for Logback
+ 
+         <dependency>
+           <groupId>ch.qos.logback</groupId>
+           <artifactId>logback-classic</artifactId>
+           <version>1.2.3</version>
+         </dependency>
+
+ 
+ 3. Add a src/main/resources directory
+
+ 4. Add logback.xml
+
+ 5. Create a main() that has a logger call in it
+
+ 6. Verify that debugger stops at your breakpoints
+    a. Set a breakpoint in main
+    b. Debug the application
+    c. Verify that your logger works
+
+
+
+
+ 7. Add maven dependencies StringUtils (Common-Lang3), ning (used to make outgoing REST calls), and jackson databind  (for converting Java to JSON) 
+         <dependency>
+           <groupId>org.apache.commons</groupId>
+           <artifactId>commons-lang3</artifactId>
+           <version>3.4</version>
+         </dependency>
+
+         <dependency>
+           <!-- Used for my httpClient implementation (to make web service calls out to ES) -->
+           <groupId>com.ning</groupId>
+           <artifactId>async-http-client</artifactId>
+           <version>1.9.40</version>
+         </dependency>
+
+         <dependency>
+           <!-- Implementation for converting objects to JSON -->
+           <groupId>com.fasterxml.jackson.core</groupId>
+           <artifactId>jackson-databind</artifactId>
+           <version>2.13.3</version>
+         </dependency>
+
+
+
+ 8. Create an ElasticSearchService 
+    This service needs 2 things to run a query against ElasticSearch
+      1) The url to reach ElasticSearch:   http://localhost:9201
+
+      2) The httpClient object
+         -- In our case, we're using AsyncHttpClient (provided by the ning library)
+        
+
+
+
+ 9. Add public method called runSearch()
+    -- Pass-in the index name and searchBoxQuery
+    -- Returns the JSON response (we get from ElasticSearch)
+    -- It's going to run something like this:
+
+
+            POST /MY-INDEX-NAME/_search
+            {
+                "query": {
+                    "query_string": {
+                        "query": "THE-USER's-QUERY-IS-HERE"
+                    }
+                }
+            }
+
+
+
+
+ 10. Have your main instantiate ElasticSearchService
+
+ 11. Use that object to run a search
+
+ 12. Convert the JSON response into a Java Map
+
+
+
+
+
+
+Part 2 / Convert this program into a Spring Boot Command-Line Application
+-------------------------------------------------------------------------
+ 1. Add the maven dependencies for a Spring Boot command-line application
+
+
+ 2. Change your main to implement CommandLineRunner
+
+
+ 3. Change your main class so it has this annotation
+        @SpringBootApplication
+
+
+ 4. Change your main to startup Spring
+
+
+ 5. Change your ElasticSearchService so it's a regular spring service
+
+
+ 6. Use the application context object to get a reference to your ElasticSearchService
+
+
+ 7. Then, you can run your search from the main
+
+

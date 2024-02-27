@@ -1,0 +1,151 @@
+1. Please show me the tailwind code in order to create this html layout
+
+
+         +---------------------+-------------------+----------------+------------|
+         |  ID                    |    NISS Data         |  Data Source          |
+         +-------+---------------------+-------------------+----------------+--- |
+         | Company Name           | RBR Technologies Iinc|  RBR Technologies Inc |   
+         | Address                |2288 Blue Water Blvd  |  Something close      |   
+         | CAGE Code              |       1111           | 11111                 |  
+         | Unique Entity ID (UE)  |       1234           |                       |  
+		 -------------------------------------------------------------------------
+		 
+		 
+		 
+		 
+	
+          <mat-tab label="Overview">
+
+            <div class="w-full bg-transparent rounded-[5px] p-5" style="height: calc(100vh - 339px); overflow-y: auto">
+
+
+              <div class="font-extrabold text-lg items-center mb-2">
+                Facility Profile
+              </div>
+              <ul role="list" class="divide-y divide-gray-500/25">
+                <li class="flex justify-between gap-x-6 py-5">
+                  <div class="flex min-w-0 gap-x-4">
+                    <div class="min-w-0 flex-auto">
+                      <p class="text-xs font-semibold leading-6 text-gray-500 uppercase">Company Name</p>
+                      <p class="truncate text-md leading-5 text-gray-900">RBR Technologies Inc</p>
+                    </div>
+                  </div>
+                  <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end self-center">
+                    <div class="px-5 py-1 bg-green-200 rounded-full ring-green-500 ring-1">
+                      <div class="font-normal mt-[2px] text-green-800">Match</div>
+                    </div>
+                  </div>
+                </li>
+                <li class="flex justify-between gap-x-6 py-5">
+                  <div class="flex min-w-0 gap-x-4">
+                    <div class="min-w-0 flex-auto">
+                      <p class="text-xs font-semibold leading-6 text-gray-500 uppercase">Address</p>
+                      <p class="truncate text-md leading-5 text-gray-900">12345 really long business name Baltimore, MD,
+                        21014</p>
+                    </div>
+                  </div>
+                  <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end self-center">
+                    <div class="px-5 py-1 bg-yellow-200 rounded-full ring-yellow-500 ring-1">
+                      <div class="font-normal mt-[2px] text-orange-800">Partial</div>
+                    </div>
+                  </div>
+                </li>
+                <li class="flex justify-between gap-x-6 py-5">
+                  <div class="flex min-w-0 gap-x-4">
+                    <div class="min-w-0 flex-auto">
+                      <p class="text-xs font-semibold leading-6 text-gray-500 uppercase">CAGE Code</p>
+                      <p class="truncate text-md leading-5 text-gray-900">1111</p>
+                    </div>
+                  </div>
+                  <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end self-center">
+                    <div class="px-5 py-1 bg-green-200 rounded-full ring-green-500 ring-1">
+                      <div class="font-normal mt-[2px] text-green-800">Match</div>
+                    </div>
+                  </div>
+                </li>
+                <li class="flex justify-between gap-x-6 py-5">
+                  <div class="flex min-w-0 gap-x-4">
+                    <div class="min-w-0 flex-auto">
+                      <p class="text-xs font-semibold leading-6 text-gray-500 uppercase">FCL Facility Clearance</p>
+                      <p class="truncate text-md leading-5 text-gray-900">Not Secret</p>
+                    </div>
+                  </div>
+                  <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end self-center">
+                    <div class="px-5 py-1 bg-red-200 rounded-full ring-red-500 ring-1">
+                      <div class="font-normal mt-[2px] text-red-800">No match</div>
+                    </div>
+                  </div>
+                </li>
+                <li class="flex justify-between gap-x-6 py-5">
+                  <div class="flex min-w-0 gap-x-4">
+                    <div class="min-w-0 flex-auto">
+                      <p class="text-xs font-semibold leading-6 text-gray-500 uppercase">Safeguarding</p>
+                      <p class="truncate text-md leading-5 text-gray-900">Level 6</p>
+                    </div>
+                  </div>
+                  <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end self-center">
+                    <div class="px-5 py-1 bg-gray-200 rounded-full ring-gray-500 ring-1">
+                      <div class="font-normal mt-[2px] text-gray-800">N/A</div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+
+
+              <div class="font-extrabold text-lg items-center mb-2">
+                DCSA Oversight
+              </div>
+              <ul role="list" class="divide-y divide-gray-500/25">
+                <li class="flex justify-between gap-x-6 py-5">
+                  <div class="flex min-w-0 gap-x-4">
+                    <div class="min-w-0 flex-auto">
+                      <p class="text-xs font-semibold leading-6 text-gray-500 uppercase">Field Office</p>
+                      <p class="truncate text-md leading-5 text-gray-900">12345 really long business name Baltimore, MD,
+                        21014</p>
+                    </div>
+                  </div>
+                </li>
+                <li class="flex justify-between gap-x-6 py-5">
+                  <div class="flex min-w-0 gap-x-4">
+                    <div class="min-w-0 flex-auto">
+                      <p class="text-xs font-semibold leading-6 text-gray-500 uppercase">Local Office</p>
+                      <p class="truncate text-md leading-5 text-gray-900">12345 really long business name Baltimore, MD,
+                        21014</p>
+                    </div>
+                  </div>
+                </li>
+                <li class="flex justify-between gap-x-6 py-5">
+                  <div class="flex min-w-0 gap-x-4">
+                    <div class="min-w-0 flex-auto">
+                      <p class="text-xs font-semibold leading-6 text-gray-500 uppercase">ISR</p>
+                      <p class="truncate text-md leading-5 text-gray-900">N/A</p>
+                    </div>
+                  </div>
+                </li>
+                <li class="flex justify-between gap-x-6 py-5">
+                  <div class="flex min-w-0 gap-x-4">
+                    <div class="min-w-0 flex-auto">
+                      <p class="text-xs font-semibold leading-6 text-gray-500 uppercase">CISA</p>
+                      <p class="truncate text-md leading-5 text-gray-900">Andrew Taylor</p>
+                    </div>
+                  </div>
+                </li>
+                <li class="flex justify-between gap-x-6 py-5">
+                  <div class="flex min-w-0 gap-x-4">
+                    <div class="min-w-0 flex-auto">
+                      <p class="text-xs font-semibold leading-6 text-gray-500 uppercase">FOC</p>
+                      <p class="truncate text-md leading-5 text-gray-900">N/A</p>
+                    </div>
+                  </div>
+                </li>
+                <li class="flex justify-between gap-x-6 py-5">
+                  <div class="flex min-w-0 gap-x-4">
+                    <div class="min-w-0 flex-auto">
+                      <p class="text-xs font-semibold leading-6 text-gray-500 uppercase">ISSP</p>
+                      <p class="truncate text-md leading-5 text-gray-900">Ryan Becks</p>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+
+            </div>

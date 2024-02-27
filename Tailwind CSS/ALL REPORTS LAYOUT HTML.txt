@@ -1,0 +1,114 @@
+REPORTS HTML
+
+<div class="w-full h-full overflow-auto">
+  <div class="bg-gray-100 min-h-screen flex flex-col">
+
+    <!-- Header Section -->
+    <div class="bg-blue-950 py-4 flex justify-between items-center">
+      <h1 class="text-xl text-white font-bold pl-4">All Reports</h1>
+      <div class="pr-4">
+        <mat-form-field subscriptSizing="dynamic" style="width: 165px" class="narrow-dropdown">
+          <mat-label>Go to Reports</mat-label>
+
+          <mat-select>
+<!--            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">-->
+            <mat-option (click)="this.router.navigateByUrl('page/full-page-burndown-chart')" value="report1">Report 1</mat-option>
+            <mat-option value="report2">Report 2</mat-option>
+            <mat-option value="report3">Report 3</mat-option>
+            <mat-option value="report4">Report 4</mat-option>
+            <mat-option value="report5">Report 5</mat-option>
+            <mat-option value="report6">Report 6</mat-option>
+            <mat-option value="report7">Report 7</mat-option>
+            <mat-option value="report8">Report 8</mat-option>
+            <mat-option value="report9">Report 9</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!---Main Content Section--->
+    <div class="bg-blue-950 flex flex-row flex-wrap justify-center gap-4">
+
+      <!--<div class="flex-grow py-8 px-4 flex flex-wrap justify-center gap-8">-->
+      <!-- First Row of Reports -->
+      <div class="flex flex-col w-80 bg-white rounded-lg shadow-md p-4 text-center" (click)="this.router.navigateByUrl('page/full-page-burndown-chart')">
+        <img class="clickable" [routerLink]="'/'" src="./assets/images/Burnddown Chart.PNG" alt="Burndown Chart" title="Burndown Chart">
+        <h2 class="text-lg font-semibold mb-2">Burndown Chart</h2>
+        <p>Track the total work remaining and project the likelihood of achieving the sprint goal. This helps your team
+          manage its progress and respond accordingly.</p>
+      </div>
+      <div class="flex flex-col w-80 bg-white rounded-lg shadow-md p-4 text-center">
+        <img class="clickable" [routerLink]="'/'" src="./assets/images/Burnup Chart.PNG" alt="Burnup Chart" title="Burnup Chart">
+        <h2 class="text-lg font-semibold mb-2">Burnup Chart</h2>
+        <p>Track the total scope independently from the total work done. This helps your team manage its progress and
+          better understand the effect of scope change.</p>
+      </div>
+      <div class="flex flex-col w-80 bg-white rounded-lg shadow-md p-4 text-center">
+        <img class="clickable" [routerLink]="'/'" src="./assets/images/Sprint Retro.PNG" alt="Sprint Retro" title="Sprint Retro">
+        <h2 class="text-lg font-semibold mb-2">Sprint Report</h2>
+        <p>Understand the work completed or pushed back to the backlog in each sprint. This helps you determine if your
+          team is overcommitting or if there is excessive scope creep.</p>
+      </div>
+
+      <!-- Second Row of Reports -->
+      <div class="flex flex-col w-80 bg-white rounded-lg shadow-md p-4 text-center">
+        <h2 class="text-lg font-semibold mb-2">Velocity Chart</h2>
+        <img class="clickable" [routerLink]="'/'" src="./assets/images/Velocity Chart.PNG" alt="Velocity Chart" title="Velocity Chart">
+        <p>Track the amount of work completed from sprint to determine your team's velocity and estimate the work your
+          team can realistically achieve in future sprints.</p>
+      </div>
+      <div class="flex flex-col w-80 bg-white rounded-lg shadow-md p-4 text-center">
+        <h2 class="text-lg font-semibold mb-2">Epic Report</h2>
+        <img class="clickable" [routerLink]="'/'" src="./assets/images/Epic Report.PNG" alt="Epic Report" title="Epic Report">
+        <p>Understand the progress towards completing an epic over time. This helps you manage your team's progress by
+          tracking the remaining incomplete/unestimated work.</p>
+      </div>
+      <div class="flex flex-col w-80 bg-white rounded-lg shadow-md p-4 text-center">
+        <h2 class="text-lg font-semibold mb-2">Version Report</h2>
+        <img class="clickable" [routerLink]="'/'" src="./assets/images/Version Report.PNG" alt="Version Report" title="Version Report">
+        <p>Track the projected release date for a version. This helps you monitor whether the version will release on
+          time, so you can take action if work is falling behind.</p>
+      </div>
+
+      <!-- Third Row of Reports -->
+      <div class="flex flex-col w-80 bg-white rounded-lg shadow-md p-4 text-center">
+        <h2 class="text-lg font-semibold mb-2">Control Chart</h2>
+        <img class="clickable" [routerLink]="'/'" src="./assets/images/Control Chart.PNG" alt="Control Chart" title="Control Chart">
+        <p>Shows the cycle time for your product, version or sprint. This helps you identify whether data from the
+          current process can be used to determine future performance.</p>
+      </div>
+      <div class="flex flex-col w-80 bg-white rounded-lg shadow-md p-4 text-center">
+        <h2 class="text-lg font-semibold mb-2">Time Tracking Report</h2>
+        <img class="clickable" [routerLink]="'/'" src="./assets/images/Time Tracking Report.PNG" alt="Time Tracking Report" title="Time Tracking Report">
+        <p>Shows the statuses of issues over time. This helps you identify potential bottlenecks that need to be
+          investigated.</p>
+      </div>
+      <div class="flex flex-col w-80 bg-white rounded-lg shadow-md p-4 text-center">
+        <h2 class="text-lg font-semibold mb-2">Version Workload Report</h2>
+        <img class="clickable" [routerLink]="'/'" src="./assets/images/Version Workload Report.PNG" alt="Version Workload Report" title="Version Workload Report">
+        <p>Track the projected release dare for a version (optimized for Scrum). This helps you monitor whether the
+          version will release on time, so you can take action if work is falling behind.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+REPORTS TS
+
+
+import { Component } from '@angular/core';
+import {Router} from "@angular/router";
+
+@Component({
+  selector: 'app-all-reports',
+  templateUrl: './all-reports.component.html',
+  styleUrls: ['./all-reports.component.scss']
+})
+export class AllReportsComponent {
+
+  constructor(public router: Router) {
+
+  }
+
+}

@@ -1,0 +1,153 @@
+ElasticSearch Search Exercises 2 / Aggregates on Dates
+------------------------------------------------------
+Problem:  I have a date field and want to get a breakdown of dates by month
+Solution: Use Aggregates on date fields
+    
+
+ 
+
+
+
+Boring Lecture 1 / Run Aggregates on Dates
+------------------------------------------
+ A) Sometimes, we want to run a search and *COUNT* the number of dates in a month
+    -- How many people had a matching date in April?  How many had a matching date in May?
+
+   POST /app_users/_search
+    {
+         "query": {
+             "match_all": {}                   // Use match_all to search all entries
+         }, 
+
+         "size": 0,                            // Set the size=0 so that the search returns no matches
+
+         "aggs": {                             // Run an aggregate query on the last_login_date
+           "last_login_date_by_month": {       // Name of this aggregate
+             "date_histogram": {
+               "field": "last_login_date",
+               "interval": "month",
+               "format": "yyyy-MM",
+               "min_doc_count": 1             // Set min_doc_count = 1 to show those months that have a record
+             }
+           }
+         }
+    }
+
+    -- Should generate a report with 
+            2023-01 has 3 entries
+            2023-04 has 1 entry
+            2023-12 has 1 entry
+
+
+
+
+ B) Run the same query with a min_doc_count of zero
+
+
+ C) We can run a date query and set the bounds of the date search to be 01/2022 to 11/2023 only
+
+    POST /app_users/_search
+    {
+          "query": {
+              "match_all": {}
+          },
+          "size": 0,
+          "aggs": {
+                "last_login_date_by_month": {
+                  "date_histogram": {
+                    "field": "last_login_date",
+                    "interval": "month",
+                    "format": "yyyy-MM",
+                    "min_doc_count": 0,             // Set min_doc_count = 0 to show *ALL* months (even those that have zero records)
+                    "extended_bounds": {            // Extend the bounds of the histogram *BEYOND* the data itself (but data may exceed bound)
+                       "min": "2022-01",           
+                       "max": "2023-11"             
+                    }
+                  }
+                }
+          }
+    }
+
+
+    POST /app_users/_search
+    {
+          "query": {
+              "match_all": {}
+          },
+          "size": 0,
+          "aggs": {
+                "last_login_date_by_month": {
+                  "date_histogram": {
+                    "field": "last_login_date",
+                    "interval": "month",
+                    "format": "yyyy-MM",
+                    "min_doc_count": 0,             // Set min_doc_count = 0 to show *ALL* months (even those that have zero records)
+                    "hard_bounds": {                // Limit the date histogram to this range
+                       "min": "2022-01",           
+                       "max": "2023-11"             
+                    }
+                  }
+                }
+          }
+    }
+
+ 
+
+ D) Run *multiple* aggregates with the count of records by year and month
+
+
+    POST /reports/_search
+    {
+          "query": {
+              "match_all": {}
+          },
+          "size": 0,
+          "aggs": {
+                "last_login_month": {
+                  "date_histogram": {
+                    "field": "last_login_date",
+                    "interval": "month",
+                    "format": "yyyy-MM",
+                    "min_doc_count": 0,
+                    "extended_bounds": {
+                       "min": "2022-01",
+                       "max": "2023-04"
+                    }
+                  }
+                },
+
+               "last_login_year": {
+                  "date_histogram": {
+                    "field": "last_login_date",
+                    "interval": "year",
+                    "format": "yyyy",
+                    "min_doc_count": 0,
+                    "extended_bounds": {
+                       "min": "2022",
+                       "max": "2023"
+                    }
+                  }
+                }
+          }
+    }
+
+
+
+
+Lesson 9 / Exercise 2
+---------------------
+ 
+ A) Run a search that shows the total number of logins each day (only looking at the last 5 years -- so back to 10/17/2018)
+
+    Break this down into 2 parts
+     1) Get your agg search to work
+     2) Limit the results ot the last 5 years
+
+
+
+
+
+
+
+ 
+

@@ -1,0 +1,416 @@
+Lesson 3:  Angular Components, Services, and Template Variables
+---------------------------------------------------------------
+
+
+Discussion
+----------
+ A) What is an Angular component?
+
+
+
+
+ B) What is an Angular service?
+
+        Exercise 3A: Create UsaStateService and UsaStateDTO
+        ---------------------------------------------------
+        Create a new service called UsaStateService / Add a public method that returns a list of StateDTO objects for 5 states
+
+        1. Create a class:  UsaStateDTO
+           terminal> cd frontend
+           terminal> ng generate class models/UsaStateDTO --skipTests
+
+        2. Add 2 public fields:
+
+                public short_code: string;
+                public long_name: string;
+
+
+
+        3. Create a service:  UsaStateService
+           terminal> cd frontend
+           terminal> ng generate service services/usaState --skipTests
+
+
+        4. Add a public method to the UsaStateService called getAllUsaStates();
+
+            public getAllUsaStates(): UsaStateDTO[] {
+                let arrayOfStates: UsaStateDTO[] = [
+                    {
+                        short_code: 'DC',
+                        long_name:  'District of Columbia'
+                    },
+            
+                    {
+                        short_code: 'MD',
+                        long_name:  'Maryland'
+                    },
+
+                    {
+                        short_code: 'VA',
+                        long_name:  'Virginia'
+                    }
+                ]; 
+
+                
+                return arrayOfStates;
+            }
+        
+
+        5. Inject your service into the main page
+            
+            a. Edit app.component.html
+
+            b. change the constructor so that the UsaStateService is injected
+
+                    public constructor(
+                             private usaStateService: UsaStateService
+                    ) {}    
+
+
+
+
+
+
+ C) What are the kinds of TypeScript variables in an Angular component?
+
+         1) Class variables
+                public defaultReportName: string = "Report #12345";
+
+
+         2) Local variables / use "let" to limit the scope to the curly braces it's in
+
+            public ngOnInit(): void {
+               let defaultReportName: string = "Report #12345";
+               console.log('defaultReportName=', defaultReportName);
+            }
+
+
+
+         3) Passed-in variables  (passed-in to methods)
+
+            public ngOnInit(): void {
+               let myReportName: string = "Report #12345";
+               this.showReportName(myReportName);
+            }
+
+            private showReportName(aReportName: string) {
+              console.log('aReportName is ', aReportName);
+           }
+
+
+
+         4) Constants  (can't be changed)
+                const DEFAULT_REPORT_ID: number = 27;
+
+
+
+
+ D) What is a template variable?
+    -- It's a variable that lives in the HTML side
+    -- Incredibly handy for showing/hiding controls based on a value 
+
+
+
+
+HTMl and TypeScript of Components
+----------------------------------
+ 
+
+                HTML                                      |             TypeScript Class
+    ------------------------------------------------------+---------------------------------------
+                                                          |
+        {{ this.userId }}                                 |    public userId: number = 7
+                                                          |
+                                                          |    public selectedValue: number;    
+      <mat-form-field>                                    |
+        <mat-label>Select a value</mat-label>             |
+                                                          | 
+        <mat-select  [(ngModel)]="this.selectedValue">    |
+            <mat-option [value]=1>Value 1</mat-option>    |
+            <mat-option [value]-2>Value 2</mat-option>    |        
+        </mat-select>                                     |   public reset(): void {
+                                                          |        this.selectedValue = 0;     // This does not match any of the mat-values, so it is cleared
+    </mat-form-field>                                     |   }
+                                                          |
+                                                          |
+                                                          | 
+                                                          |
+    <ng-container *ngIf="this.selectedValue == 2">        |
+      <!-- User Selected Value 2 -->                      |
+      <div style="margin-top: 25px; margin-bottom: 25px"> |
+        You selected value 2                              |
+      </div>                                              |
+    </ng-container>                                       |
+
+
+
+    
+How do we display a value  in the HTML?   
+Answer:  Use the {{ }}
+
+
+
+
+
+
+Angular Component Life Cycle
+----------------------------
+-- When a page or component is visited, Angular follows a specific life cycle
+    1. Constructor is called
+       -- Services are injected if needed
+    2. ngOnInit()
+    3. ngAfterContentInit()
+    4. ngAfterViewInit()
+    5. ngOnDestroy()    
+
+
+Angular Service Life Cycle
+---------------------------
+-- First time it's needed, the constructor is called  (there are exceptions)
+-- Then, the service lives in your front-end  (until your browser page is refreshed)
+
+
+
+Exercise 3b:  Add some methods to your add-report.component.ts so that you can see the life cycle in action
+------------------------------------------------------------------------------------------------------------
+ a. Edit the constructor / add a console log saying the constructor started
+
+ b. Edit the ngOnInit() / add a console log saying that ngOnInit started
+
+ c. Add a public method:  ngAfterContentInit() / add a console log saying that ngAfterContentInit started
+
+ d. Add a public method:  ngAfterViewInit()    / add a console log saying that ngAfterViewInit started
+
+ e. Add a public method:  ngOnDestroy()        / add a console log saying that ngOnDestroy started
+
+
+
+Exercise 3c:  Add a template variable to the input box / When does that template variable really EXIST in the life cycle?
+--------------------------------------------------------------------------------------------------------------------------
+ a. Add a template variable called reportName to the input box
+
+      <input #reportName matInput type="text" name="report.name"  [(ngModel)]="report.name"/>
+    
+
+ b. Add a public class variable in the typescript that corresponds to the template variable in the HTML
+
+       @ViewChild('reportName')
+         private reportName: ElementRef;
+
+
+ QUESTION:  At what point in the component life cycle does the template variable exist?
+
+
+ QUESTION:  Use the class variable to display the width of this text box
+
+
+
+ c. Use console.log or breakpoints
+    -- The this.reportName variable has all kinds of information about the textbox -- e.g., the width of the textbox, the value of the textbox
+
+    -- Use the private reportName object to get and display the width of this textbox
+
+
+
+      public ngAfterViewInit(): void {
+        console.log('ngAfterViewInit() called');
+
+        console.log('report name text box has a width of ', this.reportName.nativeElement.offsetWidth);
+      }
+
+
+
+
+Exercise 3d:  Solve this problem using template variables
+---------------------------------------------------------
+If a user chooses the source as "USA" and the priority as "Critical", then
+        a) Hide the "Choose Authors" 
+        b) Hide the "Reset" and "Save" buttons
+        c) Show a text box that says:  "Enter Explanation"
+        d) Show 2 buttons:
+                "Reset All" and "Submit Critical Rpt"
+
+
+
+        <ng-container *ngIf="selectedPriority.value == '4' && selectedSource.value == '102' ">
+           <!-- User choose 'USA' and 'Critical'  -->
+
+
+
+        </ng-container>
+
+
+
+       <ng-container *ngIf="selectedPriority.value != '4' || selectedSource.value != '102' ">
+          <!-- User did NOT choose 'USA' and 'Critical'  -->
+
+
+        </ng-container>
+
+
+
+
+
+
+Exercise 3e: Solve this problem using class variables
+-----------------------------------------------------
+If a user chooses the source as "USA" and the priority as "Critical", then
+        a) Hide the "Choose Authors" 
+        b) Hide the "Reset" and "Save" buttons
+        c) Show a text box that says:  "Enter Explanation"
+        d) Show 2 buttons:
+                "Reset All" and "Submit Critical Rpt"
+
+
+
+
+
+Exercise 3f:  Add a dropdown that holds a hard-coded list of a few USA states
+-----------------------------------------------------------------------------
+
+        <mat-form-field>                                                             |
+            <mat-label>Select USA State</mat-label>                                   |  public selectedUsaState: string;
+                                                                                      |
+                                                                                      |
+              <mat-select  [(ngModel)]="this.selectedUsaState">                       |
+                                                                                      |          
+                <mat-option [value]="DC"> District of Columbia </mat-option>          |
+                   <mat-option [value]="DC"> Maryland </mat-option>                   |
+                   <mat-option [value]="DC"> Virginia </mat-option>                   |
+                                                                                      |
+            </mat-select>                                                             |
+        </mat-form-field>                                                             |
+                                                                                      |
+        <pre>                                                                          |
+         You selected {{ this.selectedUsaState }}                                     |
+        </pre>                                                                        |
+
+
+
+
+Exercise 3g:  Change the Usa State Dropdown so that is is loaded from the UsaStateService instead of hard-coding the <mat-option> tags
+--------------------------------------------------------------------------------------------------------------------------------------
+
+      <mat-form-field>                                                                           |   public arrayOfStates: UsaStateDTO[];
+        <mat-label>Select a value</mat-label>                                                    | 
+                                                                                                 |   public constructor( private usaStateService: UsaStateService ) { }
+                                                                                                 |
+                                                                                                 |   public ngOnInit(): void {
+        <mat-select  [(ngModel)]="this.selectedUsaState">                                        |          this.arrayOfStates = this.usaStateService.getAllStates();
+                                                                                                 |   }
+            <mat-option *ngFor="let state of this.arrayOfStates"  [value]="state.short_code">
+                     {{ state.long_name }}
+            </mat-option> 
+        </mat-select>
+    </mat-form-field>  
+
+
+
+Exercise 3h:  Change the UsaStateService.getAllStates() so it return san observable / Use an Async Pipe in the HTML to load it
+------------------------------------------------------------------------------------------------------------------------------
+
+    
+
+
+
+
+Answer to Exercise 3d
+---------------------
+
+<mat-card>
+  <mat-card-title>Add a Report</mat-card-title>
+
+  <mat-card-content>
+
+    <mat-form-field>
+      <mat-label>Enter Report Name</mat-label>
+
+      <!-- Use the matInput for input fields inside <mat-form-field>...</mat-form-field> tags -->
+      <input #reportName matInput type="text" name="report.name"  [(ngModel)]="report.name"/>
+    </mat-form-field>
+    <br/>
+
+    <mat-form-field>
+      <mat-label>Choose Source</mat-label>
+
+      <!-- Use the matNativeControl for select and input fields inside <mat-form-field>...</mat-form-field> tags -->
+      <select #selectedSource matNativeControl name="report.source" [(ngModel)]="report.source">
+        <option value="0">-Select Source-</option>
+        <option value="100">Israel</option>
+        <option value="101">United Kingdom</option>
+        <option value="102">USA</option>
+      </select>
+    </mat-form-field>
+    <br/>
+
+    <mat-form-field>
+      <mat-label>Choose Priority</mat-label>
+
+      <!-- Single Select -->
+      <mat-select #selectedPriority name="report.priority" [(ngModel)]="report.priority">
+        <mat-option value="0">-Select Priority-</mat-option>
+        <mat-option value="1">Low</mat-option>
+        <mat-option value="2">Medium</mat-option>
+        <mat-option value="3">High</mat-option>
+        <mat-option value="4">Critical</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <br/>
+
+
+    <ng-container *ngIf="selectedPriority.value == '4' && selectedSource.value == '102' ">
+       <!-- User choose 'USA' and 'Critical'  -->
+
+      <!-- Use the matInput for input fields inside <mat-form-field>...</mat-form-field> tags -->
+      <mat-form-field>
+        <mat-label>Enter Explanation</mat-label>
+
+        <!-- Use the matInput for input fields inside <mat-form-field>...</mat-form-field> tags -->
+        <input matInput type="text" />
+      </mat-form-field>
+      <br/>
+
+      <!-- Use the pretty material design buttons -->
+      <button type="button" (click)="reset()" style="margin-top: 20px" mat-raised-button>Reset All</button>&nbsp;&nbsp;
+      <button type="button" (click)="save()" mat-raised-button color="accent">Submit Critical Rpt</button>
+    </ng-container>
+
+
+
+    <ng-container *ngIf="selectedPriority.value != '4' || selectedSource.value != '102' ">
+      <!-- User did NOT choose 'USA' and 'Critical'  -->
+
+      <mat-form-field>
+        <mat-label>Choose Authors</mat-label>
+
+        <!-- Multiple Select -->
+        <mat-select multiple name="report.authors" [(ngModel)]="report.authors">
+          <mat-option value="10">Adam</mat-option>
+          <mat-option value="11">Ben</mat-option>
+          <mat-option value="12">Peter</mat-option>
+          <mat-option value="13">Justin</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <br/>
+
+      <!-- Use the pretty material design buttons -->
+      <button type="button" (click)="reset()" style="margin-top: 20px" mat-raised-button>Reset</button>&nbsp;&nbsp;
+      <button type="button" (click)="save()" mat-raised-button color="primary">Save</button>
+    </ng-container>
+
+  </mat-card-content>
+
+
+  <pre>
+ report={{report | json}}
+            </pre>
+
+</mat-card>
+
+
+
+
+
+
+
+

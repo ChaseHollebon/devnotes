@@ -1,0 +1,104 @@
+
+Boring Lecture 3 / Bulk Update Refresh Mode  (when are the changes going to be visible?)
+----------------------------------------------------------------------------------------
+
+ POST _bulk has some options that determine *WHEN* your changes are visible
+
+
+ 		1) refresh=wait_for / Synchronous / The bulk update REST call **WAITS** for the next scheduled ES refresh to happen
+           This does not force a refresh but rather waits for the next refresh to happen
+
+			POST _bulk?refresh=wait_for
+
+           + Once this call is finished, the results will be visible
+           + We use this mode when doing updates as we want the REST call to *WAIT* for the bulk update to finis
+               Consider:  We are in the Edit User page and update the user's name in the ES index
+                          We want the bulk update to *WAIT* for it to finish
+                          So, when the transaction is done, the changes will be visible in the "Manage Users" page
+
+
+
+            - Can be expensive if you make multiple bulk updates.  Better to combine multiple ES bulk updates into one.
+
+		   POST _bulk?refresh=wait_for
+
+               
+  
+
+
+		2) refresh=false / Asynchronous / Changes will be made visible *AFTER THE NEXT* refresh interval
+           When the fuck will I see my records?  The answer is determined by the index's refresh_interval (in seconds)
+	       NOTE:  This is **DEFAULT** behavior
+
+			POST _bulk?refresh=false
+			POST _bulk
+		    
+          	- Once this call is finished, the results will be *NOT* visible
+          	+ Fastest  
+            + Useful if you have a program that needs to write a LOT of data to an index and does not need the changes to be visible IMMEDIATELY
+
+
+
+		3) refresh=true / Synchronous / The bulk update REST call **FORCES A REFRESH** 
+           
+           POST _bulk?refresh=true
+
+           + Once this call is finished, the results will be visible
+           - Very expensive operation  (It's better to refresh=wait_for and have the REST call wait for the next refresh interval)
+
+
+
+Exercise 3a / Run a bulk update on this index and run a search
+--------------------------------------------------------------
+	1. Create another inedex called "more_reports" 
+
+		PUT /more_reports
+		{
+		   "settings": {
+			   "refresh_interval": "30s"
+		},
+		"mappings": {
+
+				"dynamic": "strict",
+				    "properties": {
+				        "actors": {
+				             "type": "text"
+				            },
+				        "description": {
+				            "type": "text"
+				        },
+				        "priority": {
+				             "type": "text",
+				             "fields": {
+				                "raw": {
+				                   "type": "keyword"
+				               }
+				             }
+				        }
+				    }
+			   }
+
+			 }
+
+
+
+	2. Add some records to more_reports using the regular bulk_update
+
+			 
+		POST _bulk
+		{ "index": { "_index": "more_reports",  "_id": 1 }}
+		{ "priority": "low", "actors": "John Smith", "description": "he really likes o'reilly"}
+		{ "index": { "_index": "more_reports",  "_id": 2 }}
+		{ "priority": "LOW", "actors": "george washington", "description": "depending on the kind query, you might want to go different ways with it.  This is not high priority task."}
+		{ "index": { "_index": "more_reports",  "_id": 3 }}
+		{ "priority": "high", "actors": "adam Smith"}
+		{ "index": { "_index": "more_reports",  "_id": 4 }}
+		{ "priority": "HIGH", "actors": "Adam Smith 2", "description": "This description is for record four"}
+		{ "index": { "_index": "more_reports",  "_id": 5 }}
+		{ "priority": "HIGH", "actors": ["Pat Benetar", "Michael Jackson", "George Michael"], "description": "There are too many singers from the 1980s listed here.  Get a life!!"}
+
+
+	3. Run a search
+		-- What do you see?
+
+

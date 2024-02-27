@@ -1,0 +1,118 @@
+Lesson 8a / Server Side Grid & ElasticSearch Overview
+-----------------------------------------------------
+All of our server-side grids use ElasticSearch to provide the data
+
+       Server Side Grid Page
+       +----------------------------------------------------------------+
+       |                                                                |
+       | <Reset>               <Search Box>             <Total Matches> |
+       | +-----+-------------------+------------+---------------------+ |                 
+       | | id  |     Report Name   |  Priority  |   Created Date      | |
+       | +-----+-------------------+------------+---------------------+ |
+       | |  1  |   Report 1        |    High    |    08/02/2022       | |       --->  ag-grid invokes REST Call ---> Backend REST call ----> ElasticSearch
+       | |  2  |   Report 2        |    Low     |    08/12/2022       | |
+       | |  3  |   Report 3        |    High    |    09/01/2022       | |       
+       | +-----+-------------------+------------+---------------------+ |
+       |                                                                |
+       +----------------------------------------------------------------+
+
+
+Common User Actions
+-------------------
+ A) User changes sorting                  --> Causes the grid to call serverSideDataSource.getRows() to send a REST call to search ES
+ B) User changes filtering                --> Causes the grid to call serverSideDataSource.getRows() to send a REST call to search ES
+ C) User scrolls down to get another page --> Causes the grid to call serverSideDataSource.getRows() to send a REST call to search ES
+
+So, we need a REST call that will take-in data, run a search against ElasticSearch and return the results
+
+
+
+
+What's needed to make this work
+-------------------------------
+ 1) Setup the ElasticSearch Data by creating/adjusting ElasticSearch indexes
+    -- What fields will be displayed to the user?
+    -- What fields will be searchable?
+    -- What fields are sortable?
+    -- What fields are filterable?
+
+ 2) Frontend
+    a. Create a new frontend page
+    b. Add the grid to the page
+    c. Define the serverSideDataSource   (which tells the grid what REST call to invoke and what to do with the data)
+    d. Tell the grid to use our serverSideDataSource
+
+ 3) Setup a REST endpoint that will take-in ag-grid parameters, run a search, and return a response
+
+ 4) Adjust the SyncService to refresh the data
+
+
+
+
+
+    
+
+REST call that searches ElasticSearch
+-------------------------------------
+In all cases, the ag-grid server-side grid invokes whatever REST endpoint we want and passes-in data
+
+ 1. What is the URL:  POST /api/exercise8/get-rows           (we can make this whatever we want)
+
+ 2. What is passed-in?    GridGetRowsRequestDTO              (ag-grid sets this)
+
+        {
+            startRow:              number
+            endRow:                number
+            filterModel:           Map of key=filter-name value=ColumnFilter 
+            sortModeL:             List of SortModel object 
+
+            rawSearchQuery:      "What the user typed-in the search box"
+            searchAfterClause:  "String that helps with getting the next page of data"
+        }
+                                  
+
+
+ 3. What is returned?   GridGetRowsResponseDTO              (ag-grid needs the data and lastRow.  We need additional stuff)
+        {
+            data:  [ 
+                        { id: 1, report_name: 'Report 1' },
+                        { id: 2, report_name: 'Report 2' },
+                        { id: 3, report_name: 'Report 3' },
+                   ]
+
+            lastRow:    number                           // if lastRow == -1, then tell the grid to turn ON infinite scrolling
+
+            totalMatches:   100                          // Used to display the total number of matches to the user
+
+            searchAfterClause:  "string"                 // We need this for infinite scroll to work 
+
+            isValidQuery:    boolean                     // If False, then we change the search box to RED (to let the user know the search is invalid)
+        }
+    
+
+
+
+
+Situations
+----------
+ 1. Add a new server side grid page  (when data is ALREADY in ElasticSearch) 
+    EASY:  relatively straightforward
+    a. We create a server side grid page 
+    b. We add a REST call to get the data
+ 
+
+ 2. Add a new server side grid page  (and data is NOT IN ElasticSearch)
+    HARD:  We need to get the data into ElasticSearch 
+    a. We need to add/update an ElasticSearch Index
+    b. We need to populate the ElasticSearch Index with some test data
+    c. We need to update the Sync Service to read from Postgres and write to ElasticSearch
+    d. We need to update certain SQL Transactions to also write to ElasticSearch
+    e. We create a server side grid page 
+    f. We add a REST call to get the data
+
+
+
+
+
+
+

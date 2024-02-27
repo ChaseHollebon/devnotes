@@ -1,0 +1,49 @@
+Migrating from Angular-Flex to Tailwind CSS / Exercises
+-------------------------------------------------------
+
+
+
+Part 1 / Create a new page
+--------------------------
+ 1. Generate a new page using the ng command line:   sample-page-3
+
+ 2. Create a route in constants.tst
+          page/three
+
+
+ 3. Add the route in app.modules.ts  so that  "page/three" --> Your new page component
+
+
+ 4. Add the route to the navbar
+
+ 5. Verify that you can see the page
+
+
+ 6. Setup the layout:
+
+
+                       50%                                       %50
+	+-------------------------------------------+---------------------------------------------+
+	| Page Title                                |                                  <Help Btn> |
+    +-------------------------------------------+---------------------------------------------+
+    |                                                                                         |
+    | Page Content                                                                            |
+    +-----------------------------------------------------------------------------------------|
+       
+
+
+
+		<div fxLayout="row">			-->        	<div class="flex flex-row">
+
+		</div>										</diV>
+
+
+Use basis-1/2 for 50%
+Use basis-1/3 for 33%
+Use basis-1/4 for 25%
+
+
+
+
+
+

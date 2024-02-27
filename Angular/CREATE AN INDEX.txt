@@ -1,0 +1,89 @@
+
+Exercise 2 / Create an Index
+----------------------------
+ 
+ 1. Run these commands:
+    NOTE:  The refresh_interval is how often ElasticSearch periodically refreshes indices
+
+         DELETE /reports
+
+
+		 PUT /reports
+			{
+			   "settings": {
+				 "refresh_interval": "1s"
+			  },
+
+			  "mappings": {
+
+				        "dynamic": "strict",
+				            "properties": {
+				                "actors": {
+				                     "type": "text"
+				                    },
+				                "description": {
+				                    "type": "text"
+				                },
+				                "priority": {
+				                     "type": "text",
+				                     "fields": {
+				                        "raw": {
+				                           "type": "keyword"
+				                       }
+				                     }
+				                }
+				            }
+				       }
+
+				 }
+
+
+
+  2. Run a search to see the first 20 records in reports
+
+       POST /reports/_search
+
+
+       *OR*
+
+
+        POST /reports/_search
+        {
+          "query": {
+              "match_all": {}
+          }
+ 
+        }
+
+ 
+
+
+
+ 3. Let's add some data to this index using the "Bulk Index"
+
+    POST _bulk
+    { "index": { "_index": "reports",  "_id": 1 }}
+    { "priority": "low", "actors": "John Smith", "description": "he really likes o'reilly"}
+    { "index": { "_index": "reports",  "_id": 2 }}
+    { "priority": "LOW", "actors": "george washington", "description": "depending on the kind query, you might want to go different ways with it.  This is not a high priority task."}
+    { "index": { "_index": "reports",  "_id": 3 }}
+    { "priority": "high", "actors": "adam Smith"}
+    { "index": { "_index": "reports",  "_id": 4 }}
+    { "priority": "HIGH", "actors": "Adam Smith 2", "description": "This description is for record four"}
+    { "index": { "_index": "reports",  "_id": 5 }}
+    { "priority": "HIGH", "actors": ["Pat Benetar", "Michael Jackson", "George Michael"], "description": "There are too many singers from the 1980s listed here.  Get a life!!"}
+
+
+ 4. Look at the output
+  
+		{
+		  "took" : 7,
+		  "errors" : false,     <--- This holds *FALSE* if the bulk update worked **PERFECTLY**
+		  "items" : [
+
+		}
+
+
+ 5. Run the search to see the results now
+
+

@@ -1,0 +1,973 @@
+Grid Exercise 3 / Formatting Cells & Rows
+-----------------------------------------
+A little color goes a long way....
+
+By default the ag-grid will create the cell values using simple text.
+-- If you want more complex HTML inside the cells you can achieve this using Cell Renderers. 
+
+
+
+
+Grid Exercise 3a / Setup a grid page that loads data from a front-end service
+-----------------------------------------------------------------------------
+ 1. Create a new empty page
+    terminal> cd frontend
+    terminal> ng generate component ClientGridPage3 --skipTests
+
+ 2. Add a route for the page
+    a. Edit app.module.ts
+    b. Add this route:
+          { path: 'page/client-grid-3',       component: ClientGridPage3Component },
+
+
+ 3. Add a link in the navbar that says "Client Grid Page 3"
+    a. Edit navbar.component.html
+    b. Add the <mat-list-item>....</mat-list-item>
+
+      <!-- Scroll Into View -->
+      <mat-list-item class="navItem" [routerLink]="'page/client-grid-3'" routerLinkActive="active">
+        <a title="Client Grid Page 3">Client Grid Page 1</a>
+        <div fxFlex fxLayoutAlign="end end">
+          <a [routerLink]="'page/scroll-into-view'" target="_blank">
+            <i class="fas fa-external-link-alt navItemIcon" title="Open 'Client Grid Page 3' in a new window"></i>
+          </a>
+        </div>
+      </mat-list-item>
+
+
+ 4. Verify that the link works
+    a. Activate the debugger
+    b. Go to http://localhost:4200/
+    c. Verify that you see the link called "Client Grid Page 3"
+    d. Click on the link
+       -- Verify it says, "client-grid-page-3 works!"
+
+
+ 5. Setup the Page Layout with Angular Flex
+    a. Setup the page title
+    b. Setup the rest of the page to expand (as the browser's height expands)
+
+    +---------------------------------------------------------+
+    | Client Grid Lesson 3                             <Help> |
+    +---------------------------------------------------------+
+    |                                                         |
+    |  +----------------------------------------------------+ |
+    |  |          Placeholder for the Grid                  | |       <-- This is just a label in a div
+    |  +----------------------------------------------------+ |
+    +---------------------------------------------------------+
+    NOTE:  The place holder div should use the remaining height of the page
+    SUGGESTION:  Show the borders on the div so you can VERIFY that the grid's height expands
+
+
+    a. Edit client-grid-page3.component.html
+
+    b. Replace its contents with this
+
+        <div class="page-container">
+
+          <div fxLayout="column" fxLayoutGap="20px">
+
+            <div fxLayout="row">
+
+              <div fxFlex="70%" fxLayoutAlign="start center">
+                <mat-card-title>Client Grid Lesson 3</mat-card-title>
+              </div>
+
+              <div fxFlex="30%" fxLayoutAlign="end center"
+                <button mat-raised-button>Help</button>
+              </div>
+            </div>
+
+            <div style="height: calc(100vh - 140px)" class="mat-elevation-z4">
+              Placeholder for the grid
+            </div>
+
+          </div>
+
+
+        </div>
+
+
+
+ 6. Replace the place holder with a client-side ag-grid that has 4 columns
+
+    +---------------------------------------------------------+
+    | Client Grid Lesson 3                             <Help> |
+    +---------------------------------------------------------+
+    |                                                         |
+    |  +----------------------------------------------------+ |
+    |  | Id   |   Report Name   |   Status   | Created Date | |
+    |  +------+-----------------+------------+--------------+ |
+    |  |  1   |   Report 1      |   Pending  |  08/23/2023  | |
+    |  |  2   |   Report 2      |    Open    |  08/23/2023  | |
+    |  |  3   |   Report 3      |   Approved |  08/23/2023  | |
+    |  +------+-----------------+------------+--------------+ |
+    +---------------------------------------------------------+
+
+    a. Add a class variable for the grid options
+
+            public gridOptions: GridOptions = {
+                debug: true,                     // Tell ag-grid to show console logging
+                rowModelType: 'clientSide',      // Tell ag-grid that this is a client-grid
+                domLayout: 'normal'
+           };
+
+
+    b. Add a class variable for the column definitions
+
+          public columnDefs: any = [
+            {
+              field: 'id',
+              headerName: "Id",
+            },
+            {
+              field: 'report_name',
+              headerName: "Report Name ",
+            },
+            {
+              field: 'status_label',
+              headerName: "Status",
+            },
+            {
+              field: 'created_date',
+              headerName: "Created Date",
+            }
+          ];
+
+
+
+    c. Add default column definitions
+
+          public defaultColDefs: any = {
+            sortable: true,
+            resizable: true,
+          };
+
+
+
+    d. In the HTML, replace the placeholder with the real grid
+
+          <!-- AG-Grid -->
+          <ag-grid-angular
+            style="width: 100%; height: 100%"
+            class="ag-theme-alpine"
+            [gridOptions]="this.gridOptions"
+            [columnDefs]="this.columnDefs"
+            [defaultColDef]="this.defaultColDefs">
+          </ag-grid-angular>
+
+
+       NOTE:  At this point, the grid has no data in it
+
+
+
+ 7. Create a frontend DTO:   GetReportRowDTO     
+    -- It should have 4 fields  (this DTO holds one *ROW* of data in the grid / some of the fields are not displayed to the user)
+
+            id               numeric field
+            report_name      text field
+            status_label     text field -- holds 'Open', 'Pending', 'Approved'
+            status_id        numeric fields -- holds 1, 2, 3
+            created_date     text field
+
+    a. Create the class:  GetReportRowDTO
+       terminal> cd frontend
+       terminal> ng g class models/GetReportRowDTO --skipTests
+
+    b. Edit get-report-row-dto.ts
+
+        export class GetReportRowDTO {
+          public id:           number;
+          public report_name:  string;
+          public status_label: string;
+          public status_id:    number;  //  holds 1, 2, 3
+          public created_date: string;
+        }
+
+
+            
+ 8. Create a grid service
+    a. Create the grid.service.ts
+       terminal> cd frontend
+       terminal> ng g service services/grid --skipTests
+
+    b. Edit grid.service.ts
+
+    c. Add a public method:  getAllReports() that returns an observable that holds an array of GetReportRowDTO
+
+
+    d. Fill-in the method so it returns an Observable that holds an array of UsersGridRowDTO objects
+
+          public getAllReports(): Observable<GetReportRowDTO[]> {
+
+            // Create an array of DTOs
+            let data: GetReportRowDTO[] = [
+              { id: 1, report_name: 'Report 1',  status_label: 'Pending',  status_id: 1,  'created_date': '06/25/2023 08:05:03'},
+              { id: 2, report_name: 'Report 2',  status_label: 'Open',     status_id: 2,  'created_date': '06/22/2024 16:45:35'},
+              { id: 3, report_name: 'Report 3',  status_label: 'Approved', status_id: 3,  'created_date': '06/01/2022 14:36:38'},
+            ];
+
+            // Wrap the data in an observable and return it
+            return of(data);
+          }
+
+
+ 9. Inject the grid service into your page
+    
+    a. Edit client-grid-page3.component.ts
+  
+    b. Adjust the constructor so that the gridService is injected:
+
+        constructor(private gridService: GridService) { }
+
+
+
+10. Add the onGridReady() method / this method will manually invoke the REST call to get the data and then load the data into the grid
+
+    a. Edit client-grid-page3.component.ts
+
+
+    b. Add these 2 class variables:
+              private gridApi: GridApi;
+              private gridColumnApi: ColumnApi;
+
+
+    b. Add a public method called onGridReady() that will invoke a REST call and set the report data
+
+          public onGridReady(params: any): void {
+            // Get a reference to the gridApi and gridColumnApi (which we will need later to get selected rows)
+            this.gridApi = params.api;
+            this.gridColumnApi = params.columnApi;
+
+            this.gridService.getAllReports().subscribe( (aData: GetReportRowDTO[]) => {
+                // The REST call came back
+
+                // Set the data in the grid
+                this.gridApi.setRowData(aData);
+            })
+          }
+
+
+    c. In the HTML, adjust the ag-grid-angular so that it calls our method when a grid is fully initialized
+                (gridReady)="this.onGridReady($event)" 
+
+
+       When finished, the ag-grid in the HTML looks like this:
+
+              <!-- AG-Grid -->
+              <ag-grid-angular
+                style="width: 100%; height: 100%"
+                class="ag-theme-alpine"
+                (gridReady)="this.onGridReady($event)"                 <!-- the grid calls our onGridReady() method when it is fully initialized -->
+                [gridOptions]="this.gridOptions"
+                [columnDefs]="this.columnDefs"
+                [defaultColDef]="this.defaultColDefs">
+              </ag-grid-angular>
+
+
+
+11. Verify that the grid page loads data
+    a. Activate the debugger
+    b. Go to http://localhost:4200/
+    c. Verify that you see the link called "Client Grid Page 3"
+    d. Click on the link
+       -- Verify that you see a grid with 3 rows of data
+
+   
+12. Verify that you are using the enterprise ag-grid
+    a. Press F12 to open your browser console
+    b. Click on the Console tag
+ 
+    c. You should see the following:
+            AG Grid.Context: >> creating ag-Application Context
+            AG Grid.Context: created beans: rowModel, beans, rowPositionUtils, cellPositionUtils, headerPositionUtils, paginationAutoPageSizeService, gridApi, userComponentRegistry, agComponentUtils, ....
+            AG Grid.Context: >> ag-Application Context ready - component is alive
+            AG Grid.GridCore: ready
+            AG Grid.ColumnFactory: Number of levels for grouped columns is 0
+            AG Grid.AG Grid: initialised successfully, enterprise = true
+            AG Grid.SelectionController: reset
+
+
+      NOTE:  enterprise = true  (means that you are running the "Enterprise Edition" of ag-grid successfully
+
+      This information is displayed only if your gridOptions variable has this:  
+            debug: true
+
+
+
+
+Grid Exercise 3b / How do we add color to entire rows?
+------------------------------------------------------
+Problem:  I want some rows to be red and other rows to be green (based on the status)
+
+    +---------------------------------------------------------+
+    | Client Grid Lesson 3                             <Help> |
+    +---------------------------------------------------------+
+    |                                                         |
+    |  +----------------------------------------------------+ |
+    |  | Id   |   Report Name   |   Status   | Created Date | |
+    |  +------+-----------------+------------+--------------+ |
+    |  |  1   |   Report 1      |   Pending  |  08/23/2023  | |      Entire row is red    because status is pending   (status id is 1)
+    |  |  2   |   Report 2      |    Open    |  08/23/2023  | |      Entire row is yellow because status is open      (status id is 2)
+    |  |  3   |   Report 3      |   Approved |  08/23/2023  | |      Entire row is green  because status is approved  (status id is 3)
+    |  +------+-----------------+------------+--------------+ |
+    +---------------------------------------------------------+
+
+
+ 1. In the styles.css, define your 3 new CSS styles:
+       NOTE:  The !important CSS flag is NEEDED to make it work
+
+
+        .report-pending {
+          background-color: red !important;
+        }
+
+        .report-open {
+          background-color: yellow !important;
+        }
+
+        .report-approved {
+          background-color: green !important;
+        }
+
+
+  
+ 2. In client-grid-page3.component.ts, add a function: calculateGridRowClass()
+
+          private calculateGridRowClass(aParams: RowClassParams): string {
+
+            let statusId: number = aParams.data.status_id;
+            
+            if (statusId == 1) {
+                return 'report-pending';
+            }
+            else if (statusId == 2) {
+                return 'report-open';
+            }
+            else {
+                return 'report-approved';
+            }
+
+          }
+
+
+
+ 3. In client-grid-page3.component.ts, edit the gridOptions
+       -- tell the ag-grid to use this function by adding getRowClass:
+
+              public gridOptions: GridOptions = {
+                debug: true,                     // Tell ag-grid to show console logging
+                rowModelType: 'clientSide',      // Tell ag-grid that this is a client-grid
+                domLayout: 'normal',
+
+                getRowClass: (params: RowClassParams) => this.calculateGridRowClass(params) 
+              }
+
+
+ 4. Verify that the grid page show different colors for *ENTIRE ROWS*
+    a. Activate the debugger
+    b. Go to http://localhost:4200/
+    c. Verify that you see the link called "Client Grid Page 3"
+    d. Click on the link
+       -- Verify that you see a grid with 3 rows of data
+       -- Verify that the grid rows show up as different colors
+              
+
+
+
+Grid Exercise 3c / How do we add color to individual cells?
+-----------------------------------------------------------
+Problem:  I want to show a different color in *ONLY* the status cell (based on a typescript function)
+Solution: Create a StatusCellRenderer component and register it with the grid
+
+
+    +---------------------------------------------------------+
+    | Client Grid Lesson 3                             <Help> |
+    +---------------------------------------------------------+
+    |                                                         |
+    |  +----------------------------------------------------+ |
+    |  | Id   |   Report Name   |   Status   | Created Date | |
+    |  +------+-----------------+------------+--------------+ |
+    |  |  1   |   Report 1      |   Pending  |  08/23/2023  | |      Status cell is red    because status is pending
+    |  |  2   |   Report 2      |    Open    |  08/23/2023  | |      Status cell is yellow because status is open
+    |  |  3   |   Report 3      |   Approved |  08/23/2023  | |      Status cell is green  because status is approved
+    |  +------+-----------------+------------+--------------+ |
+    +---------------------------------------------------------+
+
+
+ 1. Adjust the gridOptions / remove the getRowClass so that the grid does not set the color of the entire row
+
+ 2. Create a new component called StatusCellRenderer
+    terminal> cd frontend
+    terminal> ng generate component StatusCellRenderer --skipTests
+
+ 3. Edit status-cell-renderer.component.ts
+    a. have that component implement the ICellRendererAngularComp   (instead of ngOnInit)
+    b. Erase the ngOnInit() public method
+    b. Add the missing imports
+    c. Put the cusror on the class name and press Alternate/Enter
+       Select "Implement all required members"
+       Press OK
+        -- This should have added 2 more methods: 
+ 
+        -- Or you can add them manually:
+
+          public agInit(params: ICellRendererParams): void {
+          }
+
+          public refresh(params: ICellRendererParams): boolean {
+            return false;
+          }
+
+
+    d. Add 2 class variables:
+          public statusId: number;
+          public params: ICellRendererParams;
+        
+
+    e. Change the agInit() so that it sets the statusId and params class variables
+
+          public agInit(aParams: ICellRendererParams): void {
+            this.params = aParams;
+
+            // Pull the status out of the params and store it in the class variable
+            this.statusId = aParams.data.status_id;
+          }
+
+
+
+     When finished, the StatusCellRendererComponent looks like this:
+ 
+        import { Component} from '@angular/core';
+        import {ICellRendererAngularComp} from "ag-grid-angular";
+        import {ICellRendererParams} from "ag-grid-community";
+
+        @Component({
+          selector: 'app-status-cell-renderer',
+          templateUrl: './status-cell-renderer.component.html',
+          styleUrls: ['./status-cell-renderer.component.css']
+        })
+        export class StatusCellRendererComponent implements ICellRendererAngularComp {
+          public statusId: number;
+          public params: ICellRendererParams;
+
+          constructor() { }
+
+          public agInit(aParams: ICellRendererParams): void {
+            this.params = aParams;
+
+            // Pull the status out of the params and store it in the class variable
+            this.statusId = aParams.data.status_id;
+          }
+
+          public refresh(aParams: ICellRendererParams): boolean {
+            return false;
+          }
+
+        }
+
+
+
+
+         
+  4. Edit status-cell-renderer.component.html, and add some conditional logic so that the status appears as a different color based on the status id
+
+        <div style="padding: 5px">
+          <div [ngClass]="{
+                   'report-pending':    this.statusId == 1,
+                   'report-open':       this.statusId == 2,
+                   'report-approved':   this.statusId == 3
+                }">
+
+            <!-- Display the status label -->
+            {{params.value}}
+          </div>
+        </div>
+
+
+  5. Register the Cell Renderer with the grid using frameworkComponents
+     a. In client-grid-page3.component.ts, create this class variable:
+
+          public frameworkComponents: any = {
+            statusCellRenderer: StatusCellRendererComponent,
+          };
+
+
+
+     b. In client-grid-page3.component.html, set the framework components to the grid
+
+              <!-- AG-Grid -->
+              <ag-grid-angular
+                style="width: 100%; height: 100%"
+                class="ag-theme-alpine"
+                (gridReady)="this.onGridReady($event)"
+                [gridOptions]="this.gridOptions"
+                [frameworkComponents]="this.frameworkComponents"         <!-- Add the frameworkComponents so the grid is aware of these custom cell renderers -->
+                [columnDefs]="this.columnDefs"
+                [defaultColDef]="this.defaultColDefs">
+              </ag-grid-angular>
+
+
+ 6. Tell the column to use the special Cell Renderer class
+    In client-grid-page3.component.ts, change the status_label column by adding the cellRenderer:
+
+    {
+      field: 'status_label',
+      headerName: "Status",
+      cellRenderer: 'statusCellRenderer'     // Tell the ag-grid to use our special statusCellRenderer
+    },
+
+
+
+ 7. Verify that the Status cell has some color
+    a. Activate the debugger
+    b. Go to http://localhost:4200/
+    c. Verify that you see the link called "Client Grid Page 3"
+    d. Click on the link
+       -- Verify that you see a grid with 3 rows of data
+       -- Verify that the status CELL show up as different colors
+
+
+
+ 8. Improve the CSS by rounding the edges and changing the colors
+    a. Edit styles.css
+
+    b. Change the 3 CSS classes to this:
+
+        .report-pending {
+          text-align: center;
+          font-family: 'Roboto';
+          font-size: 1.1em;
+          font-weight: 500;
+          border-radius: 15px;
+          background-color: #ffdcb2;
+        }
+
+        .report-open {
+          text-align: center;
+          font-family: 'Roboto';
+          font-size: 1.1em;
+          font-weight: 500;
+          border-radius: 15px;
+          background-color: #ffffb2;
+        }
+
+        .report-approved {
+          text-align: center;
+          font-family: 'Roboto';
+          font-size: 1.1em;
+          font-weight: 500;
+          border-radius: 15px;
+          background-color: #d8d8d8;
+        }
+
+    c. Add the autoHeight: true to the status column (to correct the height)
+
+        {
+          field: 'status_label',
+          headerName: "Status",
+          cellRenderer: 'statusCellRenderer',
+          autoHeight: true
+        },
+   
+    
+    When finished, the client-grid-page3.component.ts looks something like this:
+
+        import { Component, OnInit } from '@angular/core';
+        import {ColumnApi, GridApi, GridOptions} from "ag-grid-community";
+        import {GridService} from "../services/grid.service";
+        import {GetReportRowDTO} from "../models/get-report-row-dto";
+        import {StatusCellRendererComponent} from "../status-cell-renderer/status-cell-renderer.component";
+
+        @Component({
+          selector: 'app-client-grid-page3',
+          templateUrl: './client-grid-page3.component.html',
+          styleUrls: ['./client-grid-page3.component.css']
+        })
+        export class ClientGridPage3Component implements OnInit {
+          private gridApi: GridApi;
+          private gridColumnApi: ColumnApi;
+
+          public frameworkComponents: any = {
+            statusCellRenderer: StatusCellRendererComponent,
+          };
+
+
+          public gridOptions: GridOptions = {
+            debug: true,                     // Tell ag-grid to show console logging
+            rowModelType: 'clientSide',      // Tell ag-grid that this is a client-grid
+            domLayout: 'normal',
+          };
+
+          public columnDefs: any = [
+            {
+              field: 'id',
+              headerName: "Id",
+            },
+            {
+              field: 'report_name',
+              headerName: "Report Name ",
+            },
+            {
+              field: 'status_label',
+              headerName: "Status",
+              cellRenderer: 'statusCellRenderer',
+              autoHeight: true
+            },
+            {
+              field: 'created_date',
+              headerName: "Created Date",
+            }
+          ];
+
+          public defaultColDefs: any = {
+            sortable: true,
+            resizable: true,
+          };
+
+
+
+          constructor(private gridService: GridService) { }
+
+          ngOnInit(): void {
+          }
+
+          public onGridReady(params: any): void {
+            // Get a reference to the gridApi and gridColumnApi (which we will need later to get selected rows)
+            this.gridApi = params.api;
+            this.gridColumnApi = params.columnApi;
+
+            this.gridService.getAllReports().subscribe( (aData: GetReportRowDTO[]) => {
+              // The REST call came back
+
+              // Set the data in the grid
+              this.gridApi.setRowData(aData);
+            })
+          }
+
+
+        }
+
+
+
+ 9. Verify that the Status cell has **IMPROVED** color
+    a. Activate the debugger
+    b. Go to http://localhost:4200/
+    c. Verify that you see the link called "Client Grid Page 3"
+    d. Click on the link
+       -- Verify that you see a grid with 3 rows of data
+       -- Verify that the status CELL show up as different colors
+       -- Verify that there are **ROUNDED EDGES** around the cells to give it a more professional look
+          This CSS property is responsible for that:
+                border-radius: 15px; 
+
+
+
+
+Grid Exercise 3d / Add a new column called "Action" with buttons inside of it
+-----------------------------------------------------------------------------
+Problem:  I want to add a new column called "Action" that has 2 buttons inside of it
+Solution: Create an ActionCellRenderer and register it in the grid
+
+    +-----------------------------------------------------------------------------+
+    | Client Grid Lesson 3                                                 <Help> |
+    +-----------------------------------------------------------------------------+
+    |                                                                             |
+    |  +------------------------------------------------------------------------+ |
+    |  | Action           |  Id   |   Report Name   |   Status   | Created Date | |
+    |  +------------------+-------+-----------------+------------+--------------+ |
+    |  |  <Edit> <Delete> |   1   |   Report 1      |   Pending  |  08/23/2023  | |      Edit and Delete buttons can be a material raised button or material icon button
+    |  |  <Edit> <Delete> |   2   |   Report 2      |    Open    |  08/23/2023  | |      
+    |  |  <Edit> <Delete> |   3   |   Report 3      |   Approved |  08/23/2023  | |      
+    |  +------------------+-------+-----------------+------------+--------------+ |
+    +-----------------------------------------------------------------------------+
+
+
+
+ 1. Create a new component called Grid3ActionCellRenderer
+    terminal> cd frontend
+    terminal> ng generate component Grid3ActionCellRenderer --skipTests
+
+ 2. Edit grid3-action-cell-renderer.component.ts
+    a. have that component implement the ICellRendererAngularComp   (instead of ngOnInit)
+    b. Erase the ngOnInit() public method
+    c. Add the missing imports
+    d. Put the cusror on the class name and press Alternate/Enter
+       Select "Implement all required members"
+       Press OK
+        -- This should have added 2 more methods: 
+ 
+        -- Or you can add them manually:
+
+          public agInit(params: ICellRendererParams): void {
+          }
+
+          public refresh(params: ICellRendererParams): boolean {
+            return false;
+          }
+
+
+    e. Add a class variables:
+          public params: ICellRendererParams;
+        
+
+    f. Change the agInit() so that it sets the params class variables
+
+          public agInit(aParams: ICellRendererParams): void {
+            this.params = aParams;
+          }
+
+
+
+     When finished, the Grid3ActionCellRenderer looks like this:
+ 
+        import { Component } from '@angular/core';
+        import {ICellRendererAngularComp} from "ag-grid-angular";
+        import {ICellRendererParams} from "ag-grid-community";
+
+        @Component({
+          selector: 'app-grid3-action-cell-renderer',
+          templateUrl: './grid3-action-cell-renderer.component.html',
+          styleUrls: ['./grid3-action-cell-renderer.component.css']
+        })
+        export class Grid3ActionCellRendererComponent implements ICellRendererAngularComp {
+          public params: ICellRendererParams;
+          
+          constructor() { }
+
+          public agInit(aParams: ICellRendererParams): void {
+            this.params = aParams;
+          }
+
+          public refresh(params: ICellRendererParams): boolean {
+            return false;
+          }
+
+
+        }
+
+
+ 3. Edit grid3-action-cell-renderer.component.html
+    -- Add your "Edit" and "Delete" buttons to the the HTML
+    -- Don't forget to be ADA-Compliant
+
+        <div>
+          <button type="button" mat-raised-button              title="Edit Report"   aria-label="Edit Report">Edit</button>
+          <button type="button" mat-raised-button color="warn" title="Delete Report" aria-label="Delete Report">Delete</button>
+        </div>
+
+
+
+
+ 4. Register the Cell Renderer with the grid using frameworkComponents
+     a. In client-grid-page3.component.ts, create this class variable:
+
+          public frameworkComponents: any = {
+            statusCellRenderer: StatusCellRendererComponent,
+            actionCellRenderer: Grid3ActionCellRendererComponent
+          };
+
+
+ 5. Add a new "Action" column
+    NOTE:  Make this the 1st column
+
+    {
+      headerName: "Action",
+      cellRenderer: 'actionCellRenderer'
+    },
+
+
+
+ 6. Verify that the "Action" column now has clickable buttons
+    a. Activate the debugger
+    b. Go to http://localhost:4200/
+    c. Verify that you see the link called "Client Grid Page 3"
+    d. Click on the link
+       -- Verify that the grid has clickable buttons
+
+
+ 7. Fix the "Action" column so that the buttons are vertically centered   (you need to add a margin-top: .25em above the buttons)
+    -- So the buttons are vertically centered in the grid row
+    -- This fixes a defect in ag-grid 25
+
+
+
+ 8. Verify that the "Action" column buttons are now vertically centered
+    a. Activate the debugger
+    b. Go to http://localhost:4200/
+    c. Verify that you see the link called "Client Grid Page 3"
+    d. Click on the link
+       -- Verify that the grid has clickable buttons are now vertically centered
+
+
+
+ 9. Change the buttons to icons
+    a. Edit grid3-action-cell-renderer.component.html
+
+    b. Search for free icons in font awesome 5     
+       https://fontawesome.com/v5/search?o=r&m=free
+
+    c. Replace the HTML with this:
+
+        <div>
+          <button type="button"  mat-icon-button title="Edit Report" aria-label="Edit Report">
+            <i class="fas fa-edit" style="font-size: 24px"></i>
+          </button>
+
+          <button type="button" color="warn" mat-icon-button title="Delete Report" aria-label="Delete Report">
+            <i class="fas fa-trash" style="font-size: 24px"></i>
+          </button>
+        </div>
+
+
+10. Verify the "Action" column now has clickable icons
+    a. Activate the debugger
+    b. Go to http://localhost:4200/
+    c. Verify that you see the link called "Client Grid Page 3"
+    d. Click on the link
+       -- Verify that the grid has clickable icons
+
+
+11. Fix the "Action" column so that the icon buttons are vertically centered   (you need to add a margin-top: .25em above the icon buttons)
+    -- So the icon buttons are vertically centered in the grid row
+    -- This fixes a defect in ag-grid 25
+
+
+
+12. Fix the text columns so that they are now vertically cenetered  (you need to add a margin-top: .25em to all of the text columns)
+
+    a. Edit styles.css, and add this CSS class:
+
+        .grid-text-cell-format {
+          font-family: 'Roboto';
+          font-size: 1.1em;
+          font-weight: 400;
+
+          margin-top: .25em;    /* Fixes the bug with autoHeight not working in the ag-grid */
+        }
+
+    
+    b. Apply this CSS class to your **TEXT** columns
+             cellClass: 'grid-text-cell-format'
+
+       
+       So, the columnDefs look like this:
+
+          public columnDefs: any = [
+            {
+              headerName: "Action",
+              cellRenderer: 'actionCellRenderer',
+            },
+            {
+              field: 'id',
+              headerName: "Id",
+              cellClass: 'grid-text-cell-format'
+            },
+            {
+              field: 'report_name',
+              headerName: "Report Name ",
+              cellClass: 'grid-text-cell-format'
+            },
+            {
+              field: 'status_label',
+              headerName: "Status",
+              cellRenderer: 'statusCellRenderer',
+              autoHeight: true             // Need this to fix the margins around the StatusCellRenderer
+            },
+            {
+              field: 'created_date',
+              headerName: "Created Date",
+              cellClass: 'grid-text-cell-format'
+            }
+          ];
+
+13. Verify that *ALL* cells are vertically centered correctly
+    a. Activate the debugger
+    b. Go to http://localhost:4200/
+    c. Verify that you see the link called "Client Grid Page 3"
+    d. Click on the link
+       -- Verify that *ALL* cells are vertically aligned in the grid
+
+
+
+14. Adjust the grid so that it does not highlight the cell you clicked on
+    a. Edit the gridOptions, add this  
+             suppressCellSelection: true
+
+
+          public gridOptions: GridOptions = {
+            debug: true,                     // Tell ag-grid to show console logging
+            rowModelType: 'clientSide',      // Tell ag-grid that this is a client-grid
+            domLayout: 'normal',
+            suppressCellSelection: true
+          };
+
+
+
+15. Verify that clicking in the "Action" column does not select a cell
+    a. Activate the debugger
+    b. Go to http://localhost:4200/
+    c. Verify that you see the link called "Client Grid Page 3"
+    d. Click on the link
+       -- Verify that clicking in the "Action" column does not select a cell
+
+
+
+
+Grid Exercise 3e / Add a "Reset" button
+---------------------------------------
+Problem:  If the user drags all columns up, then the column is gone and there is no way to restore the grid
+Solution: Provide a "Reset" button that restores the grid back
+
+ 1. Edit client-grid-page3.component.ts
+
+ 2. Add this method:
+
+      public resetGrid(): void {
+
+        // Reset columns is called *FIRST*  (so the default columns are visible and restored to default)
+        this.gridColumnApi.resetColumnState();
+
+        // Call sizeColumnsToFit *SECOND* (to make sure that all default columns appear and take the full grid width)
+        this.gridApi.sizeColumnsToFit();
+      }
+
+
+ 3. Edit client-grid-page3.component.html
+
+
+ 4. Add the "Reset" button above the grid
+       <button type="button" mat-raised-button (click)="this.resetGrid()" title="Reset Grid" aria-label="Reset Grid">
+            Reset
+        </button>
+
+
+ 5. Verify that the reset button works
+    a. Activate the debugger
+    b. Go to http://localhost:4200/
+    c. Verify that you see the link called "Client Grid Page 3"
+    d. Click on the link
+    e. Drag-up on some of the columns (to remove them)
+    f. Press your "Reset" button
+       -- Verify that the grid is reset back to its original settings
+
+
+ 
+
+
+
+Grid Exercise 3f / How to display a colored line in a cell to show progress?
+----------------------------------------------------------------------------
+Problem:  I want to add a new column called "Progress" that has a progress line
+Solution: Create an ProgressCellRenderer and register it in the grid
+
+
+          If the status_id == 1, then show a line that is 33% horizontally wide
+          If the status_id == 2, then show a line that is 66% horizontally wide
+          If the status_id == 3, then show a line that is 99% horizontally wide
+
+
+
+
+
+
