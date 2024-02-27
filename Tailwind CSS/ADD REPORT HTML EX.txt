@@ -1,0 +1,320 @@
+Exercise 4 / Create Page called "Add Report"
+--------------------------------------------
+ Add a new page called "Add Report" page so that it shows this:
+
+
+
+
+
+Exercise
+--------
+ 1. Part 1 / Setup the Page
+    a. Generate the component
+    b. Add the route to constants.ts:         the route will be this:   page/reports/add
+    c. Register the route
+    d. Add a link to the navbar (using that route)
+    e. Use the debugger to verify that the navbar link works
+
+
+
+
+
+ 2. Fill in the layout
+
+            +-------------------------------------------------------------------------------------+
+            | Add a Report                                                             <Help Btn> |
+            +-------------------------------------------------------------------------------------+
+            |                                                                                     |
+            |  <Report Name Textbox>                                                              |
+            |                                                                                     |
+            |  <Source Dropdown>              <Priority Dropdown>       <Classification Dropdown> |
+            |                                                                                     |
+            |  <Choose Authors>                                                                   |
+            |                                                                                     |
+            |  <Reset Btn>   <Save Btn>                                                           |
+            +-------------------------------------------------------------------------------------+
+            NOTES
+             -- Put a 10px margin around the entire page
+             -- The user can choose multiple authors
+            
+
+            Source Dropdown has these options:
+                 France
+                Israel
+                United Kingdom
+                United States of America
+
+
+            Priority has these options:
+                Low
+                Medium
+                High
+                Critical
+
+    
+            Classification has these options:
+                Unclassified
+                Unclassified / FOUO
+                Confidential
+
+            Authors has these options:
+                Adam R
+                Ben R
+                Justin R
+                Peter R
+                Josh R
+                Suzanne R
+                Sheila R
+                Joel R
+
+                
+
+            
+ 3. Add a reactive form
+    a. Inject the formBuilder service
+
+    b. Create a class variable  called myForm
+
+    c. Initialize myForm in ngOnInit()
+
+
+    d. Add <form> tag to your HTML
+
+    e. bind controls to your myForm object using formControlName
+
+    f. Display form values with a <pre>...</pre> tag
+
+
+
+ 4. Add a (click) handler to your Reset button it resets the form
+
+
+
+
+Part 2:  Let's talk about form validation
+-----------------------------------------
+The report name is required
+The user must provide atleast 1 author  (but not more than 3)
+The classification is required
+The other fields are OPTIONAL
+
+
+ 
+
+<div class="bg-backDropColor m-2.5">
+  <!-- Header Section -->
+  <form [formGroup]="this.myForm">
+    <div class="bg-gray-200">
+      <div class="flex flex-row justify-between items-center mb-4">
+        <span class="text-2xl font-bold">Add a Report</span>
+
+        <!-- Help Button -->
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Help
+        </button>
+      </div>
+    </div>
+
+
+    <!-- Report Name Textbox -->
+    <div class="flex flex-col gap-5">
+      <mat-form-field>
+        <mat-label>Report Name</mat-label>
+        <input formControlName="reportName" matInput type="text"/>
+        <mat-error>Report name is required</mat-error>
+      </mat-form-field>
+
+      <!-- Source Dropdown -->
+      <div class="grid grid-cols-3">
+        <div>
+          <mat-form-field>
+            <mat-label> Source (Optional)</mat-label>
+            <mat-select formControlName="source">
+              <mat-option [value]=1> France</mat-option>
+              <mat-option [value]=2> Israel</mat-option>
+              <mat-option [value]=3> United Kingdom</mat-option>
+              <mat-option [value]=4> United States of America</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+
+        <!-- Priority Dropdown -->
+        <div>
+          <mat-form-field>
+            <mat-label> Priority (Optional)</mat-label>
+            <mat-select formControlName="priority">
+              <mat-option [value]=1> Low</mat-option>
+              <mat-option [value]=2> Medium</mat-option>
+              <mat-option [value]=3> High</mat-option>
+              <mat-option [value]=4> Critical</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Classification Dropdown -->
+        <div>
+          <mat-form-field>
+            <mat-label> Classifcation</mat-label>
+            <mat-select formControlName="classification">
+              <mat-option [value]=1> Unclassified</mat-option>
+              <mat-option [value]=2> Unclassified / FOUO</mat-option>
+              <mat-option [value]=3> Confidential</mat-option>
+            </mat-select>
+            <mat-error>The classification is required</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Choose Authors -->
+      <div>
+        <mat-form-field>
+          <mat-label>Choose Authors</mat-label>
+          <mat-select multiple formControlName="authors">
+            <mat-option [value]=1> Adam R</mat-option>
+            <mat-option [value]=2> Ben R</mat-option>
+            <mat-option [value]=3> Justin R</mat-option>
+            <mat-option [value]=4> Peter R</mat-option>
+            <mat-option [value]=5> Josh R</mat-option>
+            <mat-option [value]=6> Suzanne R</mat-option>
+            <mat-option [value]=7> Sheila R</mat-option>
+            <mat-option [value]=8> Joel R</mat-option>
+          </mat-select>
+          <mat-error>{{ this.myForm.controls.authors.errors?.custom_error }}</mat-error>
+        </mat-form-field>
+      </div>
+
+
+      <!-- Reset Button -->
+      <div class="flex flex-row gap-5">
+        <div>
+          <button (click)="this.resetClicked()" type="button"
+                  class="w-[100px] bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Reset
+          </button>
+        </div>
+
+        <!-- Save Button -->
+        <div>
+          <button (click)="this.saveClicked()" type="button"
+                  class="w-[100px] bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Save
+          </button>
+        </div>
+      </div>
+
+      <!-- Special Error Message -->
+      <div *ngIf="this.showErrorMessage == true">
+        You cannot set the Source to ISRAEL and have a CRITICAL priority
+      </div>
+
+
+    </div>
+      <pre>
+        this.myForm.valid={{this.myForm.valid}}
+        this.myForm.controls.reportName.value={{this.myForm.controls.reportName.value}}
+        this.myForm.controls.source.value={{this.myForm.controls.source.value}}
+        this.myForm.controls.priority.value={{this.myForm.controls.priority.value}}
+        this.myForm.controls.classification.value={{this.myForm.controls.classification.value}}
+        this.myForm.controls.authors.value={{this.myForm.controls.authors.value}}
+        this.showErrorMessage={{this.showErrorMessage}}
+      </pre>
+  </form>
+</div>
+
+
+
+
+import {Component} from '@angular/core';
+import {AbstractControl, FormBuilder, FormControl, FormGroup, ValidatorFn, Validators} from "@angular/forms";
+
+@Component({
+  selector: 'app-add-report',
+  templateUrl: './add-report.component.html',
+  styleUrls: ['./add-report.component.scss']
+})
+export class AddReportComponent {
+  showErrorMessage: boolean = false;
+
+  constructor(private formBuilder: FormBuilder) {
+  }
+
+  public myForm: FormGroup;
+
+  public ngOnInit(): void {
+    // Initialize the myForm Object
+    this.myForm = this.formBuilder.group({
+      reportName:     [null, Validators.required],
+      source:         [null, null],
+      priority:       [null, null],
+      classification: [null, Validators.required],
+      authors:        [null, this.validateAuthors() ]
+    },{
+      validators: this.isSourceIsraelAndPriorityCritical()
+    })
+  }
+
+  public saveClicked(): void {
+    this.myForm.markAllAsTouched();
+
+    if(this.myForm.valid==false){
+      //The form is invalid, the error message is visible... STOP here
+      return;
+    }
+
+    console.log('invoke REST call to save data')
+    this.myForm.reset();
+
+  }
+
+  public resetClicked(): void {
+    this.myForm.reset();
+  }
+
+  private validateAuthors(): ValidatorFn {
+    return (aControl: AbstractControl) => {
+      if (aControl.value == null) {
+        // The user has not selected any values -- so retrun an error
+        return {'custom_error': 'You must select at least 1 entry.'};
+      }
+      let totalValuesSelected: number = aControl.value.length;
+      if (totalValuesSelected < 1) {
+        return {'custom_error': 'You must select at least 1 entry.'};
+      }
+      else if (totalValuesSelected > 3) {
+        return {'custom_error': 'You must select at most 3 entries.'};
+      }
+      else {
+        // The user selected a valid number of values -- so no error is returned
+        return null;
+      }
+    }
+  } // End of validate authors
+
+   private isSourceIsraelAndPriorityCritical(): ValidatorFn {
+    return () => {
+      this.showErrorMessage = false;
+
+      if (!this.myForm){
+        //Form is NOT fully initialized yet... so return NULL
+        return null;
+      }
+
+      let sourceValue: number = this.myForm.controls["source"].value;
+
+      let priorityValue: number = this.myForm.controls["priority"].value;
+
+      if ((sourceValue == 2) && (priorityValue == 4)){
+        this.showErrorMessage = true;
+        return {'my_error': 'Error'};
+      }
+      return null;
+
+
+
+
+    }
+   }
+
+
+}

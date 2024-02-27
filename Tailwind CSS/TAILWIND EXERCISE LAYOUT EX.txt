@@ -1,0 +1,147 @@
+Exercise 1 / Create Page called "Layouts 1"
+--------------------------------------------
+ Add a new page called "Layouts 1" page so that it shows this:
+
+
+
+When should use flex?  When should use grid?
+-- Use class="grid grid-cols" for a fixed number of grid columns  (can be adjusted with responsive design)
+-- Use class="flex flex-row"  for for variable-sized columns
+
+
+For Tailwind Flex documentation:
+    https://tailwindcss.com/docs/flex
+
+
+
+
+Exercise
+--------
+ 1. Part 1 / Setup the Page
+    a. Generate the component
+    b. Add the route to constants.ts:         the route will be this:   page/layout1
+    c. Register the route
+    d. Add a link to the navbar (using that route)
+    e. Use the debugger to verify that the navbar link works
+
+
+
+
+ 2. Fill in the layout
+
+            +----------------------------------------------------------------------------+
+            | Layouts 1                                            <Help Btn> <Info Btn> |      
+            |   Home -> Reports -> Layouts 1                                             |
+            +----------------------------------------------------------------------------+
+            |                                                                            |     // This empty row has a height of 10px 
+            +----------------------------------------------------------------------------+
+            |                                                                            |
+            | +----------------------------+            +----------------------------+   |     // These boxes use the height of 500px
+            | | Box 1                      |            | Box 2                      |   |    
+            | |                            |            |                            |   |
+            | | This is box 1              |            |  This is box 2             |   |
+            | +----------------------------+            +----------------------------+   |
+            |           50% of width          20px          50% of width                 |
+            |                                                                            | 
+            +----------------------------------------------------------------------------+                                   
+            There should be 10px of padding around the entire page
+    
+
+
+
+
+
+
+
+
+
+
+ 
+
+ 3:  Start with an outline
+
+            +----------------------------------------------------------------------------+
+            | Top of Page                                                                |
+            |                                                                            |
+            +----------------------------------------------------------------------------+
+            | Rest of Page                                                               |
+            |                                                                            | 
+            +----------------------------------------------------------------------------+   
+  
+
+
+
+
+ 4. Fill in the top of page with the real page title and right-aligned buttons
+
+            +----------------------------------------------------------------------------+
+            | Page Title                                              Help-Btn  Info-Btn |
+            |    Breadcrumbs                                                             |
+            +----------------------------------------------------------------------------+
+            | Rest of Page                                                               |
+            |                                                                            | 
+            +----------------------------------------------------------------------------+   
+ 
+
+
+
+
+
+ 5. Add some space between the page title and rest of the page
+
+            +----------------------------------------------------------------------------+
+            | Page Title                                              Help-Btn  Info-Btn |
+            |    Breadcrumbs                                                             |
+            +----------------------------------------------------------------------------+
+            |                                                                            |            
+            +----------------------------------------------------------------------------+
+            | Rest of Page                                                               |
+            |                                                                            | 
+            +----------------------------------------------------------------------------+   
+
+
+	
+
+ 
+ 
+
+   
+
+<!--Background Colors -->
+<div class="p-[10px] bg-gray-300">
+  <div class="bg-secondary">
+
+    <!-- Top Section -->
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <div class="text-lg font-bold text-white font-serif">Layouts 1</div>
+        <div class="mb-4">
+          <div class="text-sm ml-10 text-white font-serif">Home -&gt; Reports -&gt; Layouts 1</div>
+        </div>
+      </div>
+      <div>
+        <button class="bg-blue-500 text-white px-4 py-2 rounded mr-2 font-serif">Help Btn</button>
+        <button class="bg-blue-500 text-white px-4 py-2 rounded mr-2 font-serif">Info Btn</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Two Boxes Section -->
+  <div class="flex justify-between" style="height: calc(100vh - 183px)">
+
+    <!-- Box 1 -->
+    <div class="w-1/2 bg-secondary p-4">
+      <div class="text-lg font-bold text-white font-serif">Box 1</div>
+      <div class="text-lg font-bold text-white font-serif">This is box 1</div>
+    </div>
+
+    <!-- Spacer (20px) -->
+    <div class="w-20"></div>
+
+    <!-- Box 2 -->
+    <div class="w-1/2 bg-secondary p-4">
+      <div class="text-lg font-bold text-white font-serif">Box 2</div>
+      <div class="text-lg font-bold text-white font-serif">This is box 2</div>
+    </div>
+  </div>
+</div>

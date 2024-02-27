@@ -1,0 +1,516 @@
+
+ Plan for Building the Adm in / Managed Allowed Files Types for Upload
+ ---------------------------------------------------------------------
+
+ 1. Make a new page
+
+ 2. Add it to the navbar
+		
+
+   In the navbar
+   -- Admin
+           Manage File Types
+           Manage Allowed File Types
+
+
+ 3. Add the grid
+
+ 4. Configure the grid with these columns
+
+	+-----------------------------------------------------------------
+    | Manage Allowed File Types for Upload
+    |
+    | <Reset> <+Add Extension>
+    | 
+    |  +----------------+------------+---------------------------+---------------------
+    |  |  Action        |  Extension | Description               |   File Count
+    |  |    <Delete>    |    .pdf    | Portable Document Format  |     257                
+    |  |    <Delete>    |    .docx   | MS Word Document          |     256
+    |  +----------------+------------+---------------------------+---------------------
+    +------------------------------------------------------------------------------------------
+
+
+ 5. Create the front-end DTO for each row on the grid:  GetAllowedFileTypeDTO
+		 
+		  public id: number;
+		  public extension: string;
+		  public description: string;
+		  public file_count: number;
+		  public revision: number;
+	
+
+ 
+ 6. Create a new service:  AllowedFileTypeService
+
+	a. Need a public method to get all allowed files
+	   getAllAllowedFilesTypes() returns an observable that holds an array of GetAllowedFiletypeDTO objects
+
+	b. Implement the method
+		-- Create an array that holds fake data	
+		-- Convert the array into an observable
+		-- Return the observable
+
+
+
+
+ 7. Keep formatting your page until you're happy with it
+
+ 8. Make REST call #1 -- to get all of the allowed file types
+	a. Add the database table								[copy from FMRS -- but without some of the unused columns]
+	b. Populate the database table with some default data	[copy from FRMS]
+	c. Make the REST call 									[copy from FRMS]
+
+
+		AllowedFileTypesController.java
+		--------------------------			
+
+			// GET REST Call
+			public ResponseEntity<?> getAllAllowedFilesTypes() {
+				---> Calls the Service
+						--> Queries the database
+						<-- Returns a list of DTOS
+
+
+
+				// Returns that list of DTOs to the frontend
+			}
+
+
+
+
+
+		GetAllowedFileTypeDTO.java
+		---------------------
+			
+
+
+
+		AllowedFileTypesService.java
+		-----------------------
+			
+			public List<DTOs> getAllAllowedFilesTypes() {
+
+			}
+
+
+
+ 9. Use Postman to verify that REST Call #1 works
+
+10. Integrate REST call #1 with your front-end
+	-- Edit the AllowedFileTypeService.ts
+	-- Edit the getAllAllowedFilesTypes()
+	-- Remove your hard coded data
+	-- Add-in the 2 lines to invoke the real REST call
+
+11. Verify that it works 
+
+
+
+
+
+Part 2:  Add Allowed File
+-------------------------
+ 1. Frontend:  Create the Add-Extension dialog   (copy from frms)
+
+ 2. Frontend Create the a DTO that has the information passed-in to the REST call
+		AddAllowedFileTypeDTO {       
+		  public extension: string;                   extension: "DOC",
+		  public description: string;                 description: "This is a word document"
+		}   
+
+  
+ 3. When user presses the "Add" button in the dialog
+	a. invoke the REST call
+	b. Prevent the user from closing the dialog
+	c. Show a spinner  (that something is happening)
+	d. Return TRUE if the REST call works
+	   Return FALSE if the REST call fails
+
+
+ 4. The main page will open the dialog
+
+ 5. The main page will listen for when the dialog closes
+	-- If the returned value == TRUE, then
+         /* The user added a new allowed file.  So, reload the grid */
+		 refresh the main grid page
+
+
+ 6. Create a service with a fake method that returns an observable
+    
+ 7. Try it out 
+    a. Try it out with the fake service running FAST
+    b. Try it out with the fake service running SLOW  pipe(delay(5000))
+
+
+ 8. Create a real REST endpoint
+	a. Create the DTO on the backend  (it's got the same stuff sa the DTO on the frontend)
+
+	b. Create a service method that will add the record to the database
+		-- This will run the SQL to add the record to the table
+
+			public addAllowedFileType( pass-in the DTO ) {
+
+			}
+
+	c. Create a controller method that will take-in the DTO 
+
+
+			// Specify the URL
+			// Specify the URL type
+			// Pass-in a json body
+			public addAllowedFileType(  ) {
+			
+
+			}
+	
+    
+
+
+
+ 9. Use PostMan to verify the real REST endpoints adds record to the system
+
+10. Integrate the real REST endpoint with the frontend
+
+
+
+
+
+
+
+
+
+
+
+Part 3:  Delete Allowed File
+----------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Misc Notes for kwame
+--------------------
+12. In the DocumentController.uploadDocument()
+    -- Add a check
+    -- Get the extension of the original uploaded file
+    -- If the extension is not in the allowed list, then throw a 400 bad request
+
+        String extensionInLowerCase = FilenameUtils.getExtension( aMultipartFile.getOriginalFilename() ).toLowerCase();
+        if (allowedFilesService.isExtensionAllowed(extensionInLowerCase) == false) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("Your uploaded file has an extension that is not allowed.");
+        }
+        
+
+
+13. In the Document Frontend Component
+    -- If the user selects a file that is not in the list, then show an error
+	-- In tab-documents.component.ts    onFileSelected()
+	-- invoke a REST call to see if the extension is in the allowed list
+	   NOTE:  Reuse the REST call /api/admin/file-type/exists
+
+
+
+
+
+
+
+
+ Design Decisions
+ ----------------
+ 1. Do you want to have the "Enabled" / "Disabled?"
+    If yes, then we need have that in the database and we need the REST calls to get that and set that
+    If no,  then we don't need in the database
+      a. No "Toggle" button is needed
+      b. No "Active" column is needed
+
+
+ 
+ 2. REST Call for *GETTING* the list of allowed file types
+
+	a. Url Type:   	GET
+
+	b. URL:        	/api/admin/file-type/list
+         
+
+	c. What's passed-in?  Nothing
+
+	d. What's return back?   Array of DTOs:
+
+		GetAllowedFileTypeDTO 
+		  public id: number;
+		  public extension: string;
+		  public description: string;
+		  public file_count: number;
+		  public revision: number;
+	
+
+	e. Security / Which roles can hit this REST call?
+		CVF_SUPERVISOR, CVF_ADMIN
+
+
+    f. What checks are made on the incoming data?
+	   N/A -- there is no incoming data.
+
+
+	
+
+     
+
+	
+
+
+ 3. REST Call for deleting one item
+
+	a. Url Type:   	DELETE
+
+	b. URL:        	/api/admin/file-type/delete/{allowedFileTypeId}
+         
+
+	c. What's passed-in?  the fileTypeId is passed-in on the URL
+
+	d. What's returned back?  
+	   -- Nothing, but we return 200 status code is if works   
+	
+
+	e. Security / Which roles can hit this REST call?
+		CVF_SUPERVISOR, CVF_ADMIN
+
+
+    f. What checks are made on the incoming data?
+       1) If the fileTypeId is passed-in, then return 400 bad request
+	   2) If the fileTypeId is negative, then return 400 bad request
+	   3) If the fileTypeId is not found in the database, then return 400 bad request   
+
+
+
+
+
+
+
+
+
+
+
+
+ 4. REST Call for adding one item
+
+	a. Url Type:   	POST
+
+	b. URL:        	/api/admin/file-type/add
+         
+	c. What's passed-in?  
+
+		AddAllowedFileTypeDTO {                      {
+		  public extension: string;                   extension: "DOC",
+		  public description: string;                 description: "This is a word document"
+		}                                            }
+
+
+	d. What's returned back?  
+	   -- Nothing, but we return 200 status code is if works   
+
+	e. Security / Which roles can hit this REST call?
+		CVF_SUPERVISOR, CVF_ADMIN
+
+
+    f. What checks are made on the incoming data?
+		1) if the extension is blank, then return 400 bad request
+		2) If the description is blank, then return 400 bad request
+		3) if the extension is already found in the system, then return 400 bad request
+			
+		4) What happens if the database table has extension with "doc" and I passed-in a new extension with "DOC"
+			-- Then, return 400 bad request as it's already in the system
+
+
+
+
+
+
+ 5. REST call for async validator
+
+
+			+----------------------------------------------+
+			| Add New Extension
+            |      
+            | +------------------------------+
+            | | doc                          |
+            | +------------------------------+
+            | That extension is already in the system
+            | The max length is 10 characters
+            |
+            | +------------------------------+
+            | | Description                  |
+            | +------------------------------+
+            |
+            |         <Cancel>  <Save>
+            +----------------------------------------------+
+
+            As the user types-in a new extension
+ 
+			Custom Validator invokes a REST call
+	 
+
+	a. Url Type:   	GET
+
+	b. URL:        	/api/admin/file-type/exists/{newExtension}
+
+         
+	c. What's passed-in?  
+        The extension string on the url
+
+	d. What's returned back?  
+		-- Let's a return a DTO  VerifyFileTypeExistsDTO
+
+			{
+				"extension"  :           "docx"
+				"is_already_in_system" : true
+			}
+
+
+
+
+
+	
+	e. Security / Which roles can hit this REST call?
+		CVF_SUPERVISOR, CVF_ADMIN
+
+
+    f. What checks are made on the incoming data?
+       -- If the extension is longer than 10 chars, then return 400 bad request
+       
+
+
+
+
+
+Part 4:  Add the Async Validator to the add-dialog box
+---------------------------------------------------------
+ 1. Create a contract for the REST endpoint that's being applied
+
+
+ 2. Build the REST endpoint
+	a. Create the backend DTO:  VerifyFileTypeExistsDTO
+    b. Create the public method in the AllowedFileTypesController
+		-- check passed-in parameters
+		-- check security
+		-- call the sevice method
+
+	c. Create the public method in the AllowedFileTypesService
+		-- Execute the SQL to see if it's in the database
+
+
+
+ 3. Test the REST endpoint with Postman
+
+
+
+ 4. In the frontend, Create the DTO  (to match the DTO from the backend)
+
+ 5. In the frontend, create our async validator
+
+ 6. In the frontend, apply the async validator
+
+ 7. In the frontend, display the error message
+
+
+
+
+Part 5:  Delete File Type
+-------------------------
+ 1. We have to create a delete-file-type-action-renderer
+    a. We create the component
+	b. Implement an interface that the ag-grid created
+    c. Register the action renderer in the grid
+
+		+--------------------------------------------------------------
+		|
+        | +-------------------------------------------------
+		| | Action  |   File Type   | Description
+        | | <icon>  |     doc       |  MS Word Document
+        | | <icon>  |     docx      |  MS Word Document
+        | +---------+---------------+------------------------
+        |
+	
+	Order of operations
+    -------------------
+	1. User clicks on the icon
+	2. Grid Page opens the dialog box -- are you sure
+	3. Grid Page waits for the dialog box to close
+		....
+	4. Dialog box closes and returns TRUE/FALSE
+	5. If the (Dialog Box returns TRUE)
+          reload the grid 
+          -- This is what causes the row to disappear
+
+
+
+
+
+ 2. We need to create the confirm-delete-file-type-dialog 
+    
+	a. Create a frontend DTO  (to pass data into the dialog)
+        ConfirmDeleteAllowedFileTypeDialogDTO
+			-- needs to hold an extension
+			-- needs to hold the allowedFiletypeId
+
+
+
+	b. Create the frontend dialog component
+		ConfirmDeleteAllowedFileTypeDialog
+
+
+			+----------------------------------------------------+
+			| Delete file type <extension> ?
+            |
+            | Are you sure you want to delete this file type?
+            |
+            |             <Cancel> <Delete>
+            +------------------------------------------------------
+
+
+ 3. When the user clicks on Delete Icon in the action renderer,
+    a. We want to open the dialog box
+		
+    b. Wait for dialog box to close
+
+
+
+ 4. When the user presses "Delete", we 
+		a. Stop the user from closing the dialog box
+		b. Show the spinner
+		c. Invoke a REST call and passed-in the allowedFileTypeId
+		d. When the REST call finishes, close the dialog
+		   NOTE:  Dialog returns TRUE  if the REST call works
+                  Dialog returns FALSE if the REST call fails		
+	
+
+ 5. We need to create a fake REST call service
+	a. Add a public method to delete the document
+			that takes-in the allowedFileTypeId
+			that returns an observable that holds a string
+
+	b. We can make this REST call take 5 seconds
+
+
+ 6. Build the real REST call
+
+ 7. Test the real REST call with Postman
+
+ 8. Integrate the real REST call
+
+
+
+

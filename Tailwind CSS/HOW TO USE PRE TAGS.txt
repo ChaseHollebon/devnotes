@@ -1,0 +1,7 @@
+Show reactive form values in a <pre>...</pre>
+
+        <pre>
+            this.myForm.controls.orderType.value = {{ this.myForm.controls.orderType.value  }}
+            this.myForm.controls.limitPrice.value = {{ this.myForm.controls.limitPrice.value  }}
+            this.myForm.controls.quantity.value = {{ this.myForm.controls.quantity.value  }}
+        </pre>

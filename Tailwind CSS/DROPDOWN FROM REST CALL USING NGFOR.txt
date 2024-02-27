@@ -1,0 +1,87 @@
+
+ Exercise 9 / Add a dropdown loaded from a REST call
+ ---------------------------------------------------
+
+ 1. Need to create a DTO on the frontend called LookupDataDTO
+		id     holds an integer
+		value  holds a string  (displayed to the user)
+
+
+ 2. Need a service that simulates the REST call
+    -- MyUserService
+
+
+ 3. Need a method that returns an observable
+	-- Fake REST Call
+
+	add a method to MyUserSerivce called  getPriorities()
+	-- It's going to return an Observable that holds an array of LookupDataDTO
+
+
+			+-------+-----------
+			| id    |   value
+            +-------+---------
+            |  1    |   "Low"
+            |  2    |   "Medium"
+            |  3    |   "High"
+            |  4    |   "Critical"      <--- Each one of these is a LookupDataDTO
+            +-------+----------------+
+
+		Array of LookupDataDTO
+              
+        
+
+		You need to make an array of 4 LookupDataDTO objects -- low, medium, high, and critical
+
+		You need to convert that array into an observable
+
+		You need to return the observable
+
+
+
+ 4. Need to update the main page (TypeScript)
+	a. Inject your MyDataService
+
+    b. Add a class variable called  
+			priorities        the type is an array of LookupDataDTO
+
+
+	c. Edit ngOnInit()
+		-- This is going to invoke your REST call and get your data and put it into the class variable called priorities
+
+
+
+ 5. Need to edit the HTML 
+	a. Add a dropdown to the page
+
+	b. Use an *ngFor to loop through the options
+			<mat-form-field>
+				<mat-label>Choose a Priority</mat-label>
+
+				<mat-select>
+					<mat-option [value]=1>Low</mat-option>
+					<mat-option [value]=2>Medium</mat-option>
+
+				</mat-select>		
+			</mat-form-field>
+ 
+ 6. Make sure it looks good
+
+ 7. Change the dropdown to use your data using *ngFor
+
+			<mat-form-field>
+				<mat-label>Choose a Priority</mat-label>
+
+				<mat-select>
+					<ng-container *ngFor="let priority of this.priorities">
+	
+							<mat-option [value]="priority.id> {{ priority.value  }}  </mat-option>
+
+					</ng-container>
+
+				</mat-select>		
+			</mat-form-field>
+
+
+
+ 

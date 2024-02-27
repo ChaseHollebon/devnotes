@@ -1,0 +1,26 @@
+FAKE SERVICE
+
+public getAllAllowedFilesTypes(): Observable<GetAllowedFileTypeDTO[]> {
+    let arrayOfDTO: GetAllowedFileTypeDTO[] = [
+      {
+        id: 25,
+        extension: "doc",
+        description: "Hello World",
+        file_count: 5
+      },
+      {
+        id: 30,
+        extension: "doc2",
+        description: "Hello World Again",
+        file_count: 10
+      },
+      {
+        id: 35,
+        extension: "doc3",
+        description: "Hello World Again for the third time",
+        file_count: 15
+      }
+    ];
+
+    return of(arrayOfDTO);
+  }

@@ -1,0 +1,206 @@
+Plan to Make Uploads work in the Documents Tab
+----------------------------------------------
+
+General Approach for REST alls
+------------------------------
+ 1) Make the contract for the REST Call
+
+ 2) Make a front-end service:  document.service.ts
+		ng generate service services/documents --skip-tests
+
+
+ 3) If the front-end is RETURNING information, then create the DTO:   
+
+		ng generate class dtos/GetDocumentDetailsDTO --skip-tests
+
+		
+	Add fields to the DTO.  What are we displaying?
+
+			public documentId:           number;
+			public originalFilename:	  string;
+			public sizeInBytes:          number;
+
+		+--------------------------------------------------------------+
+        |   documentId       |   original filename |    size in bytes  |
+
+
+		
+
+ 4) Change the front-end to use your documents service
+
+	1) Add a method to your DocumentService:  getAllDocuments()
+
+			public getAllDocuments(aCaseId): Observable< GetDocumentDetailsDTO[]  > {
+
+			}
+
+
+	2) Inject the documentService into your component
+
+	3) Create a class variable that is an observable
+
+	4) Initialize the observble in ngOnInit()
+
+	5) Use "async pipe" to invoke the REST call
+
+
+ 5) Build the real REST call in Java
+
+
+ 6) Change that frontend service to invoke your real REST call
+
+		public getAllDocuments(aCaseId: number): Observable<GetDocumentDetailsDTO[] > {
+
+			// Construct the URL of the REST call
+			const restUrl = environment.baseUrl + '/api/documents/get/' + aCaseId;
+
+			// Use a GET call to send a JSON body of info
+			return this.httpClient.get <GridGetRowsResponseDTO[]> (restUrl);
+
+		}
+
+
+
+Frontend Part
+-------------
+
+ 1. Frontend service call to get array of uploaded documents
+    -- We can hard-code it so that this always returns the same 4 documents
+       *OR*
+    -- We can invoke the real REST call
+
+
+ 2. Frontend Uploader / angular component that handles on the upload on the frontend side
+    -- This handles uploads and drag & drop on the frontend
+
+
+
+
+ 3. Frontend Download button
+    -- This can invoke a fake REST call (that does nothing)
+       *OR*
+    -- This can invoke a real REST call to downloads the file
+
+
+ 4. Frontend Delete button
+    -- This can invoke a fake REST call (that does nothing)
+       *OR*
+    -- This can invoke a real REST call to delete the upload
+ 
+
+
+
+Backend Part
+------------
+
+ 1. Create a backend REST call to get a list of uploaded documents
+
+
+ 2. Create a backend REST call for uploading a file
+    -- Run a SQL transaction to
+       a) Create a database record
+       b) Save the file to the disk
+
+
+ 3. Create a backend REST call to download a single document
+    -- Pass in the document ID and it will download it
+
+
+
+ 4. Create a backend REST call to delete a single document
+    -- Pass in the document ID and it will delete it
+
+
+
+
+
+
+ Contract for REST call #1
+ --------------------------
+ Contract consists of:
+
+	A) What is the REST call url?
+			/api/documents/get-all/{caseId}         
+
+
+
+	B) What is the REST call type:  
+			GET 
+
+		Read-only operations ---> GET
+		Adding a big thing  ----> POST
+        Deleting something  ----> DELETE
+		
+			
+	C) What is passed-in?
+		-- The case id is passed-in on the url
+
+
+	D) What is returned?
+		Array of DTOs that hold
+
+		+--------------------------------------------------------------+
+        |   documentId       |   original filename |    size in bytes  |
+		+--------------------+---------------------+-------------------+
+        |      10000         |   "stuff.pdf"       |    1,0002,1000    |
+        |      25001         |  "file #2.pdf"      |      54,0002      |
+
+
+	E) What security is needed?
+		-- Is this REST call only allowed by CVF_SUPERVISOR, CVF_SPECIALIST
+		-- Which roles are allowed to hit this REST call?
+	
+		IN OUR CASE:  Both are allowed:  CVF_SUPERVISOR, CVF_SPECIALIST
+
+
+
+	F) What checks do we make on the data coming in?
+		-- A caseId is passed-in
+		-- Can the caseId be negative?  No, reject that
+		-- Does the caseId exist in the database?  If not, reject that
+
+
+	G) What does the REST call do?
+		-- Query the database for a list of all documets info for a given case id
+		-- From that query, generate a list of DTO objects
+		-- Return the list of DTO objects to the front-end
+
+
+		
+ Plan for implementing REST Call #1
+ ----------------------------------
+  1. Add a java class:  GetDocumentDetailsDTO
+		-- This will have getters & setters
+
+ 
+
+  2. Add a java service:  DocumentsService
+
+  3. Add a method to DocumentService:    getAllDocumentsForCaseId()
+		-- pass-in the caseId as an integer
+		-- For now, create a hard-coded list
+		-- returns a list of GetDocumentDetailsDTO
+
+
+
+  4. Add a java class:  DocumentsController
+	
+  5. Add a method to the DocumentsController
+		-- this is where the REST call starts
+
+
+
+
+  
+
+
+
+                 col1           col2                    col3  right-aligned    
+		+--------------------------------------------------------------------+
+        |    "stuff.pdf"  |     15 MB   |           <View Btn>w <Delete Btn> |
+        |    "stuff.pdf"  |     15 MB   |           <View Btn>w <Delete Btn> |
+        |    "stuff.pdf"  |     15 MB   |           <View Btn>w <Delete Btn> |
+        |    "stuff.pdf"  |     15 MB   |           <View Btn>w <Delete Btn> |
+
+    
+

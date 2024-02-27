@@ -1,0 +1,334 @@
+Add Contracts Page 
+
+
+
+            +-------------------------------------------------------------------------------------+
+            | Add a Contract                                                           <Help Btn> |
+            +-------------------------------------------------------------------------------------+
+            |                                                                                     |
+            |  <Contract Name Textbox>         <Contract Number Textbox>    <Priority Dropdown>   |
+            |                                                                                     |
+            |  <Classification Dropdown>     <Contract Size Dropdown>                             |      
+            |                                                                                     |           
+            |  <Region Dropdown>                                                                  | 
+            |                                                                                     |
+            |  <Report Authors>                                                                   |
+            |                                                                                     |
+            |  +-----------------------------------------------------------------------------+    |
+            |  | <Description Textarea>                                                      |    |   
+            |  |                                                                             |    |
+            |  +-----------------------------------------------------------------------------+    |
+            |                                                                                     |
+            |               <Reset Btn>   <Update Btn>    <Save for Later> Hyperlink              |
+            +-------------------------------------------------------------------------------------+
+
+HTML
+
+<!-- Padding of 10px around the entire page -->
+<div class="bg-backDropColor m-2.5">
+  <form [formGroup]="this.myForm">
+
+    <!-- Help Sidebar -->
+    <mat-sidenav-container hasBackdrop="false" style="height: calc(100vh - 120px)">
+      <mat-sidenav disableClose position="end" mode="over" [opened]="this.isHelpVisible" style="width: 40%">
+        <div class="grid grid-cols-2">
+          <div class="flex self-center">
+            Help is Here
+          </div>
+
+          <div class="flex place-content-end">
+            <button (click)="this.closeHelp()" type="button"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              Hide
+            </button>
+          </div>
+
+        </div>
+      </mat-sidenav>
+
+
+      <!-- Header Section -->
+      <div class="bg-gray-200">
+        <div class="flex flex-row justify-between items-center mb-4">
+          <span class="text-2xl font-bold">Add a Contract</span>
+
+          <!-- Help Button -->
+          <button (click)="openHelp()" type="button"
+                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Help
+          </button>
+        </div>
+      </div>
+
+
+      <!-- Contracts Name Textbox -->
+      <div class="grid grid-cols-3 gap-5">
+        <div>
+          <mat-form-field>
+            <mat-label>Contract Name</mat-label>
+            <input formControlName="contractName" matInput type="text"/>
+            <mat-error>The contract name field is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Contract Number Textbox -->
+        <div>
+          <mat-form-field>
+            <mat-label>Contract Number</mat-label>
+            <input formControlName="contractNumber" maxlength="7" matInput type="text"/>
+            <mat-error class="nowrap" *ngIf="this.myForm.controls.contractNumber.errors?.invalidContractNumber">
+              <span>{{ this.myForm.controls.contractNumber.errors?.invalidContractNumber }}</span>
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Priority Dropdown -->
+        <div>
+          <mat-form-field>
+            <mat-label> Priority</mat-label>
+            <mat-select formControlName="priority">
+              <mat-option [value]=1> France</mat-option>
+              <mat-option [value]=2> Israel</mat-option>
+              <mat-option [value]=3> United Kingdom</mat-option>
+              <mat-option [value]=4> United States of America</mat-option>
+            </mat-select>
+            <mat-error>The priority field is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Classification Dropdown -->
+        <div>
+          <mat-form-field>
+            <mat-label> Classification</mat-label>
+            <mat-select formControlName="classification">
+              <mat-option [value]=1> Unclassified</mat-option>
+              <mat-option [value]=2> Unclassified / FOUO</mat-option>
+              <mat-option [value]=3> Confidential</mat-option>
+              <mat-option [value]=4> Secret</mat-option>
+              <mat-option [value]=5> Top Secret</mat-option>
+            </mat-select>
+            <mat-error>The classification field is required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Contract Size Dropdown -->
+        <div class="col-span-2">
+          <mat-form-field>
+            <mat-label> Contract Size</mat-label>
+            <mat-select formControlName="contractSize">
+              <mat-option [value]=1> Under $200,000</mat-option>
+              <mat-option [value]=2> $200,000 to $500,000</mat-option>
+              <mat-option [value]=3> $500,000 to $1 million</mat-option>
+              <mat-option [value]=4> $1 million to $5 million</mat-option>
+              <mat-option [value]=5> Over $5 million</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Region Dropdown -->
+        <div>
+          <mat-form-field>
+            <mat-label> Region</mat-label>
+            <mat-select formControlName="region">
+              <mat-option [value]=1> United States</mat-option>
+              <mat-option [value]=2> Canada</mat-option>
+              <mat-option [value]=3> Mexcio</mat-option>
+              <mat-option [value]=4> Europe</mat-option>
+              <mat-option [value]=5> Middle East</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Sub Region Dropdown -->
+        <div class="col-span-2">
+          <ng-container *ngIf="this.showSubRegion">
+            <mat-form-field>
+              <mat-label> Sub Region</mat-label>
+              <mat-select formControlName="subRegion">
+                <mat-option [value]=1> East Coast</mat-option>
+                <mat-option [value]=2> West Coast</mat-option>
+                <mat-option [value]=3> Mid West</mat-option>
+                <mat-option [value]=4> South</mat-option>
+              </mat-select>
+              <mat-error>The sub region field is required</mat-error>
+            </mat-form-field>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Contract Authors Dropdown -->
+      <div>
+        <mat-form-field>
+          <mat-label> Contract Authors</mat-label>
+          <mat-select multiple formControlName="contractAuthors">
+            <mat-option [value]=1> Chase H</mat-option>
+            <mat-option [value]=2> Jess A</mat-option>
+            <mat-option [value]=3> Alex B</mat-option>
+            <mat-option [value]=4> THE GREAT COLUCCI</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Description Textbox -->
+      <div>
+        <mat-form-field class="w-4/5">
+          <mat-label>Description</mat-label>
+          <input formControlName="description" matInput type="text"/>
+        </mat-form-field>
+      </div>
+
+      <!-- Reset Button -->
+      <div *ngIf="this.savedSuccessfully == true" class="flex self-center" style="text: green">
+        Success Successfully
+      </div>
+
+      <div class="flex place-content-center">
+
+
+        <div class="flex flex-row gap-20">
+
+          <button mat-raised-button (click)="this.resetClicked()" type="reset"
+                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Reset
+          </button>
+
+          <!-- Save Button -->
+          <button mat-raised-button (click)="this.saveClicked()" type="button"
+                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Save
+          </button>
+
+
+          <!-- Save for Later Hyperlink -->
+          <a href="#" class="text-blue-500 hover:text-blue-700 text-blue font-bold py-2 px-4 rounded underline">
+            Save For Later
+          </a>
+
+        </div>
+      </div>
+    </mat-sidenav-container>
+    <pre>
+        this.myForm.valid={{this.myForm.valid}}
+      this.myForm.controls.contractNumber.errors={{this.myForm.controls.contractNumber.errors | json}}
+      this.myForm.controls.contractNumber.value={{this.myForm.controls.contractNumber.value}}
+      this.myForm.controls.contractNumber.valid={{this.myForm.controls.contractNumber.valid}}
+
+      this.showErrorMessage={{this.showErrorMessage}}
+    </pre>
+  </form>
+</div>
+
+
+TS
+
+import {Component, HostListener} from '@angular/core';
+import {AbstractControl, FormBuilder, FormGroup, ValidatorFn, Validators} from "@angular/forms";
+import {MyValidatorsServiceService} from "../services/my-validators-service.service";
+
+@Component({
+  selector: 'app-add-contracts',
+  templateUrl: './add-contracts.component.html',
+  styleUrls: ['./add-contracts.component.scss']
+})
+export class AddContractsComponent {
+  @HostListener('keydown.esc', ['$event'])
+  onKeydownHandler(event: KeyboardEvent) {
+    // Someone pressed the Escape key
+    this.closeHelp();
+  }
+
+
+
+  constructor(private formBuilder: FormBuilder,
+              private myValidatorsServiceService: MyValidatorsServiceService){
+  }
+
+  public myForm: FormGroup;
+  public savedSuccessfully: boolean = false;
+  public showErrorMessage: boolean = false;
+  public showSubRegion: boolean = false;
+  public disableSubmitButton: boolean = true;
+
+
+
+
+  public regionValidator(): ValidatorFn{
+    return (control: AbstractControl) => {
+      let subRegionControl = this.myForm?.get('subRegion');
+      if (control.value) {
+        if (control.value == 1) {
+          // Show the sub-region field and make it required
+          this.showSubRegion = true;
+          subRegionControl?.setValidators(Validators.required)
+        } else {
+          // Hide the sub-region field and make it optional
+          this.showSubRegion = false;
+          subRegionControl?.setValidators(null)
+        }
+      } else {
+        // Hide the sub-region field and make it optional
+        this.showSubRegion = false;
+        subRegionControl?.setValidators(null)
+      }
+      return null;
+    }
+  }
+
+
+  public ngOnInit(): void {
+    this.myForm = this.formBuilder.group({
+      contractName:           [null, Validators.required],
+      contractNumber:         [null, this.myValidatorsServiceService.validateContractNumber()],
+      priority:               [null, Validators.required],
+      classification:         [null, Validators.required],
+      contractSize:           [null, null],
+      region:                 [null, this.regionValidator()],
+      subRegion:              [null, null],
+      contractAuthors:        [null, null],
+      description:            [null, null]
+    },{
+
+  })
+}
+
+  public isHelpVisible: boolean;
+
+  public openHelp(){
+    this.isHelpVisible = true;
+  }
+
+  public closeHelp(){
+    this.isHelpVisible = false;
+  }
+
+  public resetClicked(): void{
+    this.myForm.reset();
+  }
+
+  public saveClicked(): void {
+    // Show all the error messages to the user
+    this.myForm.markAllAsTouched();
+
+
+    // The form is NOT valid, STOP here
+    if(this.myForm.valid==false){
+      return;
+    }
+
+    // Form IS valid, save the data
+    this.savedSuccessfully = true;
+
+
+
+    setTimeout(() =>{
+      this.savedSuccessfully = false;
+      this.myForm.reset();
+    }, 5000)
+
+  }
+
+
+}
+
+
+

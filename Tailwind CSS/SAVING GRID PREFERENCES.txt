@@ -1,0 +1,439 @@
+Lesson 7 / Saving Grid Preferences
+----------------------------------
+
+Having the grid "remember" what the user had set for column widths, column order, column visibility is a great feature
+-- Invisible UI
+-- The user hides a column and the page remembers it
+
+NOTE:  Work in nccs or frms project
+
+
+
+Exercise 7a / Create a new client-side grid page
+------------------------------------------------
+1. Create the component:  ClientGridPage7
+    terminal> cd frontend
+    terminal> ng generate component ClientGridPage7 --skipTests
+
+
+ 2. Tell the router that "page/client-grid-7" takes you to the new component
+    a. Edit app.module.ts
+    b. Add this route:
+          { path: 'page/client-grid-7',       component: ClientGridPage6Component },
+
+
+ 
+ 3. Add a link in the navbar that says "Client Grid Page 7"
+    a. Edit navbar.component.html
+    b. Add the link to the Client Grid Page 7
+
+
+
+
+ 4. Verify that the navbar link works
+    a. Activate the debugger
+    b. Go to http://localhost:4200/
+    c. Verify that you see the link called "Client Grid Page 6"
+    d. Click on the link
+       -- Verify it says, "client-grid-page-6 works!"
+
+
+
+
+Exercise 7b / Setup the Layout of this Page
+-------------------------------------------
+
+    Layout Choice #1
+    +----------------------------------------------------------------------------------------------------+
+    | Project Status Page (Lesson 7)                                                                     |
+    +----------------------------------------------------------------------------------------------------+
+    |  <New Project Btn>                                                                     <Reset Btn> | 
+    |  +--------------------+----------------+------------+----------------------------+-----------------+
+    |  | Action             |  Project Name  |   Status   | Start Date   |   End Date  |   Total Days    |
+    |  +--------------------+----------------+------------+--------------+-------------+-----------------+
+    |  |  <View PDF>        |  Project 1     |  Planning  |  12/23/2022  |  01/31/2023 |        37       |
+    |  |  <View PDF>        |  Project 1     |  Bidding   |  01/05/2023  |  04/01/2023 |        90       |       
+    |  |  <View PDF> <Edit> |  Project 1     |  Executing |  05/15/2023  |             |        128      |
+    |  |  <View PDF> <Edit> |  Project 2     |  Planning  |  11/15/2022  |             |        37       |
+    |  |  <View PDF>        |  Project 3     |  Planning  |  01/15/2021  |  04/15/2022 |        90       |
+    |  |  <View PDF>        |  Project 3     |  Bidding   |  06/02/2021  |  07/02/2022 |        30       |
+    |  |  <View PDF>        |  Project 3     |  Executing |  10/01/2022  |  12/01/2022 |        60       |
+   +-----------------------------------------------------------------------------------------------------+
+    NOTE:  The grid should use the remaining height of the page
+
+    NOTE:  The Action Column Cell Renderer has 2 buttons
+			-- You always show "View PDF"  
+			-- You only show "Edit" if the status is ongoing 
+
+
+
+    1. Create the layout in HTML
+
+    2. Add the grid to the HTML
+
+    3. Add the "Reset" Btn
+
+    4. Add a "New Project" btn
+
+    5. Put a 3-d effect around where you grid would be
+
+    6. Put a place holder in for your grid
+			<div> my grid will be here </div>
+
+
+Exercise 7c / Add the client grid to the page
+---------------------------------------------
+ 1. Add the grid to the HTML
+
+ 2. Add the gridOptions
+
+ 3. Add the column definitions
+
+ 4. Add any default column definitions
+
+ 5. Add any frameworkComponents to the grid
+
+ 6. Add the ProjectActionCellRenderer 
+	a. create the ProjectActionCellRenderer component
+	b. Make sure it implements ICellRendererComp
+	
+ 7. Register your ProjectActionCellRenderer
+
+
+
+
+Exercise 7d / When the grid is ready, load the data from a front-end service that returns an observable
+-------------------------------------------------------------------------------------------------------
+
+ 1. Create a front-end DTO that holds one row of data:   ProjectGridRowDTO
+		id
+		project_name
+		status_label
+		status_id            (holds 1 for planning, 2 for bidding, 3 for executing)
+		start_date
+		finish_date
+		is_active            (true/false)
+		total_days_in_phase   
+
+
+
+
+	terminal> ng g class models/ProjectGridRowDTO --skipTests
+
+
+    
+ 2. Create a front-end grid service:  ProjectService
+    a. Create the service:  ProjectService
+	   terminal> ng g service services/Project --skipTests
+
+
+	b. Add a public method:  getAllProjects() that returns an observable that holds an array of ProjectGridRowDTO
+
+
+	c. Fill-in the method so it returns an Observable that holds an array of UsersGridRowDTO objects
+
+		  public getAllProjects(): Observable<ProjectGridRowDTO[]> {
+
+			let data: UsersGridRowDTO[] = [
+			  { id: 1000, full_name: 'John Smith', 'last_login_date': '06/25/2023 08:05:03'},
+			  { id: 1002, full_name: 'Jane Smith', 'last_login_date': '06/22/2024 16:45:35'},
+			  { id: 1004, full_name: 'George Low', 'last_login_date': '06/01/2022 14:36:38'},
+			];
+
+			return of(data);
+		  }
+
+
+ 3. In client-grid-page7.component.ts
+	Inject the ProjectService into the client-grid-page1 component
+
+  		constructor(private projectService: ProjectService) { }
+
+
+ 4. In client-grid-page1.component.ts
+	Add these 2 class variables:
+  		private gridApi: GridApi;
+	  	private gridColumnApi: ColumnApi;
+
+
+ 5. Add a public method called onGridReady
+
+	  public onGridReady(params: any): void {
+		// Get a reference to the gridApi and gridColumnApi (which we will need later to get selected rows)
+		this.gridApi = params.api;
+		this.gridColumnApi = params.columnApi;
+	  }
+
+
+ 6. Tell the ag-grid to call our onGridReady() method when the grid is fully initialized
+  		(gridReady)="this.onGridReady($event)" 
+
+
+ 7. Tell onGridReady to get the data from the service
+
+
+	  public onGridReady(params: GridReadyEvent): void {
+		// Get a reference to the gridApi and gridColumnApi (which we will need later to get selected rows)
+		this.gridApi = params.api;
+		this.gridColumnApi = params.columnApi;
+
+		this.projectService.getAllProjects().subscribe( (aData: ProjectGridRowDTO[]) => {
+		    // The REST call came back
+
+		    // Set the data in the grid
+		    this.gridApi.setRowData(aData);
+		})
+	  }
+
+
+
+Exercise 7e / How to get the grid page to *LOAD* grid settings when the page is loaded?
+---------------------------------------------------------------------------------------
+ 	
+	Approach
+	--------
+	1. Inject the preferenceService into your page
+
+	2. Set a class variable called PAGE_NAME (this is a read only constant) that holds a string -- it can be anything as long as it's unique
+
+		  private readonly PAGE_NAME: string = 'client-grid-7';
+
+
+
+	3. In the onGridReady() method we need to get the user's preferences for this pager and preference name for column settings  ("grid_column_state")
+			
+			So, we need to subscribe to an observable and pass-in the page name ("grid-page-6") and preference name ("grid_column_state")
+				this.preferenceService.getPreferenceValueForPage().subscribe( (aPreference: GetOnePreferenceDTO) => {
+					// We got the preference for this page and preference name
+					if (aPreference.value) {
+						// The user has a preference
+
+						// Convert the JSON string preference into an ColDef[]
+					    let storedColumnStateObject = JSON.parse(aPreference.value);
+
+			 			// Set the grid state -- e.g., set the column widths, column order, visible columns
+       					this.gridColumnApi.applyColumnState(
+								 { 
+									state: storedColumnStateObject,  
+									applyOrder: true
+								} );
+					}
+
+
+					// Now, load the data....
+				});
+			
+
+
+		  public onGridReady(aParams: GridReadyEvent) {
+			this.gridApi = aParams.api;
+			this.gridColumnApi = aParams.columnApi;
+
+
+			this.preferenceService.getPreferenceValueForPage(Constants.COLUMN_STATE_PREFERENCE_NAME, this.PAGE_NAME).subscribe( (aPreference: GetOnePreferenceDTO) => {
+				// We got the preference for this page
+
+				if (aPreference.value) {
+				  // There is past saved column state
+
+				  // Convert the JSON string preference into an ColDef[]
+				  let storedColumnStateObject = JSON.parse(aPreference.value);
+
+				  // Set the grid state -- e.g., set the column widths, column order, visible columns
+				  this.gridColumnApi.applyColumnState(
+				    {
+				      state: storedColumnStateObject,
+				      applyOrder: true
+				    } );
+				}
+
+				// Invoke the REST call to get the reports
+				this.gridService.getAllReports().subscribe( (aData: GetReportRowDTO[]) => {
+
+				  // The REST call returned with the grid data
+
+				  // Load the data into the grid
+				  this.gridApi.setRowData(aData);
+
+				  if (! aPreference.value) {
+				    // There was no passed preference so size the columns to fit
+				    this.gridApi.sizeColumnsToFit();
+				  }
+
+				})
+
+			});
+
+		  }  // end of onGridReady()
+
+
+
+
+
+Exercise 7f / How to get the grid page to "SAVE" column settings?
+-----------------------------------------------------------------
+
+     Approach
+   	 --------
+	 A) User changes something with the grid -- e.g., adjusts a width, hides a column, re-orders a column
+		-- The grid calls a method of ours
+
+     B) We want to start listening for grid changes *AFTER* the first data in the grid is rendered
+        -- So, we need a flag to indicate if first data has been rendered yet
+        NOTE:  We do not want to save preferences while the grid is still initializing
+
+	 C) Our method invokes a REST call to save the preferences
+        1) If first data has not been rendered, then stop
+        2) We get the column state from the grid
+        3) We save it to the backend [without waiting for a response]
+
+
+
+	Procedure
+	---------
+	1. Add a class variable called listenForGridChanges   (it's going to be false initially)
+
+	2. Create a method called firstDataRendered() that will be called by the grid
+			-- This method will set the listenForGridChanges flag to true
+
+
+	3. Tell the grid to call firstDataRendered() once the grid has loaded data
+			  (firstDataRendered)="this.firstDataRendered()"
+    
+	4. Create a private method called saveColumnState()
+		-- This will invoke a REST call to save the preference for this page and 
+
+		a. if we're not supposed to be listening for changes, then stop here
+
+			if (! this.listenForGridChanges) {
+				// We're not listening for grid changes yet.  So, stop here
+				return;
+			}
+
+		b. Get the current column state from the grid
+
+		      // Get the current column state
+      		  let currentColumnState: ColumnState[] = this.gridColumnApi.getColumnState();		
+		
+		c. Save the preference by invoking a REST call
+	  		  // Save the preferences
+			  this.preferenceService.setPreferenceValueForPageUsingJson(Constants.COLUMN_STATE_PREFERENCE_NAME, currentColumnState, this.PAGE_NAME).subscribe();
+
+
+		
+	5. Tell the grid to call saveColumnState() when a user hides a column, adjusts a width, shows a column, ....
+		a. Adjust gridOptions
+
+		b. Add this to it:
+
+			onDragStopped: () => {
+		  	// User finished resizing or moving column
+		  		this.saveColumnState();
+			},
+
+			onDisplayedColumnsChanged: () => {
+		  		this.saveColumnState();
+			},
+
+			onColumnVisible: () => {
+		  		this.saveColumnState();
+			},
+
+			onColumnPinned: () => {
+		  		this.saveColumnState();
+			}
+
+
+	6. Try it out. 
+		-- Go to your Grid Page 6
+		-- Adjust the grid
+		-- See if the number of preferences saved increments
+
+		-- Leave the page
+		-- Return to the page
+		-- Your grid should remember what you last had	
+
+		
+		
+
+
+
+
+Exercise 7g / How to get the grid page to "SAVE" column settings?   (optimized)
+-------------------------------------------------------------------------------
+Improvement:  Instead of saving every preference, what if we just got the last preference over 1000 milliseconds?
+
+       
+     Approach
+   	 --------
+	 A) User changes something with the grid -- e.g., adjusts a width, hides a column, re-orders a column
+		-- The grid calls a method of ours
+
+	 B) Our method sends a message with the column state
+        1) We get the column state from the grid
+        2) We send the column state as a message
+
+     C) The grid page is listening on these messages
+        -- It batches-up messages over 1 second
+        -- So, if 30 messages are sent in the last second, then we take the *LAST* one
+        -- We invoke *ONE* rest call and cancel the other 29 messages
+
+  
+
+	
+	Procedure
+	---------
+	1. Add a class variable that holds the subject
+
+			 private saveGridColumnStateEventsSubject: Subject<any> = new Subject();
+
+
+	2. Add a class variable that holds the subscription:
+			private saveGridEventsSubscription: Subscription;
+
+
+	3. Change saveColumnState() so it sends a message with the current column state (instead of invoking the REST call)
+
+		  private saveColumnState(): void {
+			if (! this.listenForGridChanges) {
+			  // We're not listening for grid changes yet.  So, stop here
+			  return;
+			}
+
+			// Get the current column state
+			let currentColumnState: ColumnState[] = this.gridColumnApi.getColumnState();
+
+			// Send a message with the current column state
+			this.saveGridColumnStateEventsSubject.next(currentColumnState);
+		  }
+
+
+
+	3. Edit the ngOnInit() by adding this code to listen for save changes:
+
+			// Listen for save-grid-column-state events
+			// NOTE:  If a user manipulates the grid, then we could be sending LOTS of save-column-state REST calls
+			//   	 The debounceTime slows down the REST calls
+			//   	 The switchMap cancels previous calls
+			//   	 Thus, if there are lots of changes to the grid, we invoke a single REST call using the *LAST* event (over a span of 250 msecs)
+			this.saveGridEventsSubscription = this.saveGridColumnStateEventsSubject.asObservable().pipe(
+			  debounceTime(1000),		 // Wait 1000 msecs before invoking REST call
+			  switchMap( (aNewColumnState: any) => {
+				// Use the switchMap for its canceling effect:
+				// On each observable, the previous observable is canceled
+
+				// Return an observable	// Invoke the REST call to save it to the back end
+				return this.preferenceService.setPreferenceValueForPageUsingJson(Constants.COLUMN_STATE_PREFERENCE_NAME, aNewColumnState, this.PAGE_NAME)
+			  })
+			).subscribe();
+
+
+	4. Remove the memory leak by unsubscribing in ngOnDestroy()
+
+		  public ngOnDestroy(): void {
+			if (this.saveGridEventsSubscription) {
+			  this.saveGridEventsSubscription.unsubscribe();
+			}
+		  }
+
+

@@ -1,0 +1,79 @@
+How to Make an Asynchronous Validator
+-------------------------------------
+Problem:  I want to tell the user if the entered report number is UNIQUE (as they are typing-in)
+Solution: Use an async validator
+
+
+Approach
+--------
+ 1. Create a contract for the REST endpoint
+	a. URL Type:   GET/POST/PUT/DELETE
+
+	b. URL:        /api/is-report-number-unique/{reportNumber}
+
+	c. What's passed-in?
+       The reportNumber in the URL itself
+
+	d. What's returned?
+       DTO that holds a boolean
+		{
+			'report_number':  '123',
+			'is_unique':      true
+		}
+
+	e. Security Roles -- which roles are allowed to hit it
+       -- CVF_SUPERVISOR, SVF_SPECIALIST
+
+	f. Checks on passed-in data
+		-- if the passed-in reportNumber is blank, then return 400 bad request
+
+			
+				let str: string;                    // str is UNDEFINED                               [THIS IS BLANK]
+				let str: string | null = null;      // str is NULL                                    [THIS IS BLANK]
+				let str: string = '';               // str is an empty string (length is zero)        [THIS IS BLANK]
+				
+
+
+
+
+ 2. Build the REST endpoint in Java
+	a. Create the returned DTO:  ReportNumberUniqueDTO
+		report_number   holds a string
+		is_unique       holds a boolean
+
+
+	b. Create a Controller:  ReportController.java
+
+	c. Add the @Controller annotation to the top
+
+	d. Add the logger
+
+	e. Add a public method -- this is the REST endpoint
+
+		if the passed-in reportNumber is 222, then return that the report number is *NOT* unique (already taken)
+		else, then the report number is unique
+
+
+
+
+ 3. Test the REST endpoint with Postman
+
+
+ 4. Create a frontend DTO:  ReportNumberUniqueDTO
+		report_number   holds a string
+		is_unique       holds a boolean
+
+ 5. Create a frontend service:  report.service.ts
+
+
+ 6. Add a method to your frontend service that calls the REST endpoint
+		checkIfReportNumberIsUnique( pass-in a report number as a string)
+		return an observable that holds the ReportNumberUniqueDTO
+
+
+ 7. Create our custom validator method that returns AsyncValidatorFn
+
+ 8. Assign the custom validator to one of the form fields  (using myForm)
+
+
+

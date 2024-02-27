@@ -1,0 +1,398 @@
+Lesson 2:  Loading Grid Data with a Service
+-------------------------------------------
+
+Assumptions:
+ A) You have ag-grid already installed the project / See Lesson 22a
+ B) You have ag-grid license key already setup     / See Lesson 22b
+
+
+
+ 
+Exercise 2a / When the grid is ready, load the data from a front-end service that returns an observable
+-------------------------------------------------------------------------------------------------------
+
+ 1. Create a front-end DTO that holds one row of data:   UsersGridRowDTO
+		id
+		full_name
+		last_login_date
+
+	terminal> ng g class models/UsersGridRowDTO --skipTests
+
+
+    
+ 2. Create a front-end grid service:  UsersGridService
+    a. Create the service:  UsersGridService
+	   terminal> ng g service services/usersGrid --skipTests
+
+
+	b. Add a public method:  getAllUsers() that returns an observable that holds an array of UsersGridRowDTO
+
+
+	c. Fill-in the method so it returns an Observable that holds an array of UsersGridRowDTO objects
+
+		  public getAllUsers(): Observable<UsersGridRowDTO[]> {
+
+			let data: UsersGridRowDTO[] = [
+			  { id: 1000, full_name: 'John Smith', 'last_login_date': '06/25/2023 08:05:03'},
+			  { id: 1002, full_name: 'Jane Smith', 'last_login_date': '06/22/2024 16:45:35'},
+			  { id: 1004, full_name: 'George Low', 'last_login_date': '06/01/2022 14:36:38'},
+			];
+
+			return of(data);
+		  }
+
+
+ 3. In client-grid-page1.component.ts
+	Inject the UsersGridService into the client-grid-page1 component
+
+  		constructor(private usersGridService: UsersGridService) { }
+
+
+ 4. In client-grid-page1.component.ts
+	Add these 2 class variables:
+  		private gridApi: GridApi;
+	  	private gridColumnApi: ColumnApi;
+
+
+ 5. Add a public method called onGridReady
+
+	  public onGridReady(params: any): void {
+		// Get a reference to the gridApi and gridColumnApi (which we will need later to get selected rows)
+		this.gridApi = params.api;
+		this.gridColumnApi = params.columnApi;
+	  }
+
+
+ 6. Tell the ag-grid to call our onGridReady() method when the grid is fully initialized
+  		(gridReady)="this.onGridReady($event)" 
+
+
+ 7. Tell onGridReady to get the data from the service
+
+
+	  public onGridReady(params: any): void {
+		// Get a reference to the gridApi and gridColumnApi (which we will need later to get selected rows)
+		this.gridApi = params.api;
+		this.gridColumnApi = params.columnApi;
+
+		this.usersGridService.getAllUsers().subscribe( (aData: UsersGridRowDTO[]) => {
+		    // The REST call came back
+
+		    // Set the data in the grid
+		    this.gridApi.setRowData(aData);
+		})
+	  }
+
+
+ 8. Simulate a *SLOW* rest call by adding a delay of 4 seconds to the fake REST call
+
+
+
+
+Exercise 2b:  Change the paragraph text to "JetBrains Mono" / font-weight: 400
+------------------------------------------------------------------------------
+Add to styles.css
+
+   .my-grid-row-class {
+		font-family: 'JetBrains Mono';
+		font-style: normal;
+		font-weight: 400;
+	}
+
+In the column definitions, tell ag-grid to use the CSS class by setting:  cellClass
+
+   {
+      field: 'query',
+      headerName: "Search Query",
+      cellClass: 'my-grid-row-class'
+    }
+
+
+
+
+Exercise 2c: The sorting does not work on the last_login_date / get the date sorting to work in a client-side grid
+------------------------------------------------------------------------------------------------------------------
+See lesson22z / See page 12
+
+
+
+
+Exercise 2d: Change the last login date background based on how long since the last login date
+----------------------------------------------------------------------------------------------
+If the last login date is more than 1 year old,        then change the background to RED
+If the last login date is between 6 months and 1 year, then change the background to YELLOW
+If the last login date is between 0 and 6 months,      then change the background to GREEN
+
+
+	Possible Answer 1:  If you want to change the background of the ENTIRE ROW, then use gridOptions.getRowClass
+	------------------------------------------------------------------------------------------------------------
+	1. In the styles.css, define your 3 new CSS styles:
+       NOTE:  The !important CSS flag is NEEDED to make it work
+
+
+		.user-login-over-1-year-ago {
+		  background-color: red !important;
+		}
+
+		.user-login-over-6-months-ago {
+		  background-color: yellow !important;
+		}
+
+		.user-login-less-6-months-ago {
+		  background-color: green !important;
+		}
+
+
+
+	2. In the TypeScript class, define 2 date class variables:
+		  	private DATE_OF_ONE_YEAR_AGO: Date;
+  			private DATE_OF_SIX_MONTHS_AGO: Date;
+
+
+	3. In ngOnInit() initialize the two new class variables
+
+		    this.DATE_OF_ONE_YEAR_AGO   = new Date(new Date().setFullYear(new Date().getFullYear() - 1))
+		    this.DATE_OF_SIX_MONTHS_AGO = new Date(new Date().setMonth(new Date().getMonth() - 6))
+
+
+	4. Add a function called calculateGridRowClass
+
+		  private calculateGridRowClass(aParams: RowClassParams): string {
+
+			let loginDateAsString: string = aParams.data.last_login_date;
+			if (!loginDateAsString) {
+			  // There is no login date
+			  return '';
+			}
+
+			let loginDateAsDate: Date = new Date(loginDateAsString);
+
+			if (loginDateAsDate > this.DATE_OF_ONE_YEAR_AGO) {
+			  // login date is over 1 year old
+			  return 'user-login-over-1-year-ago'
+			}
+			else if (loginDateAsDate > this.DATE_OF_SIX_MONTHS_AGO) {
+			  // Login date is between 6 months and 12 months old
+			  return 'user-login-over-6-months-ago'
+			}
+			else {
+			  // Login date is between 0 and 6 months old
+			  return 'user-login-less-6-months-ago'
+			}
+		  }
+
+
+	5. In the gridOptions, tell the ag-grid to use this function by adding getRowClass:
+
+			  public gridOptions: GridOptions = {
+				debug: true,                     // Tell ag-grid to show console logging
+				rowModelType: 'clientSide',      // Tell ag-grid that this is a client-grid
+				domLayout: 'normal',
+
+				getRowClass: (params: RowClassParams) => this.calculateGridRowClass(params) 
+			  }
+
+
+
+
+	Possible Answer 2:  If you want to change the background of a SINGLE CELL, then use cell renderer
+	-------------------------------------------------------------------------------------------------
+    NOTE:  A cell renderer is a custom component that can hold any HTML we want and is placed in a SINGLE CELL
+           So, if you see buttons in your grid, then that is a Cell Renderer component
+
+
+	1. Create the DateService (we're moving the logic to this new Date Service)
+	   terminal> cd frontend
+       terminal> ng generate service services/date -skipTests
+
+	2. Edit date.service.ts
+		a. Add These class variables to the date.service.ts	
+
+			  private DATE_OF_ONE_YEAR_AGO   = new Date(new Date().setFullYear(new Date().getFullYear() - 1))
+			  private DATE_OF_SIX_MONTHS_AGO = new Date(new Date().setMonth(new Date().getMonth() - 6))
+
+		b. Add this method to the date.service.ts
+
+			  public calculateGridRowClass(aLastLoginDate: string): string {
+				if (!aLastLoginDate) {
+				  // There is no login date
+				  return '';
+				}
+
+				let loginDateAsDate: Date = new Date(aLastLoginDate);
+
+				if (loginDateAsDate > this.DATE_OF_ONE_YEAR_AGO) {
+				  // login date is over 1 year old
+				  return 'user-login-over-1-year-ago'
+				}
+				else if (loginDateAsDate > this.DATE_OF_SIX_MONTHS_AGO) {
+				  // Login date is between 6 months and 12 months old
+				  return 'user-login-over-6-months-ago'
+				}
+				else {
+				  // Login date is between 0 and 6 months old
+				  return 'user-login-less-6-months-ago'
+				}
+			  }
+
+
+
+
+	3. Create a login-date-cell-renderer  
+       terminal> cd frontend
+       terminal> ng generate component client-grid-page1/login-date-cell-renderer --skipTests
+
+
+    4. Edit login-date-cell-renderer.component.ts
+
+		1) Change the class so it implements ICellRendererAngularComp
+
+ 		2) Create the required methods to implement the ICellRendererAngularComp interface
+			Put your cursor on the class name
+			Press Alt-Enter
+			Select Implement all required members
+			In the "Select Members to Implement", use the defaults and press OK
+
+		3) Add these 2 public class variables:
+    			public params: ICellRendererParams
+  			    public lastLoginCssClass: string;
+
+		4) Erase the ngOnInit()
+		
+		5) Inject the DateService
+
+		6) Change the agInit() method so that it sets the class variable and initializes the lastLoginCssClass:
+
+			  /*
+			   * Cell is being initialized
+			   */
+			  agInit(params: ICellRendererParams): void {
+				this.params = params
+
+				// Use the Date Service to calculate the CSS class
+				this.lastLoginCssClass = this.dateService.calculateGridRowClass(params.data.last_login_date)
+			  }
+
+
+
+		
+		When done, the login-date-cell-renderer.component.ts class looks like this:
+
+			import { Component } from '@angular/core';
+			import {ICellRendererAngularComp} from "ag-grid-angular";
+			import {ICellRendererParams, RowClassParams} from "ag-grid-community";
+			import {DateService} from "../../services/date.service";
+
+			@Component({
+			  selector: 'app-login-date-cell-renderer',
+			  templateUrl: './login-date-cell-renderer.component.html',
+			  styleUrls: ['./login-date-cell-renderer.component.css']
+			})
+			export class LoginDateCellRendererComponent implements ICellRendererAngularComp {
+
+			  public params: ICellRendererParams
+			  public lastLoginCssClass: string;
+
+			  constructor(private dateService: DateService) { }
+
+			  /*
+			   * Cell is being initialized
+			   */
+			  agInit(params: ICellRendererParams): void {
+				this.params = params
+
+				// Use the Date Service to calculate the CSS class
+				this.lastLoginCssClass = this.dateService.calculateGridRowClass(params.data.last_login_date)
+			  }
+
+			  refresh(params: ICellRendererParams): boolean {
+				return false;
+			  }
+
+			}
+
+
+
+	5. Edit login-date-cell-renderer.component.html
+	   Replace its contents with this:
+
+		  <div [ngClass]="this.lastLoginCssClass">
+			<!-- Show the Last Login Date -->
+			{{params.data.last_login_date}}
+		  </div>
+
+
+	6. Rejecter the LoginDateCellRendererComponent with the grid
+	   a. Edit client-grid-page1.component.ts
+
+	   b. Add this public variable
+
+			  public frameworkComponents: any = {
+				loginDateCellRenderer: LoginDateCellRendererComponent,
+			  };
+
+
+	   c. Edit the columnDef for the last login date
+
+			  public columnDefs: any = [
+				{
+				  field: 'id',
+				  headerName: "Id",
+				  hide: false,
+				  flex: 1
+				},
+				{
+				  field: 'full_name',
+				  headerName: "Full Name",
+				  hide: false,
+				  flex: 2,
+				},
+				{
+				  field: 'last_login_date',
+				  headerName: "Last Login Date",
+				  flex: 1,
+				  cellRenderer: 'loginDateCellRenderer'           // Set the cellRenderer on this line
+				}
+			  ];
+
+
+	   c. Edit client-grid-page1.component.html
+
+	   d. Set the framework
+
+              <!-- AG-Grid -->
+              <ag-grid-angular
+                style="width: 100%; height: 275px"
+                class="ag-theme-alpine"
+                (gridReady)="this.onGridReady($event)"
+                [columnDefs]="this.columnDefs"
+                [defaultColDef]="this.defaultColDefs"
+                [frameworkComponents]="this.frameworkComponents"             <!-- This line sets the framework components -->
+                [gridOptions]="this.gridOptions">
+              </ag-grid-angular>
+
+		
+
+	My opinion:  Being able to change the color in a SINGLE CELL is much more valuable than the entire row
+                 Changing the color of the entire ROW can add **TOO MUCH COLOR**  [but front-end look & feel can be subjective]
+
+   
+
+
+
+
+
+
+
+Exercise 2e: Change the filter for the User Type so that it's a dropdown with 3 Options  
+---------------------------------------------------------------------------------------
+				All Users
+				Administrators
+				Non-Administrators
+
+
+See Lesson 22z / Page 15   [how to replace a filter with a simple dropdown]
+---------------------------------------------------------------------------
+https://docs.google.com/document/d/19z0SFD7OYLUe9-sbbOzB0cuDgXaCUcihl3jUajYHxXI/edit?pli=1
+ 
+

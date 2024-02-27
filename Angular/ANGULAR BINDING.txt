@@ -1,0 +1,37 @@
+Angular Binding
+---------------
+You've been doing it and you didn't realize it
+
+Types of binding:
+ 1) Property binding -- e.g.,  [disabled]="this.myformValid"
+
+                                [ngClass]="{
+                                                'expanded-div': this.helpSideNavExpanded,
+                                                'collapsed-div': !this.helpSideNavExpanded
+                                            }"
+
+ 2) Event binding -- e.g., (click)="this.goToPage2()"
+
+
+ 3) Two-way binding -- e.g.,  <input type="text" matInput [(ngModel)]="this.myTextString"
+    -- Change the class variable --> it changes the textbox
+    -- Change the textbox ---------> it changes the class variable
+
+
+
+
+
+Form Validation
+---------------
+When do we show the form errors?
+ 1) Show them after a form field is touched?
+ 2) Show them when the user presses the "Submit" button
+
+
+QUESTION:  Should we disable the submit button UNTIL every field is valid?
+         
+Over the last 10 years, there is a move to DISABLE the form field if the form is invalid
+
+
+    How do we disable a button until the form is valid
+            [disable]="this.myForm.valid"

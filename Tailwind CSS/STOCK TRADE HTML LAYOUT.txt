@@ -1,0 +1,178 @@
+Exercise 3 / Create Page called "Stock Trades"
+--------------------------------------------
+ Add a new page called "Stock Trades" page so that it shows this:
+
+
+
+
+
+Exercise
+--------
+ 1. Part 1 / Setup the Page
+    a. Generate the component
+    b. Add the route to constants.ts:         the route will be this:   page/stock-trades
+    c. Register the route
+    d. Add a link to the navbar (using that route)
+    e. Use the debugger to verify that the navbar link works
+
+
+
+
+ 2. Fill in the layout
+
+            +---------------------------------------------------------------------------------+
+            | Stock Trade                                                          <Help Btn> |
+            +---------------------------------------------------------------------------------+
+            |                                                                                 |
+            |    <Action Dropdown>             <Quantity Textbox>           <Symbol Textbox>  |
+            |        Buy Stock                                                                |
+            |        Buy Mutual Fund                                                          |
+            |        Sell Stock                                                               |
+            |        Sell Mutual Fund                                                         |
+            |                                                                                 |
+            |    <Order Type Dropdown>         <Limit Price Textbox>                          |   The Limit Price Textbox is visible *ONLY *IF* the user selects "Limit Order"
+            |        Market Order                                                             |
+            |        Limit Order                                                              |
+            |                                                                                 |
+            |    <Reset Btn>  <Review Order Btn>   Save for later                             |
+            |                                                                                 |
+            +---------------------------------------------------------------------------------+
+            NOTE:  "Save for later" is a hyperlink (not a button) and it should be underlined
+            NOTE:  Put a 10px margin around the entire page
+
+
+ 
+
+ 3. Build the basic layout
+
+            +---------------------------------------------------------------------------------+
+            | Top of Page                                                                     |     
+            +---------------------------------------------------------------------------------+
+            | Rest of Page                                                                    |
+            +---------------------------------------------------------------------------------+
+
+
+
+
+ 4. Fill in the Top of the Page
+
+
+ 5. Fill in the Bottom of the page
+
+
+
+   
+
+ 4. Fill in the top of the page with the page title and right-aligned button
+
+
+
+
+ 5. Fill-in the rest of the page
+
+
+
+
+
+
+
+
+
+
+<!-- Header Section -->
+<form [formGroup]="this.myForm">
+  <div class="bg-gray-200 p-4">
+    <div class="flex justify-between items-center mb-4">
+      <span class="text-2xl font-bold">Stock Trade</span>
+
+      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Help Btn
+      </button>
+    </div>
+
+    <div class="grid grid-cols-3 mr-5 ml-5 mt-5 gap-y-5">
+
+
+      <div>
+        <mat-form-field>
+          <mat-label>Action</mat-label>
+
+          <!-- Action Dropdown -->
+          <mat-select>
+            <mat-option [value]=1> Buy Stock</mat-option>
+            <mat-option [value]=2> Buy Mutual Fund</mat-option>
+            <mat-option [value]=3> Sell Stock</mat-option>
+            <mat-option [value]=4> Sell Mutual Fund</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field>
+          <mat-label>Enter number of shares</mat-label>
+
+          <!-- Quantity Text Box -->
+          <input matInput type="text"/>
+
+        </mat-form-field>
+
+      </div>
+
+      <div>
+        <mat-form-field>
+          <mat-label>Enter stock symbol</mat-label>
+
+          <!-- Symbol Text Box -->
+          <input matInput type="text"/>
+
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field>
+          <mat-label>Order Type</mat-label>
+
+          <!-- Order Type Dropdown -->
+          <!--        <mat-select #selectedOrderType>-->
+          <mat-select formControlName="orderType">
+            <mat-option [value]=1> Market Order</mat-option>
+            <mat-option [value]=2> Limit Order</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field *ngIf="this.myForm.controls.orderType.value == 2">
+          <mat-label>Limit Price</mat-label>
+
+          <!-- Limit Price Text Box -->
+          <input matInput type="text" formControlName="limitPrice"/>
+
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="ml-5 flex flex-row gap-5 mt-5">
+      <button (click)="this.resetClicked()"
+              class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Reset
+      </button>
+      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Review
+      </button>
+      <!--      VERTICALLY ALIGN: FLEX SELF-CENTER!!!!-->
+      <a (click)="this.saveForLater()" [routerLink]=[] class="underline flex self-center">
+        Save for Later
+      </a>
+    </div>
+  </div>
+
+
+  <pre>
+   this.myForm.controls.orderType.value = {{ this.myForm.controls.orderType.value }}
+    this.myForm.controls.limitPrice.value = {{ this.myForm.controls.limitPrice.value }}
+    this.myForm.controls.quantity.value = {{ this.myForm.controls.quantity.value }}
+</pre>
+</form>
+
+

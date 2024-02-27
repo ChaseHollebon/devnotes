@@ -1,0 +1,26 @@
+HOW TO ADD CHECKS IN A REST CALL 
+
+ @RequestMapping(value = "/api/admin/file-types/delete/{allowedFileTypeId}", method = RequestMethod.DELETE, produces = "application/json")
+    @PreAuthorize("hasAnyRole('CVF_ADMIN','CVF_SUPERVISOR')")
+    public ResponseEntity<?> deleteFileType(@PathVariable(name="allowedFileTypeId") Integer aAllowedFileTypeId) {
+
+
+        if (aAllowedFileTypeId < 0){
+            // Return a response with a status code of 400
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("The passed in File Type ID is bad.");
+        }
+
+        if (!this.allowedFileTypesService.doesAllowedFileTypeIdExist(aAllowedFileTypeId)){
+            // Return a response with a status code of 400 if the File Type ID is not in the database
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("The passed in File Type ID is not in the database.");
+        }
+
+        this.allowedFileTypesService.deleteAllowedFileType(aAllowedFileTypeId);
+
+
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }

@@ -1,0 +1,371 @@
+Lesson 1:  Add a Client Grid to a Page
+--------------------------------------
+
+Assumptions:
+ A) You have ag-grid already installed the project / See Lesson 22a
+ B) You have ag-grid license key already setup     / See Lesson 22b
+
+
+
+
+
+Exercise 1a
+-----------
+
+
+Exercise 1a / Part 1:  Branch Setup:  Start with lesson 22c and make your own branch
+-------------------------------------------------------------------------------------
+ 1. Open up Angular App 1
+
+ 2. Checkout this branch:  lesson22b/grid/install-license
+    NOTE:  This branch has the ag-grid installed and a license key set  (so you can use the Enterprise ag-grid)
+
+ 3. Create a new branch from this branch
+
+
+
+
+
+Exercise 1a / Part 2:  Create the page and layout
+-------------------------------------------------
+ 1. Create the component
+    terminal> cd frontend
+    terminal> ng generate component ClientGridPage1 --skipTests
+
+
+ 2. Tell the router that "page/client-grid-1" takes you to the new component
+    a. Edit app.module.ts
+    b. Add this route:
+          { path: 'page/client-grid-1',       component: ClientGridPage1Component },
+
+
+ 
+ 3. Add a link in the navbar that says "Client Grid Page 1"
+    a. Edit navbar.component.html
+    b. Add the <mat-list-item>....</mat-list-item>
+
+      <!-- Scroll Into View -->
+      <mat-list-item class="navItem" [routerLink]="'page/client-grid-1'" routerLinkActive="active">
+        <a title="Client Grid Page 1">Client Grid Page 1</a>
+        <div fxFlex fxLayoutAlign="end end">
+          <a [routerLink]="'page/scroll-into-view'" target="_blank">
+            <i class="fas fa-external-link-alt navItemIcon" title="Open 'Client Grid Page 1' in a new window"></i>
+          </a>
+        </div>
+      </mat-list-item>
+
+
+ 4. Verify that the navbar link works
+    a. Activate the debugger
+    b. Go to http://localhost:4200/
+    c. Verify that you see the link called "Client Grid Page 1"
+    d. Click on the link
+       -- Verify it says, "client-grid-page-1 works!"
+
+
+ 5. Setup the Page Layout WITHOUT worrying about fixed page titles or the fixed right-side 
+    
+    a. Setup the page title
+    b. Setup the 2 cards
+    c. Make sure each card has a height of 300px
+
+		+-------------------------------------------------------------------------------+
+		| Lesson 1 / Small Client Grids on a Page                            <Help-Btn> | 
+		+-------------------------------------------------------------------------------+
+		|                                                                               |
+		|   +---------------------------------+       +-------------------------------+ |         
+		|   | Administrators                  |       | Non-Administrators            | |
+		|   |                                 |       |                               | | 
+		|   |                                 |       |                               | |
+		|   +---------------------------------+       +-------------------------------+ |   
+		|                                                                               |
+		+-------------------------------------------------------------------------------+
+		NOTE:  Each card takes 45% of the width of the page
+		       Each card has a fixed height of 300px
+               There is a 50px gap between the 2 cards
+
+
+		<div class="page-container">
+
+		  <div fxFlexFill fxLayout="column">
+
+			<div fxFlex fxLayout="row" fxLayoutGap="0">
+
+			  <!-- Left Side of the Top Row -->
+			  <div fxFlex fxLayoutAlign="left center" fxLayout="row" fxLayoutGap="0">
+				<h1 class="mat-h1">Lesson 1 / Small Client Grids on a Page</h1>
+			  </div>
+
+
+			  <!-- Right Side of the Top Row -->
+			  <div fxFlex fxLayoutAlign="end center">
+
+			  </div>
+
+			</div>  <!-- End of top row -->
+
+
+
+			<!-- Start of the second row -->
+			<div fxLayout="row" fxLayoutGap="50px">
+
+			  <div fxFlex="45%" style="height: 300px;">
+
+				<!-- Administrators Card -->
+				<mat-card class="mat-elevation-z4" style="height: 100%">
+
+				  <mat-card-title>Administrators</mat-card-title>
+
+				</mat-card>
+			  </div>
+
+
+
+			  <div fxFlex="45%"  style="height: 300px;">
+
+				<!-- Non-Administrators Card -->
+				<mat-card class="mat-elevation-z4"  style="height: 100%">
+
+				  <mat-card-title>Non-Administrators</mat-card-title>
+
+				</mat-card>
+			  </div>
+
+			</div> <!-- End of 2nd row -->
+
+		  </div> <!-- End of Angular flex column -->
+
+		</div>  <!-- End of grid container -->
+
+
+
+Exercise 1a / Part 3:  Add a small grid
+---------------------------------------
+Add a grid to the Administrators card with 3 columns:  "Id", "Full Name", "Last Login Date"
+
+		+----------------------------------------------------------------------+
+		|   Id                  |       Full Name       |     Last Login Date  |
+        +-----------------------+-----------------------+----------------------+
+        |   1000                |  John Smith           | 06/25/2023 08:05:03  |
+        |   1002                |  Jane Smith           | 06/22/2023 16:45:35  |
+        |   1004                |  George Low           | 04/01/2023 14:36:38  |
+        +-----------------------+-----------------------+----------------------+
+
+  
+ 1. Setup a class variable that provides ag-grid major options
+
+			public gridOptions: GridOptions = {
+				debug: true,                     // Tell ag-grid to show console logging
+				rowModelType: 'clientSide',      // Tell ag-grid that this is a client-grid
+				domLayout: 'normal'
+		   };
+
+
+
+ 2. Setup a class variable that holds the column definitions
+
+		  public columnDefs: any = [
+			{
+			  field: 'id',
+			  headerName: "Id",
+			  hide: false,
+			  flex: 1
+			},
+			{
+			  field: 'full_name',
+			  headerName: "Full Name",
+			  hide: false,
+			  flex: 2,
+			},
+			{
+			  field: 'last_login_date',
+			  headerName: "Last Login Date",
+			  flex: 1
+			}
+		  ];
+
+
+
+ 3. Setup a class variable that holds hard-coded raw data
+
+
+	  public rowData = [
+
+			{ id: 1000, full_name: 'John Smith', 'last_login_date': '06/25/2023 08:05:03'},
+			{ id: 1002, full_name: 'Jane Smith', 'last_login_date': '06/22/2024 16:45:35'},
+			{ id: 1004, full_name: 'George Low', 'last_login_date': '06/01/2022 14:36:38'},
+		];
+
+
+
+ 4. Inside the "Administrators" card, add an ag-grid
+
+              <!-- AG-Grid -->
+              <ag-grid-angular
+                style="width: 100%; height: 275px"
+                class="ag-theme-alpine"
+                [rowData]="this.rowData"
+                [columnDefs]="this.columnDefs"
+                [gridOptions]="this.gridOptions">
+              </ag-grid-angular>
+
+
+ 5. Verify that the grid looks good
+
+
+ 6a. Add sorting and resizing to the columns
+
+		  public defaultColDefs: any = {
+			sortable: true,
+			resizable: true
+		  };
+
+		  public defaultColDefs: any = {
+			sortable: true,
+			resizable: true
+		  };
+
+ 
+ 6b. Verify that the grid sorting and resizing works
+     -- Attempt to resize a column
+     -- Attempt to sort the column by date
+
+
+
+
+ 7a. Add floating filters
+
+	  public defaultColDefs: any = {
+		sortable: true,
+		resizable: true,
+		floatingFilter: true,
+		filter: 'agTextColumnFilter',
+		filterParams: this.textFilterParams,
+	  };
+
+
+ 7b. Verify that the grid filtering works
+
+
+
+
+
+Exercise 1b:  Add a 2nd grid for non-administrators so it shows this info
+-------------------------------------------------------------------------
+Add a 2nd grid in the Non-Administrators card with 3 columns:  "Id", "Full Name", "Last Login Date"
+
+		+----------------------------------------------------------------------+
+		|   Id                  |       Full Name       |     Last Login Date  |
+        +-----------------------+-----------------------+----------------------+
+        |   1001                |  Harrison Ford        | 02/15/2022 02:05:03  |
+        |   1003                |  Carrie Fisher        | 02/12/2023 06:45:35  |
+        |   1005                |  Mark Hamil           | 02/11/2024 18:36:38  |
+        +-----------------------+-----------------------+----------------------+
+
+  
+
+
+
+
+Exercise 1c:  Change the layout so that the grids are top/bottom and each grid uses the full width
+--------------------------------------------------------------------------------------------------
+
+		+-------------------------------------------------------------------------------+
+		| Lesson 1 / Small Client Grids on a Page                            <Help-Btn> | 
+		+-------------------------------------------------------------------------------+
+		|                                                                               |
+		|   +-------------------------------------------------------------------------+ |       
+		|   | Administrators                                                          | |
+		|   |                                                                         | | 
+		|   |                                                                         | |
+		|   +-------------------------------------------------------------------------+ |   
+        |                                                                               |
+		|   +-------------------------------------------------------------------------+ |       
+		|   | Non-Administrators                                                      | |
+		|   |                                                                         | | 
+		|   |                                                                         | |
+		|   +-------------------------------------------------------------------------+ |  
+		|                                                                               |
+		+-------------------------------------------------------------------------------+
+		NOTE:  Each card takes as much width as you can give them
+		       Each card has a fixed height of 300px
+               There is a 50px vertical gap between the 2 cards
+
+
+
+
+
+
+
+
+Exercise 1d:  Change the layout so that there is one grid
+---------------------------------------------------------
+
+		+-------------------------------------------------------------------------------+
+		| Lesson 1 / Small Client Grids on a Page                            <Help-Btn> | 
+		+-------------------------------------------------------------------------------+
+		|   <Reset Btn>                                                                 |
+		|   +-------------------------------------------------------------------------+ |       
+		|   | All Users                                                               | |
+		|   |                                                                         | |  
+		|   |                                                                         | |
+		|   |                                                                         | |
+		|   |                                                                         | |
+		|   |                                                                         | |
+		|   |                                                                         | |
+		|   |                                                                         | |
+		|   |                                                                         | |
+        |   |                                                                         | |
+		|   +-------------------------------------------------------------------------+ |   
+		+-------------------------------------------------------------------------------+
+		NOTE:  The "All Users" grid has 4 columns
+               The "All Users" grid has a 3-d effect around it
+               The "All Users" grid dynamically uses the *REMAINING HEIGHT* of the page
+
+
+
+
+		The "All Users" grid should appear with these columns:
+		+-------------------------------------------------------------------------+
+		|   Id      |  Type        |       Full Name       |     Last Login Date  |
+        +-----------+--------------+-----------------------+----------------------+
+        |   1001    |  Non-Admin   |  Harrison Ford        | 02/15/2022 02:05:03  |
+        |   1003    |  Non-Admin   |  Carrie Fisher        | 02/12/2023 06:45:35  |
+        |   1005    |  Non-Admin   |  Mark Hamil           | 02/11/2024 18:36:38  |
+        |   1000    |  Admin       |  John Smith           | 06/25/2023 08:05:03  |
+        |   1002    |  Admin       |  Jane Smith           | 06/22/2024 16:45:35  |
+        |   1004    |  Admin       |  George Low           | 06/01/2022 14:36:38  |
+        +-----------+--------------+-----------------------+----------------------+
+
+
+
+
+
+Exercise 1e:  Change the one grid by adding 10 more columns
+-----------------------------------------------------------
+Add these columns:  title, email, phone number, is govt user?, is contractor?,  is certifier?,  is Account Manager?, Account Created Date, total logins this month?  total logins this year?
+
+
+Add fake data for these grids:  is certifier? should be either "Yes" or "No"
+
+		+-------------------------------------------------------------------------+---------------+------------+-------------+-----------------+-----------------+-----------------+---------------------+------------------+
+		|   Id      |  Type        |       Full Name       |     Last Login Date  | Title         |  email     | phone number|  is govt user?  | is contractor?  | Is Account Mgr? | Created Date        | Monthly Logins   | Annual Logins
+        +-----------+--------------+-----------------------+----------------------+---------------+------------+-------------+-----------------+-----------------+-----------------+---------------------+------------------+------------
+        |   1001    |  Non-Admin   |  Harrison Ford        | 02/15/2022 02:05:03  |  User         | w@w.com    | 123-123-1234|    Yes          |     No          |     No          |  01/14/2021 18:42:42|     5            |    12
+        |   1003    |  Non-Admin   |  Carrie Fisher        | 02/12/2023 06:45:35  |  User
+        |   1005    |  Non-Admin   |  Mark Hamil           | 02/11/2024 18:36:38  |  User
+        |   1000    |  Admin       |  John Smith           | 06/25/2023 08:05:03  |  Developer
+        |   1002    |  Admin       |  Jane Smith           | 06/22/2024 16:45:35  |  Lead Developer
+        |   1004    |  Admin       |  George Low           | 06/01/2022 14:36:38  |  Stakeholder
+        +-----------+--------------+-----------------------+----------------------+
+ 
+
+
+Exercise 1f:  Add a "Reset" button that will resize the columns to fit in the screen
+------------------------------------------------------------------------------------
+       
+
+
+
+
+

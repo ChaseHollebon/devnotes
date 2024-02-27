@@ -1,0 +1,238 @@
+
+ Plan for Building the Adm n / Managed Allowed Files Types for Upload
+ ---------------------------------------------------------------------
+
+ 1. Make a new page
+
+ 2. Add it to the navbar
+		
+
+   In the navbar
+   -- Admin
+           Manage File Types
+           Manage Allowed File Types
+
+
+ 3. Add the grid
+
+ 4. Configure the grid with these columns
+
+	+-----------------------------------------------------------------
+    | Manage Allowed File Types for Upload
+    |
+    | <Reset> <+Add Extension>
+    | 
+    |  +----------------+------------+---------------------------+---------------------
+    |  |  Action        |  Extension | Description               |   File Count
+    |  |    <Delete>    |    .pdf    | Portable Document Format  |     257                
+    |  |    <Delete>    |    .docx   | MS Word Document          |     256
+    |  +----------------+------------+---------------------------+---------------------
+    +------------------------------------------------------------------------------------------
+
+
+ 5. Create the front-end DTO for each row on the grid:  GetAllowedFileTypeDTO
+		 
+		  public id: number;
+		  public extension: string;
+		  public description: string;
+		  public file_count: number;
+		  public revision: number;
+	
+
+ 
+ 6. Create a new service:  AllowedFileTypeService
+
+	a. Need a public method to get all allowed files
+	   getAllAllowedFilesTypes() returns an observable that holds an array of GetAllowedFiletypeDTO objects
+
+	b. Implement the method
+		-- Create an array that holds fake data	
+		-- Convert the array into an observable
+		-- Return the observable
+
+
+
+
+ 7. Keep formatting your page until you're happy with it
+
+ 8. Make REST call #1 -- to get all of the allowed file types
+	a. Add the database table								[copy from FMRS -- but without some of the unused columns]
+	b. Populate the database table with some default data	[copy from FRMS]
+	c. Make the REST call 									[copy from FRMS]
+
+ 9. Use Postman to verify that REST Call #1 works
+
+10. Integrate REST call #1 with your front-end
+	-- Edit the AllowedFileTypeService.ts
+	-- Edit the getAllAllowedFilesTypes()
+	-- Remove your hard coded data
+	-- Add-in the 2 lines to invoke the real REST call
+
+11. Verify that it works 
+
+
+
+
+
+
+
+
+ Design Decisions
+ ----------------
+ 1. Do you want to have the "Enabled" / "Disabled?"
+    If yes, then we need have that in the database and we need the REST calls to get that and set that
+    If no,  then we don't need in the database
+      a. No "Toggle" button is needed
+      b. No "Active" column is needed
+
+
+ 
+ 2. REST Call for *GETTING* the list of allowed file types
+
+	a. Url Type:   	GET
+
+	b. URL:        	/api/admin/file-type/add
+         
+
+	c. What's passed-in?  Nothing
+
+	d. What's return back?   Array of DTOs:
+
+		GetAllowedFileTypeDTO 
+		  public id: number;
+		  public extension: string;
+		  public description: string;
+		  public file_count: number;
+		  public revision: number;
+	
+
+	e. Security / Which roles can hit this REST call?
+		CVF_SUPERVISOR, CVF_ADMIN
+
+
+    f. What checks are made on the incoming data?
+	   N/A -- there is no incoming data.
+
+
+	
+
+     
+
+	
+
+
+ 3. REST Call for deleting one item
+
+	a. Url Type:   	DELETE
+
+	b. URL:        	/api/admin/file-type/delete/{fileTypeId}
+         
+
+	c. What's passed-in?  the fileTypeId is passed-in on the URL
+
+	d. What's returned back?  
+	   -- Nothing, but we return 200 status code is if works   
+	
+
+	e. Security / Which roles can hit this REST call?
+		CVF_SUPERVISOR, CVF_ADMIN
+
+
+    f. What checks are made on the incoming data?
+       1) If not fileTypeId is passed-in, then return 400 bad request
+	   2) If the fileTypeId is negative, then return 400 bad request
+	   3) If the fileTypeId is not found in the database, then return 400 bad request   
+
+
+
+
+
+
+
+
+
+
+
+
+ 4. REST Call for adding one item
+
+	a. Url Type:   	POST
+
+	b. URL:        	/api/admin/file-type/add
+         
+	c. What's passed-in?  
+
+		AddAllowedFileTypeDTO {                      {
+		  public extension: string;                   extension: "DOC",
+		  public description: string;                 description: "This is a word document"
+		}                                            }
+
+
+	d. What's returned back?  
+	   -- Nothing, but we return 200 status code is if works   
+
+	e. Security / Which roles can hit this REST call?
+		CVF_SUPERVISOR, CVF_ADMIN
+
+
+    f. What checks are made on the incoming data?
+		1) if the extension is blank, then return 400 bad request
+		2) If the description is blank, then return 400 bad request
+		3) if the extension is already found in the system, then return 400 bad request
+			
+		4) What happens if the database table has extension with "doc" and I passed-in a new extension with "DOC"
+			-- Then, return 400 bad request as it's already in the system
+
+
+
+
+
+
+ 5. REST call for async validator
+
+
+			+----------------------------------------------+
+			| Add New Extension
+            |      
+            | +------------------------------+
+            | | doc                          |
+            | +------------------------------+
+            | That extension is already in the system
+            | The max length is 10 characters
+            |
+            | +------------------------------+
+            | | Description                  |
+            | +------------------------------+
+            |
+            |         <Cancel>  <Save>
+            +----------------------------------------------+
+
+            As the user types-in a new extension
+ 
+			Custom Validator invokes a REST call
+	 
+
+	a. Url Type:   	GET
+
+	b. URL:        	/api/admin/file-type/exists/{newExtension}
+
+         
+	c. What's passed-in?  
+        The extension string on the url
+
+	d. What's returned back?  
+       200 status code if it exists
+       204 status code if it does not exist
+
+
+	
+	e. Security / Which roles can hit this REST call?
+		CVF_SUPERVISOR, CVF_ADMIN
+
+
+    f. What checks are made on the incoming data?
+       -- If the extension is longer than 10 chars, then return 400 bad request
+       
+
+
+

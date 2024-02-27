@@ -1,0 +1,62 @@
+How to use the Async Pipe
+-------------------------
+
+
+	TypeScript
+	----------
+	1. Add a class variable
+				public obsStuff: Observable<SomeDTO>;
+
+	2. Inject your service
+	   NOTE:  Has a public method that either invokes a REAL REST call or fake data
+
+
+	3. Initialize the observable in ngOnInit()
+
+		public ngOnInit(): void {
+
+			// Initialize the myForm object
+
+			// Initialize the observable
+			this.obsStuff = this.myFavoriteService.getStuff(); 
+		}
+
+
+	4. Use the async pipe to invoke it
+
+		<ng-container *ngIf="( this.obsStuff | async ) as dto">
+
+
+
+		</ng-container>
+
+
+
+
+
+
+
+PROBLEM:  I want to load a form with data from the REST call
+-------------------------------------------------------------
+
+
+		public ngOnInit(): void {
+
+			// Initialize the myForm object
+			this.myForm = ....
+			
+
+			// Initialize the observable
+			this.obsStuff = this.myFavoriteService.getStuff().pipe( tap( (aData: SomeDTO) => {
+				// You get to see the data *BEFORE* the html page renders
+			
+				// Load the form fields
+				this.myForm.controls['description'].setValue( )
+
+			}) )
+
+
+		}
+
+
+

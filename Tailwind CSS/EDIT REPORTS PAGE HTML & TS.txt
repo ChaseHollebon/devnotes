@@ -1,0 +1,376 @@
+Exercise 11 / Edit Reports Page
+-------------------------------
+
+
+
+Exercise
+--------
+ 1. Part 1 / Setup the Page
+    a. Generate the component
+    b. Add the route to constants.ts:         the route will be this:   page/reports/edit
+    c. Register the route
+    d. Add a link to the navbar
+    e. Use the debugger to verify that the navbar link works
+
+
+
+
+ 2. Setup the layout
+   
+            +-------------------------------------------------------------------------------------+
+            | Edit Report                                                              <Help Btn> |
+            +-------------------------------------------------------------------------------------+
+            |                                                                                     |
+            |  <Report Name Textbox>         <Report Number Textbox>        <Priority Dropdown>   |
+            |                                                                                     |
+            |  <Classification Dropdown>     <Report Type Dropdown>                               |      
+            |                                                                                     |           
+            |  <Country Dropdown>                                                                 | 
+            |                                                                                     |
+            |  <Report Authors>                                                                   |
+            |                                                                                     |
+            |  +-----------------------------------------------------------------------------+    |
+            |  | <Description Textarea>                                                      |    |   
+            |  |                                                                             |    |
+            |  +-----------------------------------------------------------------------------+    |
+            |                                                                                     |
+            |                          <Reset Btn>   <Update Btn>                                 |
+            +-------------------------------------------------------------------------------------+
+            User can select multiple authors
+
+
+ 
+ 3. Load the "Classification Dropdown" with an observable using the async pipe
+    a. Create a DTO on the frontend called LookupDataDTO
+		id     holds an integer
+		value  holds a string  (displayed to the user)
+
+    b. Create a service that simulates the REST call called LookupService
+    
+    c. Create a public method that returns an observable that holds an array of LookupDataDTO objects
+        -- getAllClassifications()
+
+    d. Fill-in the public method so that it
+       a. Creates an array of LookupDataDTO objects with fake data -- e.g., Unclassified, FOUO, Secret, Top Secret
+       b. Returns that array as an observable
+
+	e. In your main page TS class, inject the LookupService
+
+	f. In your main page TS class, initialize the observable that holds the array of classifications
+
+	g. In your main page HTML, setup the async pipe
+
+	h. In your main page HTML, load the dropdown options using the observable
+
+
+
+ 4. Load the "Priorities Dropdown" with an observable using the async pipe
+    NOTE:  Your priorites are only:  Low, Medium, and High
+
+
+ 5. Load the "Countries Dropdown" with an observable using the async pipe
+    NOTE:  We only need 4 countries:  United States, United Kingdom, China, and Russia
+
+
+ 6. Load the "Authors Dropdown" with an observable using the async pipe
+    NOTE:  We only need 4 authors:  Will Smith, Bruce Willis, Brad Pitt, Samuel Jackson
+
+ 7. Load the "Report Type" dropdown with 2 hard-coded options
+    -- Simple Report
+    -- Advanced Report
+
+ 8. Setup a reactive form 
+
+ 9. The following fields are required:  Report Name, Priority, Classification, Country
+    The user must select atleast 2 authors
+
+10. When the user presses "Update", show the errors
+ 
+
+
+
+
+
+ HTML
+ 
+ 
+<ng-container *ngIf="(this.obsReportDetailsDTO | async)">
+  <!-- Padding of 10px around the entire page -->
+  <div class="bg-backDropColor m-2.5 h-full">
+    <form [formGroup]="this.myForm">
+
+      <!-- Header Section -->
+      <div class="bg-gray-200">
+        <div class="flex flex-row justify-between items-center mb-4">
+          <span class="text-2xl font-bold">Edit Report</span>
+
+          <!-- Help Button -->
+          <button type="button" title="Help" aria-label="Help" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Help
+          </button>
+        </div>
+      </div>
+
+      <!-- Report Name Textbox -->
+      <div class="grid grid-cols-3 gap-5">
+        <div>
+          <mat-form-field>
+            <mat-label>Report Name</mat-label>
+            <input title="Enter a Report Name" aria-label="Enter a Report Name" formControlName="reportName" matInput type="text"/>
+            <mat-error>The report name field is required</mat-error>
+          </mat-form-field>
+        </div>
+
+
+        <!-- Report Number Textbox -->
+        <div>
+          <mat-form-field>
+            <mat-label>Report Number</mat-label>
+            <input title="Enter a Report Number" aria-label="Enter a Report Number" formControlName="reportNumber" matInput type="text"/>
+            <mat-error *ngIf="this.myForm.controls.reportNumber.errors?.reportInUse">
+              <!-- Display a hard-coded error -->
+              Contract is already in use
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Priority Dropdown -->
+        <div>
+          <ng-container *ngIf="(this.obsPriorities | async) as priorities">
+            <mat-form-field>
+              <mat-label> Priority</mat-label>
+              <mat-select title="Enter a Priority" aria-label="Enter a Priority" formControlName="priority">
+                <ng-container *ngFor="let lookup of priorities">
+                  <mat-option [value]="lookup.id"> {{ lookup.value }} </mat-option>
+                </ng-container>
+              </mat-select>
+              <mat-error>The priority field is required</mat-error>
+            </mat-form-field>
+          </ng-container>
+        </div>
+
+        <!-- Classification Dropdown -->
+        <div>
+          <ng-container *ngIf="(this.obsClassifications | async) as classifications">
+            <mat-form-field>
+              <mat-label> Classification</mat-label>
+              <mat-select title="Enter a Classification" aria-label="Enter a Classification" formControlName="classification">
+                <ng-container *ngFor="let lookup of classifications">
+                  <mat-option [value]="lookup.id">{{ lookup.value }}</mat-option>
+                </ng-container>
+              </mat-select>
+              <mat-error>The classification field is required</mat-error>
+            </mat-form-field>
+          </ng-container>
+        </div>
+
+        <!-- Report Type Dropdown -->
+        <div class="col-span-2">
+          <mat-form-field>
+            <mat-label>Report Type</mat-label>
+            <mat-select title="Enter a Report Type" aria-label="Enter a Report Type" formControlName="reportType">
+              <mat-option [value]=1> Simple Report</mat-option>
+              <mat-option [value]=2> Advanced Report</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Country Dropdown -->
+        <div>
+          <ng-container *ngIf="(this.obsCountries | async) as countries">
+            <mat-form-field>
+              <mat-label>Country</mat-label>
+              <mat-select title="Enter a Country" aria-label="Enter a Country" formControlName="country">
+                <ng-container *ngFor="let lookup of countries">
+                  <mat-option [value]="lookup.id">{{ lookup.value }}</mat-option>
+                </ng-container>
+              </mat-select>
+              <mat-error>The country field is required</mat-error>
+            </mat-form-field>
+          </ng-container>
+        </div>
+
+        <!-- Report Authors Dropdown -->
+        <div class="col-span-3">
+          <ng-container *ngIf="(this.obsAuthors | async) as authors">
+            <mat-form-field>
+              <mat-label>Report Authors</mat-label>
+              <mat-select title="Enter a Author" aria-label="Enter a Author" multiple formControlName="authors">
+                <ng-container *ngFor="let lookup of authors">
+                  <mat-option [value]="lookup.id">{{ lookup.value }}</mat-option>
+                </ng-container>
+              </mat-select>
+            </mat-form-field>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- Description Textbox -->
+      <div>
+        <mat-form-field class="w-4/5">
+          <mat-label>Description</mat-label>
+          <textarea title="Enter a Description" aria-label="Enter a Description" formControlName="description" matInput></textarea>
+        </mat-form-field>
+      </div>
+
+      <!-- Reset Button -->
+      <div class="flex place-content-center">
+
+
+        <div class="flex flex-row gap-20">
+
+          <button (click)="this.resetClicked()" type="reset" title="Reset" aria-label="Reset"
+                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Reset
+          </button>
+
+          <!-- Update Button -->
+          <button (click)="this.updateClick()" type="button" title="Update" aria-label="Update"
+                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Update
+          </button>
+
+          <button (click)="this.reloadClicked()" type="button" title="Reload" aria-label="Reload"
+                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Reload
+          </button>
+
+        </div>
+      </div>
+
+    </form>
+  </div>
+</ng-container>
+
+
+TS
+
+import {Component, OnInit} from '@angular/core';
+import {LookupServiceService} from "../services/lookup-service.service";
+import {LookUpDataDTO} from "../models/look-up-data-dto";
+import {map, Observable, of, switchMap, tap, timer} from "rxjs";
+import {AbstractControl, AsyncValidatorFn, FormBuilder, FormGroup, ValidationErrors, Validators} from "@angular/forms";
+import {ReportServiceService} from "../services/report-service.service";
+import {GetReportDetailsDTO} from "../models/get-report-details-dto";
+import {ReportNumberUniqueDTO} from "../models/report-number-unique-dto";
+
+@Component({
+  selector: 'app-reports-edit-new',
+  templateUrl: './reports-edit-new.component.html',
+  styleUrls: ['./reports-edit-new.component.scss']
+})
+export class ReportsEditNewComponent implements OnInit {
+
+  public obsClassifications: Observable<LookUpDataDTO[]>;
+  public obsPriorities: Observable<LookUpDataDTO[]>;
+  public obsCountries: Observable<LookUpDataDTO[]>;
+  public obsAuthors: Observable<LookUpDataDTO[]>;
+  public myForm: FormGroup;
+  public obsReportDetailsDTO: Observable<GetReportDetailsDTO>;
+
+  constructor(private lookupServiceService: LookupServiceService,
+              private formBuilder: FormBuilder,
+              private reportServiceService: ReportServiceService) {
+
+  }
+
+  ngOnInit(): void {
+    this.myForm = this.formBuilder.group({
+      classification:     [null, Validators.required],
+      priority:           [null, Validators.required],
+      reportName:         [null, Validators.required],
+      country:            [null, Validators.required],
+      reportNumber:       [null, null, this.isReportNumberInUseValidator()],
+      reportType:         [null, null],
+      authors:            [null, null],
+      description:        [null, null]
+    })
+
+    this.obsClassifications = this.lookupServiceService.getAllClassifications();
+    this.obsPriorities = this.lookupServiceService.getAllPriorities();
+    this.obsCountries = this.lookupServiceService.getAllCountries();
+    this.obsAuthors = this.lookupServiceService.getAllAuthors();
+
+
+    this.obsReportDetailsDTO = this.reportServiceService.getReportDetails().pipe(tap((aData: GetReportDetailsDTO) => {
+      // The REST call came back with the data and now storing the data in the form
+      this.myForm.controls['reportName'].setValue(aData.reportName)
+      this.myForm.controls['reportNumber'].setValue(aData.reportNumber)
+      this.myForm.controls['priority'].setValue(aData.priorityId)
+      this.myForm.controls['classification'].setValue(aData.classificationId)
+      this.myForm.controls['reportType'].setValue(aData.reportTypeId)
+      this.myForm.controls['country'].setValue(aData.countryId)
+      this.myForm.controls['authors'].setValue(aData.authorsId)
+      this.myForm.controls['description'].setValue(aData.description)
+    }));
+
+
+  }
+
+  public updateClick(): void {
+    // Shows all the error messages to the user
+    this.myForm.markAllAsTouched()
+  }
+
+  public resetClicked(): void {
+    this.myForm.reset();
+  }
+
+  public reloadClicked(): void {
+    this.obsReportDetailsDTO = this.reportServiceService.getReportDetails().pipe(tap((aData: GetReportDetailsDTO) => {
+      // The REST call came back with the data and now storing the data in the form
+      this.myForm.controls['reportName'].setValue(aData.reportName)
+      this.myForm.controls['reportNumber'].setValue(aData.reportNumber)
+      this.myForm.controls['priority'].setValue(aData.priorityId)
+      this.myForm.controls['classification'].setValue(aData.classificationId)
+      this.myForm.controls['reportType'].setValue(aData.reportTypeId)
+      this.myForm.controls['country'].setValue(aData.countryId)
+      this.myForm.controls['authors'].setValue(aData.authorsId)
+      this.myForm.controls['description'].setValue(aData.description)
+    }));
+
+  }
+
+  /*
+ * Async Validator that checks if the form fields holds a unique contract value
+ *
+ * NOTE:  This returns an Observable that holds ValidationErrors
+ */
+  public isReportNumberInUseValidator(): AsyncValidatorFn {
+
+    return (control: AbstractControl): Observable<ValidationErrors | null> => {
+
+      // Use timer to emit an event after 10 milliseconds
+      return timer(10).pipe(
+        switchMap(() => {
+
+          if (!control?.value) {
+            console.log("Returns an error: " + control.value);
+            // The contract number is *empty*.  So, return a ValidationErrors object
+            return of({reportInUse: 'This report number is not available because it is empty.'});
+          }
+
+          return this.reportServiceService.checkIfReportNumberIsUnique(control.value).pipe(
+            map((aResult: ReportNumberUniqueDTO) => {
+
+              if (!aResult.is_unique) {
+                console.log("Returns an error: " + control.value, aResult);
+                // This contract number is *ALREADY* being used.  So, return a ValidationErrors object
+                return {reportInUse: 'This report number is already in use.'};
+              } else {
+                console.log("No error: " + control.value, aResult);
+                // This contract number is *AVAILABLE* in use.  So, return null
+                return null;
+              }
+            })   // end of map
+
+          ) // end of inner pipe
+        }) // end of switchMap
+
+      ); // end of outer pipe
+
+    }
+  }  // end of uniqueContractValidator
+
+
+}

@@ -1,0 +1,74 @@
+Observables
+-----------
+What is an observable?
+-- lazy stream
+-- We can push things on the stream
+-- We can listen for events in the stream
+-- We can transform the stream to another stream
+
+
+				You invoke a REST call ------------------------------------> We get a response   --------> transform the response to something else ------> 
+                
+
+				
+
+
+ Characteristics of an observable
+ --------------------------------
+ 1. Observables are lazy:  They only send messages to subscribers
+    -- If you don't subscribe, nothing happens
+
+
+			I have an observable to invoke a REST call
+
+
+
+ 2. Observables can have multiple values over time
+	
+				Use presses "A" in textbox --------------> User presses "D" ------------> user presses "M" -------------> We get that message
+
+
+ 3. Observables are cancelable
+    -- We are waiting for a REST call / we can stop listening if we need
+    -- We are listening on every key of a textbox / wecan stop listening
+
+
+
+ 4. Observables are producers of multiple items, "pushing" them to subscribers
+
+
+
+
+ Invoking REST calls
+ -------------------
+  1. We create an observable to that REST call
+
+  2. We subscribe to that observable
+     -- This INVOKES the rest call
+
+  3. We do something when the REST call comes back
+
+
+
+ Exercise 
+ --------
+  1. Create a simple page called sampleRestCalls
+
+  2. Verify that page shows up
+
+  3. Setup a very simple layout
+
+			+----------------------------------------------------+
+            | Sample REST Calls                             Help |
+			+----------------------------------------------------+
+            |                                                    |
+            |                   <invoke REST call>               |
+            |                                                    |
+            |                                                    |
+            +----------------------------------------------------+
+
+
+ 4. On the button, add a click handler that calls a method called  "invokeRestCall()"
+
+ 5. 
+ 

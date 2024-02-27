@@ -1,0 +1,42 @@
+
+
+		Variable Types:
+
+			let stuff: number;
+			let stufF: number = 7;			// Defines a variable that is a number
+
+
+			let arrayOfNumbers: number[] 						// Defines a variable that is an ARRAY of number
+			let arrayOfNumbers: number[] = [  ];
+			let arrayOfNumbers: number[] = [1, 5, 7, 8];
+
+
+
+
+
+			let name: string;
+			let name: string = "Hi Mom!!!";
+			let name: string = 'Hi Mom!!!';       // Defines a variable that is a string
+
+
+			let arrayOfStrings: string[];
+			let arrayOfStrings: string[] = [ ];
+			let arrayOfStrings: string[] = [ "hi", "there", "This", "whatever"];
+
+
+
+
+			let arrayOfDTOs: MyDTO[] = [ ];       // Variable holds an empty array
+
+			let arrayOfDTOs: MyDTO[] = [
+				{
+					id: 25,
+					priority: "Hi"
+				},
+
+				{
+					id: 27,
+					priority: "Low"
+				},
+
+			];

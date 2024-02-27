@@ -1,0 +1,125 @@
+Documents Service
+
+import {Component, Input, OnInit} from '@angular/core';
+import {DocumentsService} from "../../../services/documents.service";
+import {Observable} from "rxjs";
+import {GetDocumentsDetailsDTO} from "../../../models/get-documents-details-dto";
+import {ActivatedRoute} from "@angular/router";
+import {NumericService} from "../../../services/numeric.service";
+
+@Component({
+  selector: 'app-tab-documents',
+  templateUrl: './tab-documents.component.html',
+  styleUrls: ['./tab-documents.component.scss']
+})
+export class TabDocumentsComponent implements OnInit{
+
+  public obsAllDocuments: Observable<GetDocumentsDetailsDTO[]>;
+
+  @Input() private caseId: number;
+
+  constructor(private documentsService: DocumentsService) {
+
+  }
+
+  public ngOnInit(): void {
+
+    this.obsAllDocuments=this.documentsService.getAllDocuments(this.caseId)
+
+  }
+}
+
+
+
+Documents Controller
+
+package com.lessons.controllers;
+
+import java.util.List;
+import com.lessons.models.GetDocumentsDetailsDTO;
+import com.lessons.models.UserInfoDTO;
+import com.lessons.services.DocumentsService;
+import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+@Controller
+public class DocumentsController {
+    private static final Logger logger = LoggerFactory.getLogger(DocumentsController.class);
+
+    @Resource
+    private DocumentsService documentsService;
+
+    /**
+     * REST endpoint /api/user/me
+     */
+    @RequestMapping(value = "/api/documents/get-all/{caseId}", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("hasAnyRole('CVF_SPECIALIST','CVF_SUPERVISOR')")
+    public ResponseEntity<?> getAllDocuments(@PathVariable(name="caseId") Integer aCaseId) {
+
+       logger.debug("Case ID = {}", aCaseId);
+
+       List<GetDocumentsDetailsDTO> myList=this.documentsService.getAllDocumentsForCaseId(aCaseId);
+
+        // Return a response of 200 and the UserInfoDTO object
+        return ResponseEntity.status(HttpStatus.OK).body(myList);
+    }
+
+}
+
+
+
+
+Numeric Service
+
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class NumericService {
+
+  public isNumeric(aValue: any) {
+    return !isNaN(parseFloat(aValue)) && isFinite(aValue);
+  }
+
+  constructor() { }
+}
+
+Documents TS
+
+import {Component, Input, OnInit} from '@angular/core';
+import {DocumentsService} from "../../../services/documents.service";
+import {Observable} from "rxjs";
+import {GetDocumentsDetailsDTO} from "../../../models/get-documents-details-dto";
+import {ActivatedRoute} from "@angular/router";
+import {NumericService} from "../../../services/numeric.service";
+
+@Component({
+  selector: 'app-tab-documents',
+  templateUrl: './tab-documents.component.html',
+  styleUrls: ['./tab-documents.component.scss']
+})
+export class TabDocumentsComponent implements OnInit{
+
+  public obsAllDocuments: Observable<GetDocumentsDetailsDTO[]>;
+
+  @Input() private caseId: number;
+
+  constructor(private documentsService: DocumentsService) {
+
+  }
+
+  public ngOnInit(): void {
+
+    this.obsAllDocuments=this.documentsService.getAllDocuments(this.caseId)
+
+  }
+}

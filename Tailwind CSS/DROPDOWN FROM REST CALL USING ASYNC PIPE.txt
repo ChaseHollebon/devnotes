@@ -1,0 +1,82 @@
+
+ Exercise 9 / Add a dropdown loaded from a REST call using Async Pipe
+ --------------------------------------------------------------------
+
+ 1. Need to create a DTO on the frontend called LookupDataDTO
+		id     holds an integer
+		value  holds a string  (displayed to the user)
+
+
+ 2. Need a service that simulates the REST call
+    -- MyUserService
+
+
+ 3. Need a method that returns an observable
+	-- Fake REST Call
+
+	add a method to MyUserSerivce called  getPriorities()
+	-- It's going to return an Observable that holds an array of LookupDataDTO
+
+
+			+-------+-----------
+			| id    |   value
+            +-------+---------
+            |  1    |   "Low"
+            |  2    |   "Medium"
+            |  3    |   "High"
+            |  4    |   "Critical"      <--- Each one of these is a LookupDataDTO
+            +-------+----------------+
+
+		Array of LookupDataDTO
+              
+        
+
+		You need to make an array of 4 LookupDataDTO objects -- low, medium, high, and critical
+
+		You need to convert that array into an observable
+
+		You need to return the observable
+
+
+
+
+ 4. Need to update the main page (TypeScript)
+	a. Inject your MyUserService
+
+    b. Add a class variable called  
+			obsPriorities        the type is an Observable that holds an array of LookupDataDTO
+
+
+	c. Edit ngOnInit()
+		-- Initialize your observable
+
+				// Initialize the observable  (but the REST call is not invokes YET)
+				this.obsPriorities = this.myUserService.getPrioritieS();
+
+
+
+
+
+ 5. Add the ASYNC PIPE to your HTML
+
+			<ng-container *ngIf="(this.obsPriorites | async) as arrayOfPriorities">
+				<!-- This HTML is rendered AFTER the REST call comes back -->
+
+				<mat-form-field>
+					<mat-label>Choose a Priority</mat-label>
+
+					<mat-select>
+						<ng-container *ngFor="let priority of this.arrayOfPriorities">
+								
+								<mat-option [value]="priority.id"  > {{ priority.value  }}  </mat-option>
+
+						</ng-container>
+
+					</mat-select>		
+				</mat-form-field>
+
+			</ng-container>
+
+
+
+ 
