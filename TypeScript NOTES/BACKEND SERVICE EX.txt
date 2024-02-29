@@ -1,0 +1,167 @@
+BACKEND SERVICE EX: 
+
+package com.lessons.services;
+
+import com.lessons.models.AddAllowedFileTypeDTO;
+import com.lessons.models.GetAllowedFileTypeDTO;
+import com.lessons.utilities.AuditManager;
+import com.lessons.utilities.Constants;
+import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+public class AllowedFileTypesService {
+    private static final Logger logger = LoggerFactory.getLogger(AllowedFileTypesService.class);
+
+    @Resource
+    private DataSource dataSource;
+
+    @Resource
+    private DatabaseService databaseService;
+
+    @Resource
+    private UserService userService;
+
+    public List<GetAllowedFileTypeDTO> getAllFileTypes() {
+        String sql = "select af.id, af.extension, af.description, count(d.id) as file_count\n" +
+                     "from allowed_file_types af\n" +
+                     "left join documents d on (d.original_extension=af.extension)\n" +
+                     "group by af.id, af.extension, af.description\n" +
+                     "order by 4 desc, af.extension asc";
+
+        // Use the rowMapper to convert the results into a list of GetAllowedFileTypeDTO objects
+        BeanPropertyRowMapper<GetAllowedFileTypeDTO> rowMapper = new BeanPropertyRowMapper<>(GetAllowedFileTypeDTO.class);
+
+        // Create a JdbcTemplate object
+        JdbcTemplate jt = new JdbcTemplate(this.dataSource);
+
+        // Get a connection from the connection pool
+        // Run the SQL
+        // Convert the results into a list of GetAllowedFileTypeDTO objects
+        // Return the connection to the connection pool
+        List<GetAllowedFileTypeDTO> listOfFileTypes = jt.query(sql, rowMapper);
+
+        return listOfFileTypes;
+
+    }
+
+    public void addAllowedFileType(AddAllowedFileTypeDTO aAddAllowedFileTypeDTO){
+
+
+        TransactionTemplate tt = new TransactionTemplate();
+        tt.setTransactionManager(new DataSourceTransactionManager(this.dataSource));
+
+        // This transaction will throw a TransactionTimedOutException after 60 seconds (causing the transaction to rollback)
+        tt.setTimeout(Constants.SQL_TRANSACTION_TIMEOUT_SECS);
+
+        tt.execute(new TransactionCallbackWithoutResult() {
+            protected void doInTransactionWithoutResult(TransactionStatus aStatus) {
+
+                try {
+                    AuditManager auditManager = new AuditManager(dataSource, userService.getLoggedInUserName(), databaseService.getMapTableNameToCsvOfColumns());
+
+                    Integer newAllowedFileTypeId = databaseService.getNextId();
+
+
+                    String sql = "INSERT INTO allowed_file_types (id, extension, description)\n" +
+                                 "VALUES (:id, :extension, :description)";
+
+                    // Convert the extension to lower case before adding it to the database
+                    String extensionLowerCase = aAddAllowedFileTypeDTO.getExtension().toLowerCase().trim();
+
+                    Map<String, Object> paramMap = new HashMap<>();
+                    paramMap.put("id", newAllowedFileTypeId);
+                    paramMap.put("extension", extensionLowerCase);
+                    paramMap.put("description", aAddAllowedFileTypeDTO.getDescription());
+
+                    // Use the audit manager to insert a record and add the audit record
+                    auditManager.runSqlInsertOne(sql, paramMap, "allowed_file_types_aud");
+
+
+                } catch (Exception e) {
+
+                    RuntimeException re = new RuntimeException(e);
+                    re.setStackTrace(e.getStackTrace());
+                    throw re;
+                }
+
+
+                // Commit the transaction if I get to the end of this method
+            }
+        });
+
+    }
+
+    public boolean doesExtensionExist(String aExtension) {
+
+        String sql = "SELECT id FROM allowed_file_types WHERE LOWER(extension) = ?";
+        JdbcTemplate jt = new JdbcTemplate(this.dataSource);
+
+        // Converting the extension to lowercase to make sure that uppercase extensions do not get added to the database
+        SqlRowSet rs = jt.queryForRowSet(sql, aExtension.toLowerCase().trim());
+
+        // Returns true if the extension is found in the database table, returns false if otherwise
+        return rs.next();
+    }
+
+    public void deleteAllowedFileType(Integer aAllowedFileTypeId) {
+        TransactionTemplate tt = new TransactionTemplate();
+        tt.setTransactionManager(new DataSourceTransactionManager(this.dataSource));
+
+        // This transaction will throw a TransactionTimedOutException after 60 seconds (causing the transaction to rollback)
+        tt.setTimeout(Constants.SQL_TRANSACTION_TIMEOUT_SECS);
+
+        tt.execute(new TransactionCallbackWithoutResult() {
+            protected void doInTransactionWithoutResult(TransactionStatus aStatus) {
+
+                try {
+                    AuditManager auditManager = new AuditManager(dataSource, userService.getLoggedInUserName(), databaseService.getMapTableNameToCsvOfColumns());
+
+                    String sql = "delete from allowed_file_types where id = :id";
+
+                    Map<String, Object> paramMap = new HashMap<>();
+                    paramMap.put("id", aAllowedFileTypeId);
+
+                    // Use the audit manager to insert a record and add the audit record
+                    auditManager.runSqlDeleteOne(sql, paramMap, "allowed_file_types_aud");
+
+
+                } catch (Exception e) {
+
+                    RuntimeException re = new RuntimeException(e);
+                    re.setStackTrace(e.getStackTrace());
+                    throw re;
+                }
+
+
+                // Commit the transaction if I get to the end of this method
+            }
+        });
+    }
+
+    public boolean doesAllowedFileTypeIdExist(Integer aAllowedFileTypeId){
+        String sql= "SELECT id FROM allowed_file_types WHERE id = ?";
+        JdbcTemplate jt = new JdbcTemplate(this.dataSource);
+
+        // Executes the sql and return a read only sql row set object
+        SqlRowSet rs = jt.queryForRowSet(sql, aAllowedFileTypeId);
+
+        // Return true if the record is found, return false if otherwise
+        return rs.next();
+    }
+
+}

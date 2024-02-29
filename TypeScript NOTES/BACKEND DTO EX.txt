@@ -1,0 +1,29 @@
+BACKEND DTO EX:
+
+package com.lessons.models;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class AddAllowedFileTypeDTO {
+    @JsonProperty("extension")
+    private String extension;
+
+    @JsonProperty("description")
+    private String description;
+
+    public String getExtension() {
+        return extension;
+    }
+
+    public void setExtension(String extension) {
+        this.extension = extension;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+}

@@ -1,0 +1,193 @@
+FRONTEND/BACKEND DIALOG BOX EX:
+
+HTML
+
+<div class="px-5 pt-6 pb-0">
+
+
+    <form novalidate autocomplete="off" [formGroup]="this.myForm">
+      <div class="flex flex-col gap-2.5">
+        <span class="text-lg font-extrabold text-gray-900">Add Allowed File Type</span>
+        <mat-form-field>
+          <mat-label>Enter File Type -- e.g., docx</mat-label>
+          <input matInput type="text" formControlName="extension_name" aria-label="extension_name" title="extension_name">
+          <mat-error *ngIf="this.myForm.controls.extension_name.errors?.fileTypeExists">
+            {{ this.myForm.controls.extension_name.errors?.fileTypeExists }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>File Type Description</mat-label>
+          <textarea matInput type="text" aria-label="File Type Description" title="File Type Description"  maxlength="150" formControlName="extension_description">
+            </textarea>
+          <mat-error *ngIf="this.myForm.controls.extension_description.errors?.required">File Extension description is required</mat-error>
+        </mat-form-field>
+      </div>
+    </form>
+
+
+
+</div>
+<mat-dialog-actions class="gap-2.5" style="justify-content: center">
+
+  <button mat-raised-button type="button" class="w-[75px]" (click)="this.clickClose()" [disabled]="this.submitInProgress" title="Close Dialog box without saving"
+          aria-label="Close Dialog box without saving">
+    Close
+  </button>
+
+  <button mat-raised-button type="button" class="w-[75px]" color="primary" (click)="this.clickSave()"
+          [disabled]="this.submitInProgress" title="Save"
+          aria-label="Save">
+    <ng-container *ngIf="!this.submitInProgress">
+      Save
+    </ng-container>
+    <ng-container *ngIf="this.submitInProgress">
+      <i class="fa fa-spin fa-spinner" style="font-size: 18px"></i> Submitting...
+    </ng-container>
+  </button>
+
+</mat-dialog-actions>
+
+
+
+TS
+
+import { Component } from '@angular/core';
+import {AbstractControl, AsyncValidatorFn, FormBuilder, FormGroup, ValidationErrors, Validators} from "@angular/forms";
+import {MatDialogRef} from "@angular/material/dialog";
+import {AddAllowedFileTypeDTO} from "../../models/add-allowed-file-type-dto";
+import {AllowedFileTypeService} from "../../services/allowed-file-type.service";
+import {MessageService} from "../../services/message.service";
+import {map, Observable, of, switchMap, timer} from "rxjs";
+import {VerifyFileTypeExistsDTO} from "../../models/verify-file-type-exists-dto";
+
+@Component({
+  selector: 'app-add-allowed-file-dialog',
+  templateUrl: './add-allowed-file-dialog.component.html',
+  styleUrls: ['./add-allowed-file-dialog.component.scss']
+})
+export class AddAllowedFileDialogComponent {
+  public myForm: FormGroup;
+  public submitInProgress: boolean = false;
+
+
+  constructor(private dialogRef: MatDialogRef<AddAllowedFileDialogComponent>,
+              private formBuilder: FormBuilder,
+              private allowedFileTypeService: AllowedFileTypeService,
+              private messageService: MessageService) { }
+
+  public ngOnInit(): void {
+
+    this.myForm = this.formBuilder.group({
+      extension_name: [null, null, this.doesFileTypeExist()],
+      extension_description: [null, Validators.required]
+    });
+
+    // Listen for changes on the extension name text box
+    this.myForm.controls['extension_name'].valueChanges.subscribe( (aUsersText: string) =>{
+
+      if (aUsersText.includes(".")){
+        // User entered a dot, so now we get rid of it
+        let str: string = aUsersText.replace(".", "");
+        this.myForm.controls['extension_name'].setValue(str, { emitEvent: false});
+      }
+
+    } )
+
+  }
+
+  public clickSave(): void {
+    // Touching all the fields and showing all the errors
+    this.myForm.markAllAsTouched();
+
+    if (!this.myForm.valid){
+      // There are form validation errors, so stop here
+      return;
+    }
+
+    // Prevents the user from closing the dialog box by clicking outside of it
+    this.dialogRef.disableClose = true;
+
+    // Show the spinner
+    this.submitInProgress = true;
+
+    let restCallFinishSuccessfully: boolean = false;
+
+    // Part 1: Create the DTO to pass in information to the REST call
+    let dto: AddAllowedFileTypeDTO = new AddAllowedFileTypeDTO();
+    dto.description = this.myForm.controls['extension_description'].value;
+    dto.extension = this.myForm.controls['extension_name'].value;
+
+    // Part 2: Invoke the REST call
+    this.allowedFileTypeService.addAllowedFileType(dto).subscribe( ()=> {
+      // The REST call finished successfully
+      restCallFinishSuccessfully = true;
+
+      this.messageService.showSuccessMessage("File type successfully added");
+
+
+    } ).add( () =>{
+      // REST call finally block
+
+      // Returns true of the REST call finished successfully, returns false if otherwise
+      this.dialogRef.close(restCallFinishSuccessfully)
+
+    } )
+
+  }
+
+
+  public clickClose(): void {
+    // Close the dialog box and return false so that the caller knows that nothing happened
+    this.dialogRef.close(false);
+  }
+
+  /*
+ * Async Validator that checks if the form fields holds a unique contract value
+ *
+ * NOTE:  This returns an Observable that holds ValidationErrors
+ */
+  public doesFileTypeExist(): AsyncValidatorFn {
+
+    return (control: AbstractControl): Observable<ValidationErrors | null> => {
+
+      // Use timer to emit an event after 10 milliseconds
+      return timer(10).pipe(
+        switchMap(() => {
+
+          if (! control?.value) {
+            // The contract number is *empty*.  So, return a ValidationErrors object
+            return of( {'fileTypeExists': 'The file type is empty.'});
+          }
+
+          let enteredText: string = control.value
+
+          if (!enteredText || !enteredText.trim()) {
+            // The entered extension is *blank*.  So, return a ValidationErrors object
+            return of( {'fileTypeExists': 'The file type is empty.'});
+          }
+
+          return this.allowedFileTypeService.doesFileTypeExist(enteredText).pipe(
+            map((aResult: VerifyFileTypeExistsDTO) => {
+
+              if (aResult.exists_in_system) {
+                // This contract number is *ALREADY* being used.  So, return a ValidationErrors object
+                return {'fileTypeExists' : 'The file type already is already in the system.'};
+              }
+              else {
+                // The file type is NOT in use.  So, return null
+                return null;
+              }
+            })   // end of map
+
+          ) // end of inner pipe
+        }) // end of switchMap
+
+      ); // end of outer pipe
+
+    }
+  }  // end of uniqueContractValidator
+
+
+
+}

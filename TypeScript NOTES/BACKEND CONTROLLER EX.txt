@@ -1,0 +1,130 @@
+BACKEND CONTROLLER EX:
+
+package com.lessons.controllers;
+import com.lessons.models.AddAllowedFileTypeDTO;
+import com.lessons.models.GetAllowedFileTypeDTO;
+import com.lessons.models.VerifyFileTypeExistsDTO;
+import com.lessons.services.AllowedFileTypesService;
+import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.util.List;
+
+@Controller
+public class AllowedFileTypesController {
+    private static final Logger logger = LoggerFactory.getLogger(AllowedFileTypesController.class);
+
+    @Resource
+    private AllowedFileTypesService allowedFileTypesService;
+
+
+    /**
+     * GET /api/admin/file-types/list
+     * REST call to get a list of Allowed File Types that have been uploaded
+     *
+     * @return a ResponseEntity that holds a list of GetAllowedFileTypeDTO objects
+     */
+    @RequestMapping(value = "/api/admin/file-types/list", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("hasAnyRole('CVF_SUPERVISOR',  'CVF_ADMIN')")
+    public ResponseEntity<?> getAllFileTypes() {
+
+        List<GetAllowedFileTypeDTO> myList = this.allowedFileTypesService.getAllFileTypes();
+
+        // Return a response of 200 and the UserInfoDTO object
+        return ResponseEntity.status(HttpStatus.OK).body(myList);
+    }
+
+    /**
+     * POST /api/admin/file-types/add
+     * REST call to get a list of Allowed File Types that have been uploaded
+     *
+     * @return a ResponseEntity that holds a list of GetAllowedFileTypeDTO objects
+     */
+    @RequestMapping(value = "/api/admin/file-types/add", method = RequestMethod.POST, produces = "application/json")
+    @PreAuthorize("hasAnyRole('CVF_SUPERVISOR',  'CVF_ADMIN')")
+    public ResponseEntity<?> addAllFileType(@RequestBody AddAllowedFileTypeDTO addAllowedFileTypeDTO) {
+
+
+        if (StringUtils.isBlank(addAllowedFileTypeDTO.getExtension())){
+            // Passed in extension is blank
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("The passed in extension is blank.");
+        }
+
+        if (StringUtils.isBlank(addAllowedFileTypeDTO.getDescription())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("The passed in description is blank.");
+        }
+
+        if (this.allowedFileTypesService.doesExtensionExist(addAllowedFileTypeDTO.getExtension())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("This extension is already in the system.");
+        }
+
+        // Add this file extension to the system
+        this.allowedFileTypesService.addAllowedFileType(addAllowedFileTypeDTO);
+
+        // Return a response with a status code of 200
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+
+    }
+
+    @RequestMapping(value = "/api/admin/file-types/exists/{newExtension}", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("hasAnyRole('CVF_SUPERVISOR',  'CVF_ADMIN')")
+    public ResponseEntity<?> extensionExists(@PathVariable(name="newExtension") String aExtension) {
+
+        if (StringUtils.isBlank(aExtension)){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("The passed in extension cannot be blank.");
+        }
+
+        VerifyFileTypeExistsDTO dto = new VerifyFileTypeExistsDTO();
+        dto.setExtension(aExtension);
+
+        boolean extensionExists = this.allowedFileTypesService.doesExtensionExist(aExtension);
+        dto.setExistsInSystem(extensionExists);
+
+        // Return a response with a status code of 200
+        return ResponseEntity.status(HttpStatus.OK).body(dto);
+    }
+
+    @RequestMapping(value = "/api/admin/file-types/delete/{allowedFileTypeId}", method = RequestMethod.DELETE, produces = "application/json")
+    @PreAuthorize("hasAnyRole('CVF_SUPERVISOR',  'CVF_ADMIN')")
+    public ResponseEntity<?> deleteFileType(@PathVariable(name="allowedFileTypeId") Integer aAllowedFileTypeId) {
+
+
+        if (aAllowedFileTypeId < 0){
+            // Return a response with a status code of 400
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("The passed in Allowed File Type ID is bad.");
+        }
+
+        if (!this.allowedFileTypesService.doesAllowedFileTypeIdExist(aAllowedFileTypeId)){
+            // Return a response with a status code of 400 if the File Type ID is not in the database
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("The passed in Allowed File Type ID is not in the database.");
+        }
+
+        this.allowedFileTypesService.deleteAllowedFileType(aAllowedFileTypeId);
+
+
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+}

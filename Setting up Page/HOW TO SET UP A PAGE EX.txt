@@ -1,0 +1,41 @@
+HOW TO SET UP A PAGE EX:
+
+Exercise 4a / Create a new page
+------------------------------------------------
+1. Create the component:  ClientGridPage4 (example)
+
+ng g c ClientGridPage4
+
+
+
+ 2. Tell the router that "page/client-grid-4" takes you to the new component
+ 
+   { path:  Constants.CLIENT_GRID_PAGE_4_ROUTE,                    component: ClientGridPage4Component            
+
+ 
+ 3. Add a link in the navbar that says "Client Grid Page 4"
+ 
+ {
+		navGroupName: "Client Grid Page 4",
+		faIconTag: "fa-chart-pie",
+		navGroupItems: [
+			{
+				navItemName: "Client Grid Page 4",
+				navItemUrl: Constants.CLIENT_GRID_PAGE_4_ROUTE,
+			}
+		]
+	}
+
+
+ 4. Add a link to the consntans.ts
+ 
+   CLIENT_GRID_PAGE_4_ROUTE                       = "page/client-grid-page-4",
+
+
+
+ 5. Verify that the navbar link works
+    a. Activate the debugger
+    b. Go to http://localhost:4200/
+    c. Verify that you see the link called "Client Grid Page 4"
+    d. Click on the link
+       -- Verify it says, "client-grid-page-4 works!"

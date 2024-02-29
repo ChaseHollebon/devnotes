@@ -1,0 +1,48 @@
+PIPES EX
+
+import {Pipe, PipeTransform} from '@angular/core';
+import {NumericService} from "../services/numeric.service";
+
+
+@Pipe({
+  name: 'bytes'
+})
+export class BytesPipe implements PipeTransform {
+
+ constructor(private numericService: NumericService){
+
+ }
+
+  public transform(input: unknown, ...args: unknown[]): any {
+    if (!this.numericService.isNumeric(input)) {
+      return input;
+    }
+
+    let numericInput: number = Number(input);
+
+    if (numericInput < 1) {
+      // The passed-id input is 0 or less.  So, return the original input
+      return input
+    }
+
+    if (numericInput < 1024) {
+      // The passed-in input is between 1 and 1023    (under 1 kilobyte)
+      return numericInput + " B";
+    } else if (numericInput < 1048576) {
+      // The passed-in input is between 1024 and 1048575   (under 1 megabyte)
+      const numberValue = Math.floor(numericInput / 1024);
+      return `${numberValue} KB`;
+    } else if (numericInput < 1073741824) {
+      // The passed-in input is between 1048576 and 1073741824   (under 1 gigabyte)
+      const numberValue = Math.floor(numericInput / 1048576);
+      return `${numberValue} MB`
+    } else {
+      // The passed-in input is greater than 1 gigabyte
+      const numberValue = Math.floor(numericInput / 1073741824);
+      return `${numberValue} GB`
+    }
+
+  }
+
+
+}

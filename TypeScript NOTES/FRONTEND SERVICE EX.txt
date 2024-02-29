@@ -1,0 +1,46 @@
+Frontend Service EX:
+
+import {Injectable} from '@angular/core';
+import {Observable} from "rxjs";
+import {GetAllowedFileTypeDTO} from "../models/get-allowed-file-type-dto";
+import {HttpClient} from "@angular/common/http";
+import {environment} from "../../environments/environment";
+import {AddAllowedFileTypeDTO} from "../models/add-allowed-file-type-dto";
+import {VerifyFileTypeExistsDTO} from "../models/verify-file-type-exists-dto";
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AllowedFileTypeService {
+
+  public constructor(private httpClient: HttpClient) {
+  }
+
+  public getAllAllowedFilesTypes(): Observable<GetAllowedFileTypeDTO[]> {
+    const restUrl: string = environment.baseUrl + "/api/admin/file-types/list";
+
+    // This returns an observable that gets all the file types
+    return this.httpClient.get <GetAllowedFileTypeDTO[]>(restUrl);
+  }
+
+  public addAllowedFileType(addAllowedFileTypeDTO: AddAllowedFileTypeDTO): Observable<string>{
+    const restUrl: string = environment.baseUrl + "/api/admin/file-types/add";
+
+    return this.httpClient.post(restUrl, addAllowedFileTypeDTO, {responseType:'text'});
+  }
+
+  public doesFileTypeExist(aExtension: string): Observable<VerifyFileTypeExistsDTO> {
+    const restUrl: string = environment.baseUrl + "/api/admin/file-types/exists/" + aExtension;
+
+    // This returns an observable that gets all the file types
+    return this.httpClient.get <VerifyFileTypeExistsDTO>(restUrl);
+  }
+
+  public deleteAllowedFileType(aAllowedFileTypeId: number): Observable<string>{
+   const restUrl: string = environment.baseUrl + "/api/admin/file-types/delete/" + aAllowedFileTypeId;
+
+   // This return an observable that deletes all the file types
+   return this.httpClient.delete <string>(restUrl);
+  }
+
+}
