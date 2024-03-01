@@ -35,10 +35,14 @@ ng g c ClientGridPage4
  5. Add your uicontrols to your V1.1_secuirty.sql
  
  insert into uicontrols(id, name) values(3003, 'page/all-reports-new');
+ 
+ 
+ 
+ 6. NUKE THE DATABASE
 
 
 
- 5. Verify that the navbar link works
+ 7. Verify that the navbar link works
     a. Activate the debugger
     b. Go to http://localhost:4200/
     c. Verify that you see the link called "Client Grid Page 4"
