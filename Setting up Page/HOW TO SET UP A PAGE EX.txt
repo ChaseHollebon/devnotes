@@ -30,6 +30,11 @@ ng g c ClientGridPage4
  4. Add a link to the consntans.ts
  
    CLIENT_GRID_PAGE_4_ROUTE                       = "page/client-grid-page-4",
+   
+ 
+ 5. Add your uicontrols to your V1.1_secuirty.sql
+ 
+ insert into uicontrols(id, name) values(3003, 'page/all-reports-new');
 
 
 
