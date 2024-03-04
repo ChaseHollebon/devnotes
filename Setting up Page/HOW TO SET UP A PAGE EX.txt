@@ -32,14 +32,12 @@ ng g c ClientGridPage4
    CLIENT_GRID_PAGE_4_ROUTE                       = "page/client-grid-page-4",
    
  
- 5. Add your uicontrols to your V1.1_security.sql
+ 5. Add your uicontrols to your V1.1_secuirty.sql (IN THE DBMIGRATIONS TAB)
  
- insert into uicontrols(id, name) values(3003, 'page/client-grid-page-4');
-
- (Might have to grant this page to a certain role... for now the SUPERVISOR and the ADMIN get granted access to all pages)
+ insert into uicontrols(id, name) values(3003, 'page/all-reports-new');
  
  
-
+ 
  6. NUKE THE DATABASE
 
 
