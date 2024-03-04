@@ -442,4 +442,205 @@ Exercise 12b: Setup the layout
           width: 140px;
         }
 
+HTML
+
+<div class="bg-backDropColor m-2.5">
+  <!-- Header Section -->
+  <div class="bg-gray-200">
+    <div class="flex flex-row justify-between items-center mb-4">
+      <span class="text-2xl font-bold">Lesson 12 / Scroll Into View</span>
+
+      <!-- Help Button -->
+      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Help
+      </button>
+    </div>
+  </div>
+
+  <div class="flex flex-row" style="height: calc(100vh - 175px); overflow-y: auto">
+
+    <!-- Left side of page -->
+    <div class="w-full">
+      <!-- Left Side of Page (Section 1-7 Boxes) -->
+      <div class="h-[200px] border border-black m-4" id="section1" style="overflow-y:auto">
+        Section 1
+      </div>
+
+      <div class="h-[200px] border border-black m-4" id="section2" style="overflow-y:auto">
+        Section 2
+      </div>
+
+      <div class="h-[200px] border border-black m-4" id="section3" style="overflow-y:auto">
+        Section 3
+      </div>
+
+      <div class="h-[200px] border border-black m-4" id="section4" style="overflow-y:auto">
+        Section 4
+      </div>
+
+      <div class="h-[200px] border border-black m-4" id="section5" style="overflow-y:auto">
+        Section 5
+      </div>
+
+      <div class="h-[200px] border border-black m-4" id="section6" style="overflow-y:auto">
+        Section 6
+      </div>
+    </div>
+
+
+    <!-- Right side of page -->
+    <div class="w-[200px]">
+      <div style="position:fixed">
+
+
+        <!-- Right side of page (Section Titles) -->
+        <!-- Use padding-inline-start to reduce the left-side padding on this ul tag -->
+        <ul class="internal-nav" style="margin-top: 10px;  padding-inline-start: 10px;">
+
+          <li class="internal-nav">
+            <mat-divider></mat-divider>
+          </li>
+
+
+          <li class="internal-nav">
+            <!-- Go to Section 1 -->
+            <a title="Go to 'Section 1'" (click)="this.formUtilsService.scrollToTargetId('section1')" [routerLink]=[]>Section
+              1</a>
+          </li>
+          <li class="internal-nav">
+            <mat-divider></mat-divider>
+          </li>
+
+
+          <li class="internal-nav">
+            <!-- Go to Section 2 -->
+            <a title="Go to 'Section 2'" (click)="this.formUtilsService.scrollToTargetId('section2')" [routerLink]=[]>Section
+              2</a>
+          </li>
+          <li class="internal-nav">
+            <mat-divider></mat-divider>
+          </li>
+
+
+          <li class="internal-nav">
+            <!-- Go to Section 3 -->
+            <a title="Go to 'Section 3'" (click)="this.formUtilsService.scrollToTargetId('section3')" [routerLink]=[]>Section
+              3</a>
+          </li>
+          <li class="internal-nav">
+            <mat-divider></mat-divider>
+          </li>
+
+
+          <li class="internal-nav">
+            <!-- Go to Section 4 -->
+            <a title="Go to 'Section 4'" (click)="this.formUtilsService.scrollToTargetId('section4')" [routerLink]=[]>Section
+              4</a>
+          </li>
+          <li class="internal-nav">
+            <mat-divider></mat-divider>
+          </li>
+
+
+          <li class="internal-nav">
+            <!-- Go to Section 5 -->
+            <a title="Go to 'Section 5'" (click)="this.formUtilsService.scrollToTargetId('section5')" [routerLink]=[]>Section
+              5</a>
+          </li>
+          <li class="internal-nav">
+            <mat-divider></mat-divider>
+          </li>
+
+
+          <li class="internal-nav">
+            <!-- Go to Section 6 -->
+            <a title="Go to 'Section 6'" (click)="this.formUtilsService.scrollToTargetId('section6')" [routerLink]=[]>Section
+              6</a>
+          </li>
+          <li class="internal-nav">
+            <mat-divider></mat-divider>
+          </li>
+
+        </ul>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+TS
+
+import { Component } from '@angular/core';
+import {FormUtilsService} from "../services/form-utils.service";
+
+@Component({
+  selector: 'app-scroll-into-view',
+  templateUrl: './scroll-into-view.component.html',
+  styleUrls: ['./scroll-into-view.component.scss']
+})
+export class ScrollIntoViewComponent {
+
+
+
+  constructor(public formUtilsService: FormUtilsService) { }
+}
+
+
+CSS
+
+.internal-nav  {
+  list-style-type: none;
+  margin: 0;
+  padding: 4px;
+  white-space: nowrap;  /* Stop the wrapping */
+}
+
+.internal-nav a {
+  white-space: nowrap;  /* Stop the wrapping */
+  font-family: Roboto;
+  font-size: 1.2em;
+  font-weight: 400;
+}
+
+.internal-nav a:hover {
+  /* The user has hovered over any anchor */
+  white-space: nowrap;  /* Stop the wrapping */
+  color: #007bff;
+  font-family: Roboto;
+  font-size: 1.2em;
+  font-weight: 400;
+}
+
+.mat-divider {
+  /* Set the length of the mat-divider */
+  width: 140px;
+}
+
+
+Service
+
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class FormUtilsService {
+
+  /*
+           * Scroll the page into view so the user can see the tag that has id=" "
+           */
+  public scrollToTargetId(aElementId: string): void {
+    // Get a reference to the DOM element
+    const el: HTMLElement|null = document.getElementById(aElementId);
+
+    if (el) {
+      // The DOM element exists.  So, scroll to it.
+      setTimeout(() =>
+        el.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'nearest'}), 0);
+    }
+  }
+
+  constructor() { }
+}
 
