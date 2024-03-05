@@ -1,0 +1,397 @@
+Exercise 13:  Angular Services Lesson
+-------------------------------------
+															
+
+
+Part 1:  Create the 2 pages
+---------------------------
+
+ 1. Create the page called "Typescript Page 1"
+    The route will be this:   page/typescript1
+
+
+
+ 2. Create this layout
+
+			+--------------------------------------------------------------+
+            | TypeScript Page 1                                       Help |
+			+--------------------------------------------------------------+
+            |                                                              |
+            |   <Reset Count Btn>   <Add to Count Btn>   <Go to Page 2>    |
+            |                                                              |
+            |   Current Count is 3                                         |
+            |                                                              |
+            +--------------------------------------------------------------+
+            NOTE:  Place 20 pixels between each of the buttons/hyperlinks
+                   "Go to Page2" is a hyperlink
+
+
+
+
+ 3. Create the page called "Typescript Page 2"
+    The route will be this:   page/typescript2
+
+
+
+ 4. Create this layout
+
+			+--------------------------------------------------------------+
+            | TypeScript Page 2                                       Help |
+			+--------------------------------------------------------------+
+            |                                                              |
+            |   <Reset Count Btn>   <Add to Count Btn>   <Go to Page 1>    |
+            |                                                              |
+            |   Current Count is 5                                         |
+            |                                                              |
+            +--------------------------------------------------------------+
+            NOTE:  Place 20 pixels between each of the buttons/hyperlinks
+                   "Go to Page1" is a hyperlink
+
+
+
+
+
+
+
+ 
+Part 2:  Implement the "go to page 1" and "Go to Page2" hyperlinks
+------------------------------------------------------------------
+ 1. Make a plan
+		APPROACH 1:  Use the [routerLink]="'/' + Constants.MY_NEW_PAGE_ROUTE"
+
+		APPROACH 2:  Inject the router and use a click handler
+					 a. Create a click handler
+					 b. Inject the router
+					 c. Use the router to navigate you to a new page
+		
+
+
+ 2. Execute it
+
+
+
+ 
+
+
+
+ 
+Part 3:  Implement the "go to page 1" and "Go to Page2" hyperlinks
+------------------------------------------------------------------
+
+
+
+
+
+
+
+ 
+
+Part 4:  Get the "Add to Count Btn" button, "Reset Count Btn", and "Current Count is...." to work
+-------------------------------------------------------------------------------------------------
+
+Requirements
+------------
+ 1. The count is visible on 2 web pages
+ 2. Pressing the "Reset Count" button on EITHER page resets the count
+ 3. Each page should always display current count
+
+
+Make a Plan
+-----------
+ 1. Where will you store the count?
+ 2. How can "page 1" change the count that shows in "page 2"...?
+
+
+
+ Make a Plan
+ -----------
+	1. Create a new service:  CountService
+	2. Add some goodies to the CountService
+			add a class variable called realCount
+
+			add some public methods:
+				addToCount()
+
+				resetCount()
+
+				getCount()
+
+
+	3. In Page 1, 
+		a. Inject the CountService 
+		b. add a class variable called count
+		c. on page load, set your class variable 
+		d. Display the class variable in your HTML
+		e. Add a click handler to your "Add to Count" button
+		f. Add a click handerl to your "Reset Count" button		
+
+	4. In Page 2,
+		a. Inject the CountService 
+		b. add a class variable called count
+		c. on page load, set your class variable 
+		d. Display the class variable in your HTML
+		e. Add a click handler to your "Add to Count" button
+		f. Add a click handerl to your "Reset Count" button		
+
+
+
+								+-------------------+          +-------------------+
+								|  Page 1           |          | Page 2            |
+								|         count=0   |          |          count=0  |
+								+-------------------+          +-------------------+
+										                         
+
+												+-------------------+
+												|  CountService     |
+												|    storedCount=0  |
+												|                   |
+												|  addToCount()     |
+												|                   |
+												|  resetCount()     |
+                                                |                   |
+                                                |  getCount()       |
+												+-------------------+
+
+
+
+
+			In Page 1, User Clicks "Add to Count"
+
+								+-------------------+   
+								|  Page 1           |     
+								|         count=1   |       
+								+-------------------+        
+
+
+			
+			In Page 2, User clicks "Go to Page 2"
+
+								+-------------------+   
+								|  Page 1           |     
+								|         count=1   |       
+								+-------------------+        
+
+
+
+
+
+TypeScript 1 Page HTML
+
+<div class="bg-backDropColor m-2.5">
+  <!-- Header Section -->
+  <div class="bg-gray-200">
+    <div class="flex flex-row justify-between items-center mb-4">
+      <span class="text-2xl font-bold">TypeScript Page 1</span>
+
+      <!-- Help Button -->
+      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Help
+      </button>
+    </div>
+  </div>
+
+  <!-- Reset Count Button -->
+  <div class="grid grid-cols-3 gap-[20px] mt-8">
+    <div class="flex place-content-center">
+      <div>
+        <button (click)="this.resetCount()" type="Reset Count" title="Reset Count" aria-label="Reset Count"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Reset Count
+        </button>
+      </div>
+    </div>
+
+    <!-- Add to Count Button -->
+    <div>
+      <div class="flex place-content-center">
+        <button (click)="this.addToCount()" type="Add to Count" title="Add to Count" aria-label="Add to Count"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Add to Count
+        </button>
+      </div>
+    </div>
+
+    <!-- Go to Page 2 Hyperlink -->
+    <div>
+      <div class="flex place-content-center">
+        <a href="#" [routerLink]="'/'+Constants.TYPESCRIPT_PAGE_2_ROUTE" class="text-blue-500 hover:text-blue-700 text-blue font-bold py-2 px-4 rounded underline">
+          Go to Page 2
+        </a>
+      </div>
+    </div>
+
+    <!-- Current count label -->
+    <div>
+        <div class="flex place-content-center">
+          <mat-label>Current Count is {{ this.count }} </mat-label>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+TypeScript 1 Page TS
+
+import {Component, OnInit} from '@angular/core';
+import { Constants } from '../utilities/constants';
+import {Router} from "@angular/router";
+import {CountService} from "../services/count.service";
+
+@Component({
+  selector: 'app-typescript-page1',
+  templateUrl: './typescript-page1.component.html',
+  styleUrls: ['./typescript-page1.component.scss']
+})
+export class TypescriptPage1Component implements OnInit{
+  protected readonly Constants = Constants;
+
+  constructor(private countService: CountService) {
+  }
+
+  public count:number;
+
+  ngOnInit(): void {
+    this.count = this.countService.getCount();
+
+    }
+
+
+  addToCount() {
+    this.countService.addToCount();
+    this.count = this.countService.getCount();
+  }
+
+  resetCount(): void {
+    this.countService.resetCount();
+    this.count = this.countService.getCount();
+  }
+
+}
+
+
+TypeScripts Page 2 HTML
+
+<div class="bg-backDropColor m-2.5">
+  <!-- Header Section -->
+  <div class="bg-gray-200">
+    <div class="flex flex-row justify-between items-center mb-4">
+      <span class="text-2xl font-bold">TypeScript Page 2</span>
+
+      <!-- Help Button -->
+      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Help
+      </button>
+    </div>
+  </div>
+
+  <!-- Reset Count Button -->
+  <div class="grid grid-cols-3 gap-[20px] mt-8">
+    <div class="flex place-content-center">
+      <div>
+        <button (click)="this.resetCount()" type="Reset Count" title="Reset Count" aria-label="Reset Count"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Reset Count
+        </button>
+      </div>
+    </div>
+
+    <!-- Add to Count Button -->
+    <div>
+      <div class="flex place-content-center">
+        <button (click)="this.addToCount()" type="Add to Count" title="Add to Count" aria-label="Add to Count"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Add to Count
+        </button>
+      </div>
+    </div>
+
+    <!-- Go to Page 1 Hyperlink -->
+    <div>
+      <div class="flex place-content-center">
+        <a href="#" [routerLink]="'/'+Constants.TYPESCRIPT_PAGE_1_ROUTE" class="text-blue-500 hover:text-blue-700 text-blue font-bold py-2 px-4 rounded underline">
+          Go to Page 1
+        </a>
+      </div>
+    </div>
+
+    <!-- Current count label -->
+    <div>
+      <div class="flex place-content-center">
+        <mat-label>Current Count is {{ this.count }}</mat-label>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+TypeScript Page 2 TS
+
+import { Component } from '@angular/core';
+import { Constants } from '../utilities/constants';
+import {CountService} from "../services/count.service";
+
+@Component({
+  selector: 'app-typescript-page2',
+  templateUrl: './typescript-page2.component.html',
+  styleUrls: ['./typescript-page2.component.scss']
+})
+export class TypescriptPage2Component {
+  protected readonly Constants = Constants;
+
+  constructor(private countService: CountService) {
+  }
+
+  public count:number;
+
+  ngOnInit(): void {
+    this.count = this.countService.getCount();
+
+  }
+
+  addToCount() {
+    this.countService.addToCount();
+    this.count = this.countService.getCount();
+  }
+
+  resetCount(): void {
+    this.countService.resetCount();
+    this.count = this.countService.getCount();
+  }
+
+}
+
+
+CountService
+
+import { Injectable } from '@angular/core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class CountService {
+
+
+  private realCount: number = 0;
+
+  public addToCount():void {
+    this.realCount++
+  }
+
+  public resetCount(): void {
+    this.realCount = 0;
+  }
+
+  public getCount(): number {
+    return this.realCount;
+  }
+
+}
+
+
+
+
+
+
+ 
