@@ -1,37 +1,32 @@
 How to do a Git Rebase?
 How to update branch to the latest Development?
 -----------------------------------------------
+1. Make sure your branch is clean (everything has been committed and pushed up)
 
-1. Get the latest development branch    ( cd into the Parent directory & make sure your not in development branch )
+2. Get the latest development branch    ( cd into the Parent directory & make sure your not in development branch )
     a. CMD> git branch -D development         // Delete the development branch
     b. CMD> git fetch -a                      // Get the latest development branch
     c. CMD> git checkout development
 
- 2. Checkout the branch you want to rebase
+ 3. Checkout the branch you want to rebase
 
- 3. Pull Git -> Rebase
+ 4. Pull Git -> Rebase
 
- 4. ( If there is a pop-up )
+ 5. ( If there is a pop-up )
     a. Uncheck "Interactive"
     b. In the "onto", choose development (or the branch with other people's changes)
     c. Click "Rebase"
 
- 5. ( Resolve conflicts (if there are any) )
-    a. CMD> cd db-migrations
-       CMD> mvn flyway:clean
-       CMD> mvn flyway:migrate
+ 6. Resolve conflicts (if there are any)
 
-    OR
 
-    Select the Configure Drop down and Select and debugg
-     5a.  SynApplication w/ Flyway clean
+ 7. Compile your code
 
-    b. CMD> cd..
+    b. CMD> cd.. (if in Frontend directory)
        CMD> mvn clean package -Pprod
 
-    c. start the "Debugger"                     // If it builds and the WebbApp is up successfully then proceed to the next step
 
- 6. Push it
+ 8. If it compiles perfectly, then do a force push
     a. CMD> git push -f                         // This does a “force push”, which will push your rebased local branch with the updated merges.
   OR------------------------------------
     a. Pull  Git -> Push -> Force Push
