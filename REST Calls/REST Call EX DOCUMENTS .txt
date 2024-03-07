@@ -1,0 +1,605 @@
+REST Calls Example "Documents Tab" GET REST Call
+
+Documents HTML
+
+<ng-container *ngIf="(this.obsAllDocuments | async) as allDocuments">
+  <div class="p-5">
+    <div class="p-2 bg-quaternary mb-4">
+      <span class="text-2xl text-white font-bold">Add Documents</span>
+    </div>
+    <div class="mx-[200px]">
+      <div class="flex place-content-center w-full">
+
+        <!-- Big box is here -->
+        <label class="w-full" for="fileInput" ng2FileDrop [uploader]="this.uploader" (onFileDrop)="this.onFileSelected($event)">
+          <div class="flex place-content-center border-2 border-dashed border-black p-4 w-full h-full">
+            <span class="text-black">Click or drag files here to upload</span>
+          </div>
+        </label>
+      </div>
+
+        <div class="flex place-content-center mt-5">
+          <label for="fileInput" class="custom-file-upload" title="Select File to Upload">
+            <i class="fas fa-cloud-upload-alt"></i> &nbsp;&nbsp;Select File to Upload
+          </label>
+          <input type="file" id="fileInput" class="mb-4" ng2FileSelect #uploadFileBox [uploader]="uploader"
+                 (onFileSelected)="this.onFileSelected($event)">
+          <div *ngIf="this.selectedFileToUpload != null" class="mt-2.5">
+
+          </div>
+
+          <div>
+            <button (click)="this.beginUpload()" type="button" mat-raised-button class="ml-4"
+                    [disabled]="this.uploader.getNotUploadedItems().length==0">
+              Upload File
+            </button>
+          </div>
+        </div>
+      <div *ngIf="selectedFileToUpload != null" class="flex place-content-center mt-5 font-bold">
+        File Ready to Upload: <span class="font-bold">{{ this.selectedFileToUpload?.file?.name }}</span>
+      </div>
+
+
+    </div>
+    <div class="mt-10">
+      <div class="p-2 bg-quaternary mb-4">
+        <span class="text-2xl text-white font-bold">Uploaded Documents</span>
+      </div>
+    </div>
+    <div class="ml-5">
+
+      <!-- Submitted Documents List -->
+      <div class="mb-4 flex flex-col gap-y-2">
+
+        <!-- List of submitted documents -->
+
+        <ng-container *ngFor="let document of allDocuments">
+          <div class="grid grid-cols-3 border-b bg-[#C3E0F7] p-2">
+            <div class="flex truncate max-w-full self-center">
+              <span class="truncate">{{ document.originalFileName }}</span>
+            </div>
+
+            <div class="flex place-content-center self-center">
+              <span>{{ document.sizeInBytes | bytes }}</span>
+            </div>
+
+            <div class="flex place-content-end">
+              <button (click)="this.downloadClicked(document.documentId)" class="upload-button-class mr-2.5"
+                      type="button" mat-raised-button title="View Document">
+                <i class="fa fa-download"></i> View
+              </button>
+
+              <button (click)="this.openDeleteDialog(document.documentId, document.originalFileName)"
+                      class="upload-button-class" type="button" mat-raised-button color="warn" title="Delete ">
+                <i class="fas fa-trash-alt"></i> Delete
+              </button>
+            </div>
+          </div>
+        </ng-container>
+
+
+        <!-- Add more list items as needed -->
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+
+Documents TS
+
+import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {DocumentsService} from "../../../services/documents.service";
+import {Observable} from "rxjs";
+import {GetDocumentsDetailsDTO} from "../../../models/get-documents-details-dto";
+import {environment} from "../../../../environments/environment";
+import {FileItem, FileUploader, ParsedResponseHeaders} from "ng2-file-upload";
+import {MatDialog} from "@angular/material/dialog";
+import {DeleteDocumentDialogComponent} from "../../../dialogs/delete-document-dialog/delete-document-dialog.component";
+import {DeleteDialogDataDTO} from "../../../models/delete-dialog-data-dto";
+import {MessageService} from "../../../services/message.service";
+import {NumericConstants} from "../../../utilities/numeric-constants";
+import {AllowedFileTypeService} from "../../../services/allowed-file-type.service";
+import {VerifyFileTypeExistsDTO} from "../../../models/verify-file-type-exists-dto";
+
+
+@Component({
+  selector: 'app-tab-documents',
+  templateUrl: './tab-documents.component.html',
+  styleUrls: ['./tab-documents.component.scss']
+})
+export class TabDocumentsComponent implements OnInit {
+
+  @ViewChild('uploadFileBox') uploadFileBox: ElementRef;
+
+  @Input() public caseId: number;
+
+  private readonly backendUploadUrl = environment.baseUrl + '/api/documents/upload';
+
+  public  selectedFileToUpload: null | undefined | FileItem = null;
+  public  obsAllDocuments: Observable<GetDocumentsDetailsDTO[]>;
+  private lastFileItemAddedToQueue: FileItem;
+
+
+  // Initialize the FileUploader object
+  // NOTE:  Assumes that the backend REST call has value = "file" for the MultiePartFile
+  public uploader: FileUploader = new FileUploader(
+    {
+      url: this.backendUploadUrl,
+      queueLimit: 2,
+      itemAlias: 'file'
+    });
+
+
+  constructor(private documentsService: DocumentsService,
+              private messageService: MessageService,
+              private matDialog: MatDialog,
+              private allowedFileTypeService: AllowedFileTypeService) {
+
+  }
+
+  public ngOnInit(): void {
+
+    this.obsAllDocuments = this.documentsService.getAllDocuments(this.caseId)
+
+
+    //Setup methods so the Uploader will call these methods at certain stages
+    this.uploader.onAfterAddingFile = (item: FileItem) => this.onAfterAddingFile(item);
+    this.uploader.onBuildItemForm = (item: FileItem, form: FormData) => this.onBuildItemForm(item, form);
+
+
+    this.uploader.onCompleteItem = (item, response, status, headers) =>
+      this.onCompleteItem(item, response, status, headers);
+
+  }
+
+  private reloadDocumentsList(): void {
+    this.obsAllDocuments = this.documentsService.getAllDocuments(this.caseId)
+
+  }
+
+
+  private onCompleteItem(item: any, response: any, status: number, headers: ParsedResponseHeaders): any {
+
+    this.selectedFileToUpload = null;
+
+    if (status == 200) {
+      // Upload succeeded, refresh the list of documents and show success message
+      this.messageService.showSuccessMessage("Successfully added a document.");
+      this.reloadDocumentsList()
+    }
+    else {
+      // Upload failed.  So, show the error message and reset the uploader
+
+      // Show the error message and force the user to acknowledge it
+      let message: string = "Upload Failed:\n " + response;
+      this.messageService.showAcknowledgeErrorMessage(message);
+
+      // Reset the uploader
+      this.resetUploader()
+    }
+  }
+
+
+  private resetUploader(): void {
+    this.uploader.clearQueue();
+    this.selectedFileToUpload = null;
+
+    // Clear the selected upload file box  controls
+    // -- Fixes the problem in which a user selects the same file twice
+    if (this.uploadFileBox) {
+      this.uploadFileBox.nativeElement.value = '';
+    }
+  }
+
+
+  private onAfterAddingFile(aFileItem: FileItem) {
+    // This line is required to make upload work with Spring security
+    aFileItem.withCredentials = false;
+
+    if (this.uploader.queue.length > 1) {
+      // The user selected a second file (without uploading the first). So, remove the last one from the list.
+      this.uploader.removeFromQueue(this.lastFileItemAddedToQueue);
+    }
+
+    // Get a reference to the last file item added to the queue
+    // NOTE: this reference is used in onFileSelected()
+    this.lastFileItemAddedToQueue = aFileItem;
+  }
+
+
+  public onFileSelected(aFiles: File[]) {
+
+    if (aFiles.length == 0) {
+      return;
+    }
+
+    let fileSizeInBytes: number = aFiles[0].size;
+    let fileName: string = aFiles[0].name;
+
+    if (fileSizeInBytes == 0) {
+      // The user selected a file that is empty
+      this.messageService.showErrorMessage("The file cannot be empty.");
+      this.resetUploader();
+      return;
+    }
+
+    if (fileSizeInBytes > NumericConstants.FILE_UPLOAD_LIMIT_IN_BYTES) {
+      // The user selected a file that is larger than 25MB
+     this.messageService.showErrorMessage("The file size cannot exceed " + NumericConstants.FILE_UPLOAD_LIMIT_IN_BYTES/1048576 + "MB.");
+     this.resetUploader();
+     return;
+    }
+
+    let fileNameExt: string | undefined = this.getExtensionFromFilename(fileName);
+
+    if (!fileNameExt) {
+      // The user selected a file that has no extension
+      this.messageService.showErrorMessage("The uploaded file must have an extension.")
+      this.resetUploader();
+      return;
+    }
+
+    this.allowedFileTypeService.doesFileTypeExist(fileNameExt).subscribe((aData: VerifyFileTypeExistsDTO)=>{
+      // The REST call came back with data
+      if (aData.exists_in_system == true){
+        // The user selected a file with a valid extension
+        this.selectedFileToUpload = this.lastFileItemAddedToQueue;
+      }
+      else {
+        // The user selected a file with an invalid extension
+        this.messageService.showErrorMessage("This file extension is not allowed: " + aData.extension);
+        this.resetUploader();
+      }
+    })
+
+
+  }
+
+
+  /*
+   * Before the Uploader sends the file to the back-end, add extra form fields
+   * In this case: Add the applicationId and questionId along with the form data
+  */
+  private onBuildItemForm(aFileItem: FileItem, aForm: FormData) {
+    aForm.append('caseId', String(this.caseId));
+  }
+
+
+  // Start uploading the files to the REST endpoint
+  public beginUpload() {
+    this.uploader.uploadAll();
+  }
+
+
+  public openDeleteDialog(aDocId: number, aFileName: string): void {
+    let dto: DeleteDialogDataDTO = new DeleteDialogDataDTO();
+    dto.docID = aDocId;
+    dto.originalFileName = aFileName;
+
+    // Open the dialog and pass in the doc ID and the original file name
+    let dialogRef = this.matDialog.open(DeleteDocumentDialogComponent, {
+      width: '400px',
+      data: dto
+    });
+
+    dialogRef.afterClosed().subscribe((aUserDeletedDocument: boolean) => {
+      // The dialog has closed
+
+      if (aUserDeletedDocument) {
+        // User chose to delete this document, so reload the list
+        this.reloadDocumentsList()
+      }
+    })
+  }
+
+
+  /*
+   * Download the document by opening the URL in a new browser tab
+   */
+  public downloadClicked(aDocId: number): void {
+    const url = environment.baseUrl + '/api/documents/download/' + aDocId;
+    window.open(url);
+  }
+
+  private getExtensionFromFilename(aFileName: string): string | undefined {
+    // The file extension can be undefined if it is not found.
+    let fileExt: string | undefined = aFileName.split('.').pop();
+
+    if (fileExt == aFileName) {
+      // The file name has no "." in it, so return undefined
+      return;
+    }
+
+    return fileExt;
+  }
+}
+
+
+Documents Frontend Service
+
+import { Injectable } from '@angular/core';
+import {GetDocumentsDetailsDTO} from "../models/get-documents-details-dto";
+import {delay, Observable, of} from "rxjs";
+import {environment} from "../../environments/environment";
+import {HttpClient} from "@angular/common/http";
+
+@Injectable({
+  providedIn: 'root'
+})
+export class DocumentsService {
+
+  constructor(private httpClient: HttpClient) { }
+
+  public getAllDocuments(aCaseId: number): Observable<GetDocumentsDetailsDTO[]> {
+
+    // Construct the URL of the REST call
+   const restUrl= environment.baseUrl + '/api/documents/get-all/' + aCaseId;
+
+   // Return an observable hooked up to this GetAllDocuments REST call
+   return this.httpClient.get <GetDocumentsDetailsDTO[]> (restUrl);
+  }
+
+  public deleteDocument(aDocId: number): Observable<string> {
+
+    // Construct the URL of the REST call
+    const restUrl= environment.baseUrl + '/api/documents/delete/' + aDocId;
+
+    // Return an observable hooked up to this deleteDocument REST call
+    return this.httpClient.delete<string>(restUrl);
+  }
+
+}
+
+
+Frontend DTO (GET)
+
+export class GetDocumentsDetailsDTO {
+  public documentId: number;
+  public originalFileName: string;
+  public sizeInBytes: number;
+}
+
+
+Backend Controller
+
+package com.lessons.controllers;
+
+import java.util.List;
+
+import com.eurodyn.qlack.util.av.api.dto.VirusScanDTO;
+import com.lessons.models.GetDocumentsDetailsDTO;
+import com.lessons.services.AllowedFileTypesService;
+import com.lessons.services.DocumentsService;
+import com.lessons.services.UserService;
+import com.lessons.services.VirusScanningService;
+import com.lessons.utilities.Constants;
+import jakarta.annotation.Resource;
+import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
+@Controller
+public class DocumentsController {
+    private static final Logger logger = LoggerFactory.getLogger(DocumentsController.class);
+
+    @Resource
+    private DocumentsService documentsService;
+
+    @Resource
+    private UserService userService;
+
+    @Resource
+    private VirusScanningService virusScanningService;
+
+    @Resource
+    private AllowedFileTypesService allowedFileTypesService;
+
+    /**
+     * GET /api/documents/get-all/{caseId}
+     * REST call to get a list of Documents that have been uploaded
+     *
+     * @param aCaseId  Holds the event that this file is related to
+     * @return a ResponseEntity that holds a list of GetDocumentsDetailsDTO objects
+     */
+    @RequestMapping(value = "/api/documents/get-all/{caseId}", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("hasAnyRole('CVF_SUPERVISOR', 'CVF_SPECIALIST', 'CVF_ADMIN', 'CVF_REVIEWER')")
+    public ResponseEntity<?> getAllDocuments(@PathVariable(name="caseId") Integer aCaseId) {
+
+       logger.debug("Case ID = {}", aCaseId);
+
+       List<GetDocumentsDetailsDTO> myList=this.documentsService.getAllDocumentsForCaseId(aCaseId);
+
+        // Return a response of 200 and the UserInfoDTO object
+        return ResponseEntity.status(HttpStatus.OK).body(myList);
+    }
+
+    /**
+     * POST /api/documents/upload
+     * REST call to process uploading of a single file
+     *
+     * @param aMultipartFile Holds the file's original filename, original size, and inputStream
+     * @param aCaseId Holds the event that this file is related to
+     * @return 200 status code upon success
+     */
+    @RequestMapping(value = "/api/documents/upload", method = RequestMethod.POST)
+    @PreAuthorize("hasAnyRole('CVF_SUPERVISOR', 'CVF_SPECIALIST', 'CVF_ADMIN', 'CVF_REVIEWER')")
+    public ResponseEntity<?> uploadDocument(@RequestParam(value = "file")  MultipartFile aMultipartFile,
+                                            @RequestParam(value = "caseId") Integer aCaseId) throws Exception {
+
+
+        if (aMultipartFile.getSize() == 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("Your uploaded file cannot be empty.") ;
+        }
+
+        if (aMultipartFile.getSize() > Constants.FILE_UPLOAD_LIMIT_IN_BYTES) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("Your uploaded file cannot exceed " + Constants.FILE_UPLOAD_LIMIT_IN_BYTES/1048576 + "MB.") ;
+        }
+
+        String fileExtension = FilenameUtils.getExtension(aMultipartFile.getOriginalFilename());
+
+        if (!allowedFileTypesService.doesExtensionExist(fileExtension)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("This file extension is not allowed: " + fileExtension) ;
+        }
+
+        if (virusScanningService.isVirusScanningEnabled() ) {
+            // Virus Scanning is enabled
+
+            // Attempt to virus scan the file
+            byte[] uploadedFileAsBytes = aMultipartFile.getBytes();
+            VirusScanDTO result = this.virusScanningService.virusScan(uploadedFileAsBytes);
+
+            if (!result.isVirusFree()) {
+                // Malware was found.  So, return a special status code of 406  (so the front-end can display a message)
+                logger.error("Malware was found in the called {} and ClamAV returned this message: {}", aMultipartFile.getOriginalFilename(), result.getVirusScanDescription());
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .body("Your uploaded file is infected with malware.");
+            }
+        }
+
+
+        // Process this uploaded file
+        this.documentsService.addFile(aMultipartFile, aCaseId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(null);
+
+    }
+
+    /**
+     * DELETE /api/documents/delete/{docId}
+     * REST call to delete the file and it's related database records
+     *
+     * @param aDocId holds the id that uniquely identifies the document in the Documents table
+     * @return 200 status code upon success
+     */
+    @RequestMapping(value = "/api/documents/delete/{docId}", method = RequestMethod.DELETE, produces = "application/json")
+    @PreAuthorize("hasAnyRole('CVF_SUPERVISOR', 'CVF_SPECIALIST', 'CVF_ADMIN', 'CVF_REVIEWER')")
+    public ResponseEntity<?> deleteDocument(@PathVariable(name="docId") Integer aDocId) {
+
+        if (!documentsService.doesDocumentExist(aDocId)){
+            // User passed in a document ID that was not found in the database
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("Passed in document ID was not found in the system");
+        }
+
+        Integer loggedInUserId = userService.getLoggedInUserId();
+
+        if (!documentsService.isDocumentOwnedByUser(aDocId, loggedInUserId)){
+            // The logged-in user is not the owner of this document... NOT allowed
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("You cannot delete this document as you are not the owner");
+        }
+
+    this.documentsService.deleteFile(aDocId);
+
+        // Return a response of 200 and the UserInfoDTO object
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+
+    /**
+     * GET /api/documents/download/{docId}
+     * REST call to allow for downloading of a single document
+     *
+     * @param aDocId holds the id that uniquely identifies the document in the Documents table
+     * @return ResponseEntity that holds the document's file (as an array of bytes)
+     * @throws Exception if something bad happens
+     */
+    @RequestMapping(value = "/api/documents/download/{docId}", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("hasAnyRole('CVF_SUPERVISOR', 'CVF_SPECIALIST', 'CVF_ADMIN', 'CVF_REVIEWER')")
+    public ResponseEntity<?> downloadDocument(@PathVariable(name="docId") Integer aDocId) throws Exception {
+
+        if (!documentsService.doesDocumentExist(aDocId)){
+            // User passed in a document ID that was not found in the database
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("Passed in document ID was not found in the system");
+
+        }
+
+        // Get the original filename from the database
+        String originalFileName = documentsService.getOriginalFIleNameForDocId(aDocId);
+
+        byte[] arrayOfBytes = documentsService.getByteArrayForDocId(aDocId);
+
+        // Create headers
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentDispositionFormData("Application/Download",originalFileName);
+
+        // Set the header with the length of the file so that the browsers can show the percentage of download
+        httpHeaders.setContentLength(arrayOfBytes.length);
+
+        // Return the bytes back to the frontend
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .headers(httpHeaders)
+                .body(arrayOfBytes);
+    }
+
+}
+
+
+Backend DTO
+
+package com.lessons.models;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class GetDocumentsDetailsDTO {
+    @JsonProperty("documentId")
+    private Integer documentId;
+
+    @JsonProperty("originalFileName")
+    private String originalFileName;
+
+    @JsonProperty("sizeInBytes")
+    private Integer sizeInBytes;
+
+    public Integer getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(Integer documentId) {
+        this.documentId = documentId;
+    }
+
+    public String getOriginalFileName() {
+        return originalFileName;
+    }
+
+    public void setOriginalFileName(String originalFileName) {
+        this.originalFileName = originalFileName;
+    }
+
+    public Integer getSizeInBytes() {
+        return sizeInBytes;
+    }
+
+    public void setSizeInBytes(Integer sizeInBytes) {
+        this.sizeInBytes = sizeInBytes;
+    }
+}
