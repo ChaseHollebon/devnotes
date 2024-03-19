@@ -1,5 +1,34 @@
 REST Calls Example "Documents Tab" GET REST Call
 
+***STEPS FOR CREATING A REST CALL***
+
+1. Create the Frontend DTO
+
+2. Create the Frontend Service
+
+   - Add public method
+
+   - Create method returns observable
+
+   - Create the fake data
+
+3. Make sure main page is using observable (Make sure it returns a response entity)
+
+4. Create the Backend DTO
+
+5. Create the Backend Controller
+
+    - Make the first REST call
+
+5. Edit the TS class
+
+6. Edit the HTML
+
+GOING TO FILL IN THE TOP WITH ADAM'S NOTES WE WENT OVER IN MEETING
+
+
+
+
 Documents HTML
 
 <ng-container *ngIf="(this.obsAllDocuments | async) as allDocuments">
@@ -83,6 +112,9 @@ Documents HTML
     </div>
   </div>
 </ng-container>
+
+
+
 
 
 Documents TS
@@ -315,6 +347,10 @@ export class TabDocumentsComponent implements OnInit {
 }
 
 
+
+
+
+
 Documents Frontend Service
 
 import { Injectable } from '@angular/core';
@@ -351,6 +387,9 @@ export class DocumentsService {
 }
 
 
+
+
+
 Frontend DTO (GET)
 
 export class GetDocumentsDetailsDTO {
@@ -360,7 +399,50 @@ export class GetDocumentsDetailsDTO {
 }
 
 
+
+
+
+
+
 Backend Controller
+
+STEPS:
+
+1. Add a Logger -> private static final Logger logger = LoggerFactory.getLogger(MYCLASSNAME.class);
+
+2. Add the Controller annotation so that spring does the dependency injection and spring manages the class -> @Controller
+
+3. Add public method to the class that returns a Response Entity -> Just a public method, use the annotations to set the REST call, URL, URL Type, Security
+
+-> @RequestMapping(value = "/api/documents/get-all/{caseId}", method = RequestMethod.GET, produces = "application/json")
+   @PreAuthorize("hasAnyRole('CVF_SUPERVISOR', 'CVF_SPECIALIST', 'CVF_ADMIN', 'CVF_REVIEWER')")
+
+
+  PUBLIC METHOD!!! public ResponseEntity<?> getAllDocuments(@PathVariable(name="caseId") Integer aCaseId) {
+
+4. Inject the services that you need ->
+
+    @Resource
+    private DocumentsService documentsService;
+
+    @Resource
+    private UserService userService;
+
+    @Resource
+    private VirusScanningService virusScanningService;
+
+    @Resource
+    private AllowedFileTypesService allowedFileTypesService;
+
+5. Activate the backend
+
+6. Use POSTMAN to hit it, get the URL (2 parts)
+- 1st Part: 3rd to last line of console - > http://localhost:8080/cvf
+
+-2nd Part: http://localhost:8080/cvf/api/count/add
+
+
+
 
 package com.lessons.controllers;
 
@@ -563,7 +645,224 @@ public class DocumentsController {
 }
 
 
-Backend DTO
+BACKEND SERVICE (DOCUMENTS TAB)
+
+STEPS:
+
+1. Add a Logger -> private static final Logger logger = LoggerFactory.getLogger(MYCLASSNAME.class);
+
+2. Add the Service annotation so that spring does the dependency injection and spring manages the class -> @Service
+
+3. Add public method to the class -> Just a public method
+
+4. Add the dependencies as you need ->    JdbcTemplate jt = new JdbcTemplate(this.dataSource);
+
+5. Figure out your SQL, copy WITHOUT ;
+
+
+
+
+
+
+
+
+
+
+package com.lessons.services;
+
+import com.lessons.models.GetDocumentsDetailsDTO;
+import com.lessons.utilities.AuditManager;
+import com.lessons.utilities.Constants;
+import jakarta.annotation.Resource;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+public class DocumentsService {
+    private static final Logger logger = LoggerFactory.getLogger(DocumentsService.class);
+
+    @Resource
+    private DataSource dataSource;
+
+    @Resource
+    private DatabaseService databaseService;
+
+    @Value("${uploads.dir}")
+    private String uploadsDirectory;
+
+    @Resource
+    private UserService userService;
+
+    @Resource
+    private FileService fileService;
+
+
+
+    public List<GetDocumentsDetailsDTO> getAllDocumentsForCaseId(Integer caseId) {
+
+        String sql = "select id as documentId, original_filename as originalFilename, original_filesize_bytes as sizeInBytes\n" +
+                "from documents\n" +
+                "where case_id=?\n" +
+                "order by created_date desc";
+
+        BeanPropertyRowMapper<GetDocumentsDetailsDTO> rowMapper = new BeanPropertyRowMapper<>(GetDocumentsDetailsDTO.class);
+
+        JdbcTemplate jt = new JdbcTemplate(this.dataSource);
+
+        List<GetDocumentsDetailsDTO> listOfDocuments = jt.query(sql, rowMapper, caseId);
+
+        return listOfDocuments;
+    }
+
+    public void addFile(MultipartFile aMultipartFile, Integer aCaseId)  {
+
+
+        TransactionTemplate tt = new TransactionTemplate();
+        tt.setTransactionManager(new DataSourceTransactionManager(this.dataSource));
+
+        // This transaction will throw a TransactionTimedOutException after 60 seconds (causing the transaction to rollback)
+        tt.setTimeout(Constants.SQL_TRANSACTION_TIMEOUT_SECS);
+
+        tt.execute(new TransactionCallbackWithoutResult() {
+            protected void doInTransactionWithoutResult(TransactionStatus aStatus) {
+
+                try {
+                    AuditManager auditManager = new AuditManager(dataSource, userService.getLoggedInUserName(), databaseService.getMapTableNameToCsvOfColumns());
+
+                    Integer docId = databaseService.getNextId();
+
+                    String storedFilePath = fileService.getStoredFilePath(uploadsDirectory, aCaseId, docId);
+
+                    String sql = "insert into documents(id, document_type, case_id, original_filename, original_extension, original_filesize_bytes, url_path, created_date, created_userid, updated_date, updated_userid)\n" +
+                            "values(:id, 1, :case_id, :original_file_name, :original_extension, :original_filesize_bytes, :stored_path, now(), :created_user_id, now(), :created_user_id)";
+
+                    Map<String, Object> paramMap = new HashMap<>();
+                    paramMap.put("id", docId);
+                    paramMap.put("case_id", aCaseId);
+                    paramMap.put("original_file_name", aMultipartFile.getOriginalFilename());
+                    paramMap.put("original_extension", StringUtils.lowerCase( FilenameUtils.getExtension(aMultipartFile.getOriginalFilename())));
+                    paramMap.put("original_filesize_bytes", aMultipartFile.getSize());
+                    paramMap.put("stored_path", storedFilePath);
+                    paramMap.put("created_user_id", userService.getLoggedInUserId());
+
+                    // Use the audit manager to insert a record and add the audit record
+                    auditManager.runSqlInsertOne(sql, paramMap, "documents_aud");
+
+                    fileService.addFile(storedFilePath, aMultipartFile.getInputStream(), aMultipartFile.getSize());
+
+                } catch (Exception e) {
+
+                    RuntimeException re = new RuntimeException(e);
+                    re.setStackTrace(e.getStackTrace());
+                    throw re;
+                }
+                // Commit the transaction if I get to the end of this method
+            }
+        });
+
+
+    }
+
+    public void deleteFile(Integer aDocId) {
+
+
+        TransactionTemplate tt = new TransactionTemplate();
+        tt.setTransactionManager(new DataSourceTransactionManager(this.dataSource));
+
+        // This transaction will throw a TransactionTimedOutException after 60 seconds (causing the transaction to rollback)
+        tt.setTimeout(Constants.SQL_TRANSACTION_TIMEOUT_SECS);
+
+        tt.execute(new TransactionCallbackWithoutResult() {
+            protected void doInTransactionWithoutResult(TransactionStatus aStatus) {
+                AuditManager auditManager = new AuditManager(dataSource, userService.getLoggedInUserName(), databaseService.getMapTableNameToCsvOfColumns());
+
+                // Get the file path before we delete the document from the database
+                String filePath = getDocumentFilePath(aDocId);
+
+
+                String sql = "delete from documents where id = :id";
+                Map<String, Object> paramMap = new HashMap<>();
+                paramMap.put("id", aDocId);
+
+                // USe the audit manager to delete the record and add an audit record for the operation
+                auditManager.runSqlDeleteOne(sql, paramMap, "documents_aud");
+
+                fileService.deleteFile(filePath);
+
+                // Commit the transaction if I get to the end of this method
+            }
+        });
+
+
+    }
+
+    public String getDocumentFilePath(Integer aDocId) {
+        String sql = "select url_path from documents where id = ?";
+        JdbcTemplate jt = new JdbcTemplate(dataSource);
+        String filePath = jt.queryForObject(sql, String.class, aDocId);
+        return filePath;
+    }
+
+    public boolean doesDocumentExist(Integer aDocId) {
+        String sql = "select id from documents where id = ?";
+        JdbcTemplate jt = new JdbcTemplate(dataSource);
+        SqlRowSet rs = jt.queryForRowSet(sql, aDocId);
+        boolean documentExists = rs.next();
+        return documentExists;
+    }
+
+    public boolean isDocumentOwnedByUser(Integer aDocId, Integer aCreatedUserId) {
+        String sql = "select id from documents where id = ? and created_userid = ?";
+        JdbcTemplate jt = new JdbcTemplate(dataSource);
+        SqlRowSet rs = jt.queryForRowSet(sql, aDocId, aCreatedUserId);
+        boolean isDocumentOwnedByUser = rs.next();
+        return isDocumentOwnedByUser;
+    }
+
+    public String getOriginalFIleNameForDocId(Integer aDocId) {
+        String sql = "select original_filename from documents where id = ?";
+        JdbcTemplate jt = new JdbcTemplate(dataSource);
+        String originalFileName = jt.queryForObject(sql, String.class, aDocId);
+        return originalFileName;
+    }
+
+    public byte[] getByteArrayForDocId(Integer aDocId) throws Exception {
+        String filePath = this.getDocumentFilePath(aDocId);
+        byte[] arrayOfBytes;
+
+        arrayOfBytes = fileService.downloadFile(filePath);
+
+        return arrayOfBytes;
+    }
+}
+
+
+
+Backend DTO (Get your GETTERS AND SETTERS)
+
+- STEPS:
+
+1. Create private variables
+2. Put the JSON Property annotation above them (JSON PROPERTY MUST MATCH FRONTEND DTO)
+3. (JAVA VARIABLE NAME SHOULD BE CAMEL CASE: documentId) -> **NO UNDERSCORES**
+4. Right click where you want the Getters and Setters and select generate
 
 package com.lessons.models;
 

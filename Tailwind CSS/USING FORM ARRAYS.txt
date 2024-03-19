@@ -1,0 +1,264 @@
+USING FORM ARRAYS
+Exercise 16 / Form Groups and Form Arrays
+-----------------------------------------
+
+Boring Lecture
+--------------
+a) Up to this point, we have ALWYAS created fixed form groups
+   This is a fancy way of saying:  We know what the form fields are at compile time
+
+b) But, what if need a VARIABLE number of form fields?
+   The answer is the FormArray
+
+
+
+
+Part 1:  Create the Page
+			url should be page/form-array
+
+
+
+
+Part 2:  Setup the layout as such:
+
+   +--------------------------------------------------------+
+   | Form Arrays                                       Help |
+   +--------------------------------------------------------+
+   |                                                        |
+   |  <Report Name Textbox>                                 |  *required field*
+   |                                                        |
+   |  <Report Description Textbox>                          |
+   |                                                        |
+   |                  <Reset Btn> <Update Btn>              |
+   +--------------------------------------------------------+
+
+
+
+
+Part 3:  Setup the reactive form
+
+
+
+Part 4:  Add click handlers  
+           Have the "Update" button mark all form fields as touched
+
+
+
+
+
+Part 5:  Create a DTO that holds a name and description
+
+
+
+Part 6:  Use a FormArray
+
+	a. Create a class variable 
+			variable name should be called arrayOfReports
+			the type is an array of DetailDTO 
+			
+
+	b. Initialize the class variable to be an array of 3 DTOs
+
+
+	c. Change ngOnInit / Create an empty formArray
+
+
+	d. Loop through the arrayOfReports, creating formGroups and adding them to the formArray
+
+
+
+
+	e. Initialize myForm to use a form array
+
+		  // Initialize the form
+		  this.myForm = this.formBuilder.group({
+		    myFormArray: formArray
+		  });
+
+
+
+	f. Add a getter property to your typescript class (that returns the formArray)
+
+	    get getArrayOfForms() : FormArray {
+	      return this.myForm.controls["myFormArray"] as FormArray;
+	    }
+
+
+
+	g. Change the HTML to loop through the formArray
+
+			<!-- Loop through the form array -->
+			<ng-container formArrayName="myFormArray"
+				          *ngFor="let singleFormGroup of this.getArrayOfForms.controls; let index = index">
+			  
+				<div [formGroupName]="index">
+					<!-- This is one form gorup -->
+			
+					
+					<!-- Inside here, we have one form group -->
+
+
+				</div>
+			</ng-container>
+
+
+
+HTML
+
+<!-- Padding of 10px around the entire page -->
+<div class="bg-backDropColor m-2.5">
+  <form [formGroup]="this.myForm">
+
+    <!-- Header Section -->
+    <div class="bg-gray-200">
+      <div class="flex flex-row justify-between items-center mb-4">
+        <span class="text-2xl font-bold">Form Arrays</span>
+
+        <!-- Help Button -->
+        <button type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Help
+        </button>
+      </div>
+    </div>
+
+    <ng-container formArrayName="myFormArray"
+                  *ngFor="let singleFormGroup of this.getArrayOfForms.controls; let index = index">
+      <div [formGroupName]="index">
+        <!-- This is one form group-->
+
+        <!-- Inside here, we have one form group-->
+
+
+    <!-- Report Name Textbox  -->
+    <div>
+      <mat-form-field>
+        <mat-label>Report Name  {{ index + 1 }}</mat-label>
+        <input formControlName="reportName" matInput type="text"/>
+        <mat-error>The report name field is required</mat-error>
+      </mat-form-field>
+    </div>
+
+
+    <!-- Report Description Textbox  -->
+    <div>
+      <mat-form-field>
+        <mat-label>Report Description  {{ index + 1 }}</mat-label>
+        <input formControlName="reportDescription" matInput type="text"/>
+      </mat-form-field>
+    </div>
+      </div>
+    </ng-container>
+
+    <!-- Center the buttons and give a gap   -->
+    <div class="flex place-content-center">
+
+
+      <div class="flex flex-row gap-20">
+
+        <button (click)="this.resetClicked()" type="reset"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Reset
+        </button>
+
+        <!-- Save Button -->
+        <button (click)="this.saveClicked()" type="button"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Save
+        </button>
+
+
+      </div>
+    </div>
+  </form>
+</div>
+
+
+
+TS
+
+import { Component } from '@angular/core';
+import {FormArray, FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {FormArrayDTO} from "../models/form-array-dto";
+
+@Component({
+  selector: 'app-from-array',
+  templateUrl: './from-array.component.html',
+  styleUrls: ['./from-array.component.scss']
+})
+export class FromArrayComponent {
+
+  constructor(private formBuilder: FormBuilder){
+
+  }
+
+  public myForm: FormGroup;
+  // Create the FormArrayDTO with Fake Data
+  public arrayOfReports: FormArrayDTO[] = [{
+    reportName: "Report #1",
+    reportDescription: "This is the description for report #1"
+  },
+    {
+      reportName: "Report #2",
+      reportDescription: "This is the description for report #2"
+    },
+    {
+      reportName: "Report #3",
+      reportDescription: "This is the description for report #3"
+    },
+    {
+      reportName: "Report #4",
+      reportDescription: "This is the description for report #4"
+    }]
+
+
+  public ngOnInit(): void {
+
+    // Create the empty Form Array
+    let formArray: FormArray = this.formBuilder.array([]);
+
+    // Loop through
+    let reportDTO: FormArrayDTO;
+    for (reportDTO of this.arrayOfReports) {
+      // Create a new form group
+      let formGroup: FormGroup = this.formBuilder.group({
+        reportName:           [reportDTO.reportName, Validators.required],
+        reportDescription:    [reportDTO.reportDescription, null],
+      });
+
+      // Add this form group to the array
+      formArray.push(formGroup)
+    }
+
+    // Initialize the form
+    this.myForm = this.formBuilder.group({
+      myFormArray: formArray
+    })
+
+  }
+
+  // Adding a getter property that returns the FormArray
+  get getArrayOfForms(): FormArray{
+    return this.myForm.controls["myFormArray"] as FormArray;
+  }
+
+
+  public resetClicked(): void{
+    this.myForm.reset();
+  }
+
+  public saveClicked(): void {
+    // Show all the error messages to the user
+    this.myForm.markAllAsTouched();
+  }
+
+}
+
+
+
+DTO
+
+export class FormArrayDTO {
+  public reportName: string;
+  public reportDescription: string;
+
+}

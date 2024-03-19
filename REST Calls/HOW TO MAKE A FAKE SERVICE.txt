@@ -24,3 +24,7 @@ public getAllAllowedFilesTypes(): Observable<GetAllowedFileTypeDTO[]> {
 
     return of(arrayOfDTO);
   }
+
+  HOW TO CONVERT ANY VARIABLE TO AN OBSERVABLE
+
+    this.obsRiskCategories = of([])

@@ -1,5 +1,5 @@
 
- Plan for Building the Adm in / Managed Allowed Files Types for Upload
+ Plan for Building the Admin / Managed Allowed Files Types for Upload
  ---------------------------------------------------------------------
 
  1. Make a new page

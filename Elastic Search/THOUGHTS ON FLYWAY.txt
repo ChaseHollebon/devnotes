@@ -1,0 +1,55 @@
+
+
+	January
+	-------	
+	Project Is deployed to production  we are running v2.1
+
+			V1.1__stuff.sql
+			V2.1__more_stuff.sql                 At this point, I have 2 tables in my database
+
+
+
+
+
+
+	February
+	--------	
+	Project Is deployed to production  we are running v2.2
+
+			V1.1__stuff.sql
+			V2.1__more_stuff.sql  
+			V2.2__additional_tables.sql           At this point, I have 3 tables in my database
+
+
+
+
+
+
+
+
+
+	March
+	--------	
+	Project Is deployed to production  we are running v2.3
+
+			V1.1__stuff.sql
+			V2.1__more_stuff.sql  
+			V2.2__additional_tables.sql           
+			V2.3__add_lookup_tables.sql          At this point, I have 4 tables in my database
+
+
+
+	flyway is an open-source tool that solves these problems
+	--------------------------------------------------------
+	1. We need to change our database							  (We add SQL scripts to db-migrations/src/main/resources/db/migrations/)
+	2. We need to push those changes to production				  (the sync-service by default:                        runs flyway:migrate
+	3. We need to share those changes with our fellow developers  (the sync-service with a special option that will:   runs flyway:clean and then flyway:migrate
+
+
+	This is why DBAs are getting laid off / fired / let go
+
+
+
+
+
+								
