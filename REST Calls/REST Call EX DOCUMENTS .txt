@@ -20,9 +20,11 @@ REST Calls Example "Documents Tab" GET REST Call
 
     - Make the first REST call
 
-5. Edit the TS class
+6. Create the Backend service
 
-6. Edit the HTML
+7. Edit the TS class
+
+8. Edit the HTML
 
 GOING TO FILL IN THE TOP WITH ADAM'S NOTES WE WENT OVER IN MEETING
 

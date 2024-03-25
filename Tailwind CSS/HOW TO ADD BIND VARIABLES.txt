@@ -1,0 +1,3 @@
+HOW TO ADD BIND VARIABLES
+
+:reportId, :reportName, :reportDescription

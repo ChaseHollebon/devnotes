@@ -3,3 +3,73 @@ HOW TO ADD A HYPERLINK
 <a href="#" class="text-blue-500 hover:text-blue-700 text-blue font-bold py-2 px-4 rounded underline">
             Save For Later
           </a>
+
+HOW TO IMPLEMENT HYPERLINK BETWEEN 2 PAGES
+
+HTML
+
+
+ <!-- Go to page 1 hyperlink -->
+  <div class="mt-2.5">
+    <a [routerLink]="'/'+Constants.MY_PAGE1_ROUTE"
+       class="text-blue-500 hover:text-blue-700 text-blue font-bold py-2 px-4 rounded underline">
+      Go to page 1
+    </a>
+  </div>
+
+TS
+
+import { Component } from '@angular/core';
+import { Constants } from 'src/app/utilities/constants';
+
+@Component({
+  selector: 'app-my-page2',
+  templateUrl: './my-page2.component.html',
+  styleUrls: ['./my-page2.component.scss']
+})
+export class MyPage2Component {
+
+  public readonly Constants = Constants;
+
+}
+
+
+
+Hyperlinks Explained in Angular
+-------------------------------
+
+	Case 1:  External Hyperlinks (take the user OUTSIDE of our web app)
+
+				<a href="https://www.google.com">Go to Google</a>
+
+
+
+	Case 2:  Internal Hyperlinks  (take the user INSIDE of our webapp or no-where to run some code)
+
+				Internal hyperlink to run some code
+					<a [routerLink]=[] (click)="this.runSomeCode()">This is an internal link</a>
+
+				Inject the router
+					constructor(private router: Router) {}
+
+				Add a method
+					public runSomeCode(): void {
+						// navigate to the other page
+						this.router.navigate( [Constants.MY_NEW_PAGE]).then();
+					}
+
+
+	Case 3:  Internal hyperlink to navigate the user to a new INTERNAL page route
+			 NOTE:  We need the forward slash so it's relative to the root
+				<a [routerLink]="'/' + Constants.MY_NEW_PAGE">Go to My New Page</a>
+
+
+				  To reference the Constants in the HTML, add this:
+
+					public readonly Constants = Constants;
+
+					*OR*
+
+					public get constants(): typeof Constants {
+						return Constants;
+					}
