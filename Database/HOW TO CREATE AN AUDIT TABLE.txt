@@ -1,0 +1,40 @@
+How to create an audit table
+
+EX:
+
+create table grid_views
+(
+    id                  integer                             not null,
+    created_userid      integer                             not null,
+    created_date        timestamp without time zone         not null,
+    name                varchar(40)                         not null,
+    column_state        text                                not null,
+    primary key(id),
+    constraint gv_created_userid foreign key(created_userid) references users(id)
+);
+
+PROCEDURE:
+
+1. Create the audit table with the same name but add aud
+2. Copy all the columns from your original table (but do not copy the keys or constraints)
+3. Make all those columns optional (null)
+4. Add in the 4 special required columns
+        timestamp            timestamp     not null,
+        username             varchar(100)  not null,
+        audit_type           integer       not null, --0 create, 1 update, 2 delete
+        transaction_id       integer       not null
+
+So the audit table would look something like this (below)
+
+    create table grid_views_aud
+    (
+        id                  integer                              null,
+        created_userid      integer                              null,
+        created_date        timestamp without time zone          null,
+        name                varchar(40)                          null,
+        column_state        text                                 null,
+        timestamp            timestamp     not null,
+        username             varchar(100)  not null,
+        audit_type           integer       not null, --0 create, 1 update, 2 delete
+        transaction_id       integer       not null
+    );
