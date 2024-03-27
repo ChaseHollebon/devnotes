@@ -1,0 +1,11 @@
+How to generate a unique number:
+
+Answer: We use a sequence
+1. Create the sequence (give it a name) -> seq_table_ids
+
+        Create sequence seq_table_ids increment by 1 START WITH 1000;
+
+2. Use the sequence to get the next unique number
+
+        select nextval('seq_table_ids')
+

@@ -16,11 +16,10 @@ REST Calls Example "Documents Tab" GET REST Call
 
 4. Create the Backend DTO
 
-5. Create the Backend Controller
-
+5. Create the Backend service
     - Make the first REST call
 
-6. Create the Backend service
+6. Create the Backend Controller
 
 7. Edit the TS class
 

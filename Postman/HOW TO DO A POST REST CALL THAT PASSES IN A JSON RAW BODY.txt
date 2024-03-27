@@ -1,0 +1,12 @@
+How to submit a POST REST Call that passes in a DTO
+
+1. Select the POST type
+2. Put in URL
+3. Select Body, select Raw
+4. Put in your json
+    {
+        "profileName": "Profile Number 1",
+        "columnState": "This is my column state"
+    }
+5. Add a header ---> Key is Content-Type  Value ---> application/json
+// The header tells the rest endpoint that we are submitting json

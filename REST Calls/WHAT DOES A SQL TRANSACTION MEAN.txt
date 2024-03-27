@@ -1,0 +1,7 @@
+Sql Transaction:
+
+Multiple sql statements are treated as one. They all work or none of them work
+
+They are used when you have multiple sql calls
+
+Advantages: No left over records
