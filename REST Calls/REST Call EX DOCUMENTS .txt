@@ -373,6 +373,7 @@ export class DocumentsService {
     // Construct the URL of the REST call
    const restUrl= environment.baseUrl + '/api/documents/get-all/' + aCaseId;
 
+
    // Return an observable hooked up to this GetAllDocuments REST call
    return this.httpClient.get <GetDocumentsDetailsDTO[]> (restUrl);
   }
@@ -904,3 +905,6 @@ public class GetDocumentsDetailsDTO {
         this.sizeInBytes = sizeInBytes;
     }
 }
+
+
+* WHEN COMPARING SOMETHING USE DOUBLE EQUAL SIGNS == *
