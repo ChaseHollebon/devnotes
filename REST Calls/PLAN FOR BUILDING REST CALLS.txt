@@ -127,6 +127,35 @@ Part 2:  Add Allowed File
 	   Return FALSE if the REST call fails
 
 
+	    public deleteClicked(): void {
+           // Set flag to TRUE to show spinners
+           this.deleteInProgress = true;
+
+           // Stop the user from closing the dialog box by clicking outside of it
+           this.dialogRef.disableClose = true;
+
+           let selectedGridViewId: number = this.rowSelected?.data.gridViewId;
+
+
+           // Manually invoke the REST Call
+           this.gridViewService.deleteGridView(selectedGridViewId).subscribe(()=>{
+
+             // REST Call successfully deleted this grid view
+             this.messageService.showSuccessMessage("Successfully deleted")
+
+             // Reload the grid
+             this.reloadGrid()
+           }).add(()=>{
+             // Finally block
+
+             // The REST Call has finished either successfully or unsuccessfully,
+             // so hide the spinner and allow the user to close the dialog box
+             this.deleteInProgress = false;
+             this.dialogRef.disableClose = false;
+           })
+         }
+
+
  4. The main page will open the dialog
 
  5. The main page will listen for when the dialog closes
@@ -511,6 +540,9 @@ Part 5:  Delete File Type
 
  8. Integrate the real REST call
 
+HOW TO GET THE DATA AND SET THE DATA IN A FORM
 
+ this.myForm.controls.reportTitle.setValue(aData.title)
+      this.myForm.controls.reportText.setValue(aData.text)
 
 

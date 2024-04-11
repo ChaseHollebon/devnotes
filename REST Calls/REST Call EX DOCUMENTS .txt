@@ -364,6 +364,7 @@ import {HttpClient} from "@angular/common/http";
   providedIn: 'root'
 })
 export class DocumentsService {
+let dto: AddGridViewDto = new AddGridViewDto();
 
   constructor(private httpClient: HttpClient) { }
 
@@ -665,7 +666,7 @@ STEPS:
 
 
 
-
+JAVA (TYPE THEN NAME)!!!!!!!
 
 
 

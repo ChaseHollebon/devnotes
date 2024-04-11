@@ -1,4 +1,4 @@
-letFAKE SERVICE
+FAKE SERVICE
 
 public getAllAllowedFilesTypes(): Observable<GetAllowedFileTypeDTO[]> {
     let arrayOfDTO: GetAllowedFileTypeDTO[] = [
