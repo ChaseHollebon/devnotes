@@ -444,6 +444,8 @@ STEPS:
 
 -2nd Part: http://localhost:8080/cvf/api/count/add
 
+***IF PASSING IN A DTO... RequestBody is your friend!!!***
+
 
 
 

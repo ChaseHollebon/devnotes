@@ -1,0 +1,39 @@
+How to Generate the Schema of the LATEST development branch
+-----------------------------------------------------------
+ 
+ 1. Turn on your VPN client
+
+ 2. Open Intellij
+
+ 3. Get the latest development branch
+    terminal> git checkout stuff
+    terminal> git branch -D development
+    terminal> git fetch -a        
+    terminal> git checkout -f development
+
+ 4. Nuke the database  (run the sync-service and erase the database)
+    -- Run the nuke database option
+
+ 5. Run the generate schemaspy script
+    a. Go to c:\tools\schemaspy
+    b. Doublie-click on your generate.bat script
+
+ 6. Open the schema spy info
+    a. Go to c:\tools\schemaspy\cvf
+    b. Double-click on index.html
+
+
+
+
+
+	Postgres Database
+			|
+			|
+			V
+		Sync Service
+			|
+			|
+			V
+	Elastic Search / OpenSearch
+		cvf_cases  mapping
+        
