@@ -1,0 +1,373 @@
+Exercise / Loading a dropdown from a REST call
+----------------------------------------------
+
+Problem:  My dropdown has hard-coded values but it should be loaded from a REST call
+
+
+
+			
+Part 1:  Create the page with the reactive form
+-----------------------------------------------
+ 1. Create a new page that has a dropdown in it 
+    NOTE:  Use the route:  page/loading-dropdown
+    NOTE:  You do have procedures for this....right?
+   
+  
+
+
+
+ 2. Setup the layout
+
+		+---------------------------------------------------------+
+		| Loading Dropdown Page                              Help |
+        +---------------------------------------------------------+
+        |                                                         |
+        |                                                         |
+        |              Specialist Disposition Dropdown            | 
+        |                                                         |
+        |                                                         |
+        | Selected value is <current value>                       |
+        +---------------------------------------------------------+
+        Add a <pre>...</pre> tag to the bottom of the page that displays the selected value
+
+
+		Don't forget:  The dropdown uses the <mat-select>...</mat-select>
+         
+        Hard-code the dropdowns with these values
+			1   Valid
+			2   Invalid Alert Data
+			3   Invalid Business Rule
+			
+			
+
+
+
+ 3. Add a reactive form
+    NOTE:  You do have procedures for this....right?
+
+
+
+ 4. Bind the "Specialist Disposition Dropdown" to the reactive form
+
+ 
+
+ 5. Get the selected value to display at the bottom of the page
+
+
+
+ 6. Verify that changing the dropdown shows the updated value at the bottom of the page
+ 
+ <div class="bg-backDropColor m-2.5">
+  <form [formGroup]="this.myForm">
+    <!-- Header Section -->
+    <div class="bg-gray-200">
+      <div class="flex flex-row justify-between items-center mb-4">
+        <span class="text-2xl font-bold">Loading Dropdown Page</span>
+
+        <!-- Help Button -->
+        <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Help
+        </button>
+      </div>
+    </div>
+
+    <!-- Specialist Disposition Dropdown  -->
+    <div class="flex flex-row place-content-center">
+      <ng-container *ngIf="(this.allSpecialistDispositionsObs | async) as lookupDataDTOs">
+      <mat-form-field>
+        <mat-label> Specialist Disposition Dropdown</mat-label>
+        <mat-select title="Specialist Disposition Dropdown" aria-label="Specialist Disposition Dropdown"
+                    formControlName="loading">
+          <ng-container *ngFor="let lookup of lookupDataDTOs">
+          <mat-option [value]="lookup.id">{{ lookup.value }}</mat-option>
+          </ng-container>
+        </mat-select>
+      </mat-form-field>
+      </ng-container>
+    </div>
+
+
+    <pre>Selected Value is: this.myForm.controls.loading.value = {{ this.myForm.controls.loading.value }}</pre>
+  </form>
+</div>
+
+
+
+import { Component } from '@angular/core';
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {MySpecialistService} from "../services/my-specialist.service";
+import {LookupDataDTO} from "../models/lookup-data-dto";
+import {Observable} from "rxjs";
+
+@Component({
+  selector: 'app-loading-dropdown',
+  templateUrl: './loading-dropdown.component.html',
+  styleUrls: ['./loading-dropdown.component.scss']
+})
+export class LoadingDropdownComponent {
+  public myForm: FormGroup;
+  public allSpecialistDispositionsObs: Observable<LookupDataDTO[]>;
+
+  constructor(private formBuilder: FormBuilder,
+              private mySpecialistService: MySpecialistService) {
+  }
+
+  ngOnInit(): void {
+    this.myForm = this.formBuilder.group({
+      loading: [null, null],
+
+    });
+    this.allSpecialistDispositionsObs = this.mySpecialistService.getAllSpecialistDispositions();
+
+  }
+
+}
+
+
+
+
+Part 2:  Have the frontend SIMULATE a REST call and load the dropdown from that REST call
+-----------------------------------------------------------------------------------------
+ 1. Create a new front-end service called:  MySpecialistService
+
+
+ 2. Add a public method to this service called:  getAllSpecialistsDispositions()
+    -- What is passed-in to this method?  Nothing
+    -- What is returned?  Observable that holds an array of LookupDataDTO objects
+    -- Why?  All dropdowns return the same kind of information
+
+
+ 3. Build this public method:
+    -- Create an array that holds the 3 LookupDataDTO
+    -- Return the data as an observable
+
+    -- Each DTO should hold this information:
+			1   Valid
+			2   Invalid Alert Data
+			3   Invalid Business Rule
+
+
+
+ 4. Back in your main page / TypeScript class, initialize the observable
+    a. Inject the MySpecialistService
+    b. Create a public class variable called allSpecialistDispositionsObs that is an observable that holds an array of LookupDataDTO
+
+    c. In ngOnInit(), initialize the observable
+  
+
+ 5. Back in your main page / HTML, use the observable to load the dropdown
+	
+	a. Setup an async-pipe *AROUND* the dropdown
+       
+ 
+    b. Use an *ngFor to loop through the array of LookupDataDTO
+
+
+
+ 6. Verify that it works
+ 
+ 
+ 
+ package com.lessons.services;
+
+import com.lessons.models.LookupDataDTO;
+import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+import javax.sql.DataSource;
+import java.util.List;
+
+@Service
+public class MyLookupService {
+    private static final Logger logger = LoggerFactory.getLogger(MyLookupService.class);
+
+    @Resource
+    private DataSource dataSource;
+
+    public List<LookupDataDTO> getAllSpecialistDispositions(){
+
+        String sql = """
+                    select id, name as value
+                    from alert_specialist_dispositions
+                    order by display_order
+                    """;
+        BeanPropertyRowMapper<LookupDataDTO> rowMapper = new BeanPropertyRowMapper<>(LookupDataDTO.class);
+        JdbcTemplate jt = new JdbcTemplate(this.dataSource);
+        List<LookupDataDTO> listOfDTOs = jt.query(sql, rowMapper);
+        return listOfDTOs;
+    }
+}
+
+
+ 
+
+
+Part 3:  Build the REST call to load it
+---------------------------------------
+
+Contract:
+    	URL:								/api/lookup/specialist-dispositions
+
+		URL Type:							GET
+
+		What's passed-in?					Nothing
+
+		What's returned?					Array of LookupDataDTO
+
+		What roles are granted?  			All of them
+
+		What checked on the passed-in data?	N/A.  There is no passed-in data.
+
+		What SQL is executed:
+			Look at the table called alert_specialist_dispositoins
+
+
+
+ 1. Create a new backend service called:  MyLookupService
+    NOTE:  You do have procedures for this....right?
+
+
+ 2. Add a public method to this service called:  getAllSpecialistDispositions()
+		-- What's passed-in?	Nothing
+		-- What's returned?		Array of LookupDataDTOs
+
+ 3. Add a new backend controller called:  MyLookupController
+    NOTE:  You do have procedures for this....right?
+
+ 4. Add a public method that is your GET rest call
+    NOTE:  This controller method should call your new service method
+
+
+ 5. Try it out with postman
+ 
+ 
+ package com.lessons.models;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class LookupDataDTO {
+    @JsonProperty("id")
+    private Integer id;
+
+    @JsonProperty("value")
+    public String value;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+}
+
+ 
+ 
+ package com.lessons.controllers;
+
+import com.lessons.models.LookupDataDTO;
+import com.lessons.services.MyLookupService;
+import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.util.List;
+
+@Controller
+public class MyLookupController {
+    public static final Logger logger = LoggerFactory.getLogger(MyLookupController.class);
+
+    @Resource
+    private MyLookupService myLookupService;
+
+    @RequestMapping(value = "/api/lookup/specialist-dispositions", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("hasAnyRole('CVF_SUPERVISOR', 'CVF_SPECIALIST', 'CVF_ADMIN', 'CVF_REVIEWER')")
+    public ResponseEntity<?> getAllDataSources(){
+        logger.debug("getAllSpecialistDispositions() has started");
+
+        List<LookupDataDTO> listOfDTOs = this.myLookupService.getAllSpecialistDispositions();
+
+                return ResponseEntity.status(HttpStatus.OK).body(listOfDTOs);
+        }
+    }
+
+
+
+import {Injectable} from '@angular/core';
+import {Observable, of} from "rxjs";
+import {LookupDataDTO} from "../models/lookup-data-dto";
+import {HttpClient} from "@angular/common/http";
+import {environment} from "../../environments/environment";
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MySpecialistService {
+
+  constructor(private httpClient: HttpClient) {
+  }
+
+  public getAllSpecialistDispositions(): Observable<LookupDataDTO[]> {
+   const restUrl: string = environment.baseUrl + '/api/lookup/specialist-dispositions';
+
+   return this.httpClient.get <LookupDataDTO[]> (restUrl);
+  }
+}
+
+
+
+
+
+
+Part 4:  Integrate the REST call with the frontend
+--------------------------------------------------
+ 1. Edit this front-end service:  mySpecialistService
+
+ 2. Inject the frontend httpClient
+
+ 3. Change your getAllSpecialistsDispositions() so that it invokes your GET rest call 
+ 
+ 4. Try it out
+
+
+  
+
+
+
+package com.lessons.services;
+
+import com.lessons.models.LookupDataDTO;
+import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import javax.sql.DataSource;
+
+@Service
+public class MyLookupService {
+    private static final Logger logger = LoggerFactory.getLogger(MyLookupService.class);
+
+    @Resource
+    private DataSource dataSource;
+
+    public LookupDataDTO[] getAllSpecialistDispositions(){
+        return null;
+    }
+} EMPT SERVICE UP THERE
