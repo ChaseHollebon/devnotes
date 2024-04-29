@@ -1,0 +1,270 @@
+How to Add Unit Tests
+---------------------
+
+
+What's a unit test?
+ -- Validates that the piece of code does what it's supposed to *AND* doesn't have undesired behavior
+ -- Acts as a check
+ -- Check on your code
+
+
+Test Driven Development (TDD)
++ Write the test *FIRST* and write the code *SECOND*
+- Every bit of code should have a test
+- What percentage of your code is tested?
+
+
+			public class MyService
+
+
+				public String getDatabaseTime() {
+
+				}
+
+
+
+				public void doSomething() {
+
+				}
+
+
+				public void doSomethingElse() {
+
+				}
+
+
+
+
+
+ ASSUMPTION:  If every bit of code is tested --> then the application works well  
+												 -- I can have a poor user interface
+												 -- I can have slow web pages
+												 -- I can have bugs that unit tests don't find
+			
+
+  A good looking webapp ---> makes client happy
+  A fast webapp         ---> makes client happy
+
+
+
+
+Personal Opinion:  Unit tests have lots of negatives
+	-- They are expensive / taking developer time
+	-- They do not measure performance   (is that REST call slow?)
+	-- They are not end-to-end tests  
+	-- If business rules change, then the unit tests must change   [creates baggage]
+	-- It's often cheaper to hired dedicated testers  (as long as the webapps do not get huge)
+	
+Best use for unit tests:  really complex logic
+
+
+           Unit Test Runs         Your application runs
+            Successfully             Successfully               Outcome
+		+---------------------+--------------------------+----------------------
+   1    |        No           |            No            | is client happy?  No.  Because the code doesn't work
+   2    |        No           |           Yes            | is client happy?  Yes.
+   3    |       Yes           |            No            | is client happy?  No
+   4    |       Yes           |           Yes            | is client happy?  Yes
+        +---------------------+--------------------------+-----------------------
+
+
+Unit tests are good for trying out some code
+
+
+
+
+ Types of Unit Tests
+   1) Plain vanilla unit tests using JUnit
+
+   2) Spring Boot Unit Tests
+      + You can inject services into your unit test and use those services
+	  + You can inject the dataSource
+	  + You can run SQL
+
+
+
+
+
+
+
+ Exercise 1 / Create a small unit test
+ ------------------------------------
+ 1. Get the latest CVF project / development branch
+	terminal> git checkout stuff
+	terminal> git fetch -a
+	terminal> git branch -D development
+	terminal> git checkout -f development 
+
+ 2. Start a new branch from where you are
+	terminal> git checkout -b my-initials/unit-tests
+
+ 3. Go to the backend / src / test / java / com / lessons
+	a. Add a new class called SimpleUnitTest
+
+	b. Add a logger
+
+	c. In this class, add a pulic method that returns nothing called myTest1
+
+	d. Above this method, insert this annotation:  @Test
+
+	e. Have the method make a a logger.debug() call 
+
+    f. Set a breakpoint on your logger call
+
+	g. Right-click on the method -> Debug myTest1
+		-- Verify that the code stops at your breakpoint
+		-- Verify that your logger prints out output
+
+
+ 4. Turn it into a real test
+    In your myTest1()
+		a. Create a string that has the value   "           "
+	
+    	b. Create a boolean that holds if this string is blank
+
+		c. use assertTrue() to see if your test passed;
+ 
+
+
+
+ Exercise 2 / create a Spring Boot Test
+ --------------------------------------
+
+ 1. Add the spring-boot-test maven dependency
+	a. Edit the backend/pom.xml
+
+	b. Add this dependency:
+		
+		<dependency>
+		  <!-- Add the Spring Boot Test Harness so the tests will startup the Spring Boot backend from unit tests -->
+		  <groupId>org.springframework.boot</groupId>
+		  <artifactId>spring-boot-starter-test</artifactId>
+		  <scope>test</scope>
+		</dependency>
+
+	
+ 	c. Right-click on the pom.xml -> Maven -> Reload Project
+
+
+ 2. Add the spring-boot test class
+    a. Go to backend/src/test/java/com/lessons/
+	   Create a new class:  MySpringBootTest1
+
+	b. Above the class name, add these annotations:
+			@RunWith(SpringRunner.class)                                                  // Required to work with JUnit 4
+			@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)   // Start up a Spring Boot webapp listening on random port
+
+	
+	c. Add a logger
+
+
+	d. In this class, add a pulic method that returns nothing called mySpringBootTest1
+
+	e. Above this method, insert this annotation:  @Test
+
+	f. Add a logger.debug() calle to the method
+
+	g. Set a breakpoint on the logger.debug() call
+
+	h. Right-click on the method -> Debug 'mySpringBootTest1'
+		-- Verify that the entire backend started in the console
+		-- Verify that the debugger stops at the breakpoint
+
+
+
+ 3. In your MySpringBootTest class
+	a. Inject the DataSource
+
+	b. In your mySpringBootTest1
+		a. Create a sql string that will count the number of records in the alert_priorities table
+
+		b. Add a variable called expectedRowsInTable and set it to 3
+
+		c. Run the sql
+
+		d. Verify that the actual number of rows matches the expected
+
+
+--------------------------------------------------
+
+So, unit tests are a place where you can experiment with code / try stuff out
+
+
+SimpleUnitTest.java
+
+package com.lessons;
+
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertTrue;
+
+
+public class SimpleUnitTest {
+    private static final Logger logger = LoggerFactory.getLogger(SimpleUnitTest.class);
+
+    @Test
+    public void myTest1() {
+        logger.debug("Unit Test Example");
+
+        String value = "       ";
+        boolean isValueIsBlank = StringUtils.isBlank(value);
+        assertTrue(isValueIsBlank == true);
+    }
+
+
+
+}
+
+
+
+
+MySpringBootTest1.java
+
+package com.lessons;
+
+import jakarta.annotation.Resource;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.sql.DataSource;
+
+import static org.junit.Assert.assertTrue;
+
+
+@RunWith(SpringRunner.class)                                                  // Required to work with JUnit 4
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)   // Start up a Spring Boot webapp listening on random port
+public class MySpringBootTest1 {
+    private static final Logger logger = LoggerFactory.getLogger(MySpringBootTest1.class);
+
+
+    @Resource
+    private DataSource dataSource;
+
+
+    @Test
+    public void mySpringBootTest1() {
+        logger.debug("Unit Test Example 2");
+
+        String sql = "select count(id)\n" +
+                     "from alert_priorities";
+
+        JdbcTemplate jt = new JdbcTemplate(this.dataSource);
+        Integer actualTableCount = jt.queryForObject(sql, Integer.class);
+
+        Integer expectedRowsInTable = 3;
+
+        assertTrue(actualTableCount == expectedRowsInTable);
+    }
+
+}
+
+ 
+			
