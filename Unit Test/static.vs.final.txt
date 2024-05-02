@@ -1,0 +1,125 @@
+What's the difference between static and final?
+-----------------------------------------------
+
+Static means "of the class"
+
+
+				NumericUtilitiesStatic				NumericUtilitiesNonStatic
+				+---------------------------+		+---------------------------+
+				|							|		|							|
+				|  public static int add()	|		|  public int add()			|
+				| 							|		|							|
+				|							|		|							|
+				+---------------------------+		+---------------------------+
+
+
+
+
+
+Exercise / Create these 2 classes
+---------------------------------
+ 1. Create this class:  NumericUtilitiesStatic 
+
+ 2. Add a public method called  add()
+		-- What's passed-in?  2 int values
+		-- What's returned?   the sum of the 2 int values
+		
+		
+		package com.lessons.utilities;
+
+public class NumericUtilitiesStatic {
+
+    public static int add(int a1, int a2){
+        return (a1+a2);
+    }
+
+}
+
+
+
+ 3. Create this clsas:  NumericUtilitiesNonStatic
+
+ 4. Add a public method called  add()
+		-- What's passed-in?  2 int values
+		-- What's returned?   the sum of the 2 int values
+		
+		
+		package com.lessons.utilities;
+
+public class NumericUtilitiesNonStatic {
+
+    public int add(int a1, int a2){
+        return (a1+a2);
+    }
+}
+
+
+
+ 5. Create a test class called  MyUnitTests
+    backend / src / test / java / com / lessons -> new java class:
+
+
+ 6. Add a unit test method called:  myFirstUnitTest
+
+ 7. Add the @Test annotation above your method
+
+ 8. Call add() from each of your classes
+
+ 9. Right-click on your method:  myFirstUnitTest() -> Debug
+
+ 
+package com.lessons;
+
+import com.lessons.utilities.NumericUtilitiesNonStatic;
+import com.lessons.utilities.NumericUtilitiesStatic;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class MyFirstUnitTest {
+
+   private Logger logger = LoggerFactory.getLogger(MyFirstUnitTest.class);
+
+    @Test
+    public void myFirstUnitTest(){
+        int value1 = 5;
+        int value2 = 10;
+
+       int sum1 =  NumericUtilitiesStatic.add(value1, value2);
+       NumericUtilitiesNonStatic numericUtilitiesNonStatic = new NumericUtilitiesNonStatic();
+
+        logger.debug("sum = {}", sum1);
+       int sum2 = numericUtilitiesNonStatic.add(value1, value2);
+
+
+    }
+}
+
+
+
+
+
+
+
+Final means one-time initialization 
+-- final primitive is a constant
+-- final class cannot be extended
+-- final object cannot be re-initialized
+
+	
+
+
+
+Example of a static variable:  loggers
+
+
+		+------------------------------------
+        | @Service
+		| public class MyService {
+		|	private final static Logger logger = LoggerFactory.getLogger(MyService.class);
+		|
+		| }
+		+---------------------------------------------------------
+
+   
+

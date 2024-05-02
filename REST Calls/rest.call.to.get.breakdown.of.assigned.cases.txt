@@ -1,0 +1,353 @@
+Exercise 5 / REST call that returns a break down of users and cases assigned
+----------------------------------------------------------------------------
+
+ The REST call
+   	/api/stats/case-assigned-breakdown
+
+
+ Returns a breakdown of information to the frontend:
+		Harrison Ford           6
+        Mark Hammil             7
+        Carrie Fisher           5
+        James Earl Jones        4
+
+
+
+ The REST call also includes 2 optional parameters:
+
+   	/api/stats/case-assigned-breakdown   
+	{
+		'start_date':   '05/01/2024',                   // cases with a created_date >= 05/01/2024
+		'end_date':     '01/01/2025'                    // cases with a created_date <= 01/01/2024
+	}
+ 
+
+
+
+
+ What is the contract?
+ ---------------------
+	URL:					/api/stats/case-assigned-breakdown				   	
+
+	URL Type:       		GET  (because it's a read-only REST call)
+
+	What is Passed-in? 			 		
+							1) Nothing
+							2) DTO with start_date and end_date
+							3) DTO with start_date
+							4) DTO with end_date
+											
+								
+	What is Returned?		We're talking data structures -- list, map, 
+
+							List of DTOs.  Each DTO holds
+												full_name
+												total_cases
+
+							When the database is empty, I will return.....Null or empty list
+
+								
+	What security roles?	All 4 roles  (in the short term)
+
+
+	What checks on the passed-in info?
+		1) if there is both a start_date and end_date, then
+               if (start_date > end_date) throw 400 bad request
+
+		2) if (start_date is not blank) 
+				if (start_date is *NOT* valid), then throw 400 bad request
+
+
+		3) If (end_date is not blank)
+				if (end_date is *NOT* valid), then throw 400 bad request
+
+
+	What does this REST call do?
+
+		-- Run some SQL to get created full names and totals
+			where created_date >= :start_date   AND   created_date <= :end_date
+
+
+ Plan / Backend
+ --------------
+  1. Start from a fresh branch (starting from development)
+     a. Get the latest development branch
+	 b. Create a new branch from the latest development branch
+		
+  2. Create the passed-in backend DTO:   CaseAssignedIncomingDTO
+		start_date
+		end_date
+		
+package com.lessons.models;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class CaseAssignedIncomingDTO {
+    @JsonProperty("start_date")
+    private String startDate;
+
+    @JsonProperty("end_date")
+    private String endDate;
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+}
+
+
+  3. Create the returned backend DTO:    CaseAssignedOutgoingDTO  
+		full_name
+		total_cases
+		
+package com.lessons.models;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class CaseAssignedOutgoingDTO {
+    @JsonProperty("fullName")
+    private String fullName;
+
+    @JsonProperty("totalCases")
+    private Integer totalCases;
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public Integer getTotalCases() {
+        return totalCases;
+    }
+
+    public void setTotalCases(Integer totalCases) {
+        this.totalCases = totalCases;
+    }
+}
+
+
+
+  4. Create a Backend Service:  MyStatsService 
+	 -- Need procedures for creating 
+
+
+  5. Add a public method to your backend service:  getBreakdownOfCaseCreators()
+		-- What's passed-in?  	 startDate and endDate
+		-- What's returned?      List of CaseAssignedOutgoingDTO
+
+		// Create an empty list
+		List<CaseAssignedOutgoingDTO> myList = new ArrayList<>();
+		
+		return myList;
+		
+		
+		
+		
+		
+package com.lessons.services;
+
+import com.lessons.models.CaseAssignedOutgoingDTO;
+import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+import javax.sql.DataSource;
+import java.util.List;
+
+@Service
+public class MyStatsService {
+    private static final Logger logger = LoggerFactory.getLogger(MyStatsService.class);
+
+    @Resource
+    private DataSource dataSource;
+
+    public List<CaseAssignedOutgoingDTO> getBreakdownOfCaseCreators(String aStartDate, String aEndDate){
+
+
+        String sql = """
+                    select u.full_name, COUNT(u.full_name) as totalCases
+                    from cases c join users u on (c.assigned_userid = u.id)
+                    group by full_name
+                    order by u.full_name
+                    """;
+
+        BeanPropertyRowMapper<CaseAssignedOutgoingDTO> rowMapper = new BeanPropertyRowMapper<>(CaseAssignedOutgoingDTO.class);
+
+        JdbcTemplate jt = new JdbcTemplate(this.dataSource);
+
+        List<CaseAssignedOutgoingDTO> list = jt.query(sql, rowMapper);
+
+        return list;
+
+    }
+}
+
+		
+		
+		
+		
+		
+		
+
+  6. Create a Backend Controller:  MyStatsController
+	 
+
+  7. Add a public method to your backend controller:  getBreakdownOfCaseCreators()
+		-- What's passed-in?		CaseAssignedIncomingDTO
+		-- What's returned?			ResponseEntity< >  that holds a list of CaseAssignedOutgoingDTO
+
+									-- REST call status code of 200
+									-- REST call returns data  -- e.g., list of CaseAssignedOutgoingDTO
+									
+									
+								
+package com.lessons.controllers;
+
+import com.lessons.models.CaseAssignedIncomingDTO;
+import com.lessons.models.CaseAssignedOutgoingDTO;
+import com.lessons.services.MyStatsService;
+import com.lessons.utilities.DateUtilities;
+import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+
+import java.util.List;
+
+@Controller
+public class MyStatsController {
+    private static final Logger logger = LoggerFactory.getLogger(MyStatsController.class);
+
+    @Resource
+    private MyStatsService myStatsService;
+
+    @RequestMapping(value = "/api/stats/case-assigned-breakdown", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("hasAnyRole('CVF_SUPERVISOR', 'CVF_SPECIALIST', 'CVF_ADMIN', 'CVF_REVIEWER')")
+    public ResponseEntity<?> getBreakdownOfCaseCreators(@RequestBody CaseAssignedIncomingDTO aDTO){
+
+        logger.debug("getBreakdownOfCaseCreators() has started");
+
+        if ((aDTO.getStartDate() != null) && (!DateUtilities.isDateValid(aDTO.getStartDate())))
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("The Start Date is invalid");
+        }
+
+        if ((aDTO.getEndDate() != null) && (!DateUtilities.isDateValid(aDTO.getEndDate())))
+        {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("The End Date is invalid");
+        }
+
+        if ((aDTO.getStartDate() != null) && (aDTO.getEndDate() != null)) {
+
+            if (!DateUtilities.isDate2AfterDate1(aDTO.getStartDate(), aDTO.getEndDate())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .body("The Start Date is after the End Date");
+            }
+        }
+
+        List<CaseAssignedOutgoingDTO> listOfOutgoingDTOs = this.myStatsService.getBreakdownOfCaseCreators(aDTO.getStartDate(), aDTO.getEndDate());
+
+        return ResponseEntity.status(HttpStatus.OK).body(listOfOutgoingDTOs);
+    }
+}
+
+
+ 
+  8. Test it with Postman
+		-- At this point we have an outline
+
+
+  9. Fill-in the MyStatsService.getBreakdownOfCaseCreators()
+	 a. Figure out the real SQL
+
+	 b. Run the SQL and generate list of DTOs
+
+
+package com.lessons.utilities;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
+import java.util.Locale;
+
+public class DateUtilities {
+    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/uuuu", Locale.US)
+            .withResolverStyle(ResolverStyle.STRICT);
+
+
+    public static boolean isDateValid(String aRawDateAsString) {
+        try {
+            // Attempt to parse the date
+            LocalDate.parse(aRawDateAsString, dateFormatter);
+
+        } catch (DateTimeParseException e) {
+            // Date parsing failed.  This date is invalid
+            return false;
+        }
+
+        // Date parsing succeeded.  This date is invalid
+        return true;
+    }
+
+    public static boolean isDate2AfterDate1(String aRawDate1, String aRawDate2) {
+        try {
+            // Attempt to parse the date
+            LocalDate localDate1 = LocalDate.parse(aRawDate1, dateFormatter);
+
+            LocalDate localDate2 = LocalDate.parse(aRawDate2, dateFormatter);
+
+            if (localDate1.isAfter(localDate2)) {
+                // Date 1 is *AFTER* date 2.  This is bad.  So, return false
+                return false;
+            }
+            else {
+                // Date 1 is *BEFORE* date 2. So, return true
+                return true;
+            }
+
+        } catch (DateTimeParseException e) {
+            // Date parsing failed.  This date is invalid
+            return false;
+        }
+
+    }  // end of isDate2AfterDate1()
+
+}
+
+
+
+
+
+
+
+
