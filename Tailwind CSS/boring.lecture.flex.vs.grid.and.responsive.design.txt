@@ -1,0 +1,94 @@
+Boring Lecture:  Flex vs Grid
+-----------------------------
+
+
+When should use flex?  When should use grid?
+	-- If you have fewer rows, use flex flex-row	
+
+
+
+
+		<div class="flex flex-row">
+
+				<div class="w-[350px]">
+					Left
+				</div>
+
+				<div class="w-[240px]">
+					Right
+				</div>
+
+		</div>
+
+
+
+
+
+
+		<div class="grid grid-cols-2">
+
+				<div>
+					Left
+				</div>
+
+
+				<div>
+					Right
+				</div>
+
+		</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- Use "grid grid-cols" for a fixed number of grid columns  (can be adjusted with responsive design)
+-- Use "flex flex-row"  for for variable-sized columns
+
+	-- if you have CONSISTENT width, use grid
+	-- If you have VARIABLE widths, use flex flex-row
+    -- If it's only 1 row, then it doesn't matter
+
+
+Resnick's Rule:  THE CLIENT DOES NOT CARE AS LONG AS IT WORKS and IT WORKS ON TIME!!!!
+
+
+
+
+Boring Lecture:  Responsive Design  (using those colons)
+-------------------------------------------------------
+
+<div
+   class="grid grid-cols-4 bg-green-400       <-- base class for any screen less than tablet
+      md:bg-violet-600  md:grid-cols-5        <-- tablet screen
+      lg:bg-lime-400    lg:grid-cols-6        <-- laptop screen
+      xl:bg-red-400     xl:grid-cols-7">      <-- monitor and above
+
+
+<div
+   class="grid grid-cols-4 bg-green-400                          <-- base class for any screen less than tablet 
+      min-[768px]:bg-violet-600  min-[768px]:grid-cols-5         <-- tablet screen
+      min-[1024px]:bg-lime-400   min-[1024px]:grid-cols-6        <-- laptop screen
+      min-[1280px]:bg-red-400    min-[1280px]:grid-cols-7">      <-- monitor and above
+
+
+
+Tailwind Defaults:
+    sm  is min of  640px wide       (smaller than tablet)
+    md  is min of  768px wide       (tablet)
+    lg  is min of 1024px wide       (laptop)
+    xl  is min of 1280px wide       (monitor)
+    2xl is min of 1536px wide       (super-big monitor)
+
+
