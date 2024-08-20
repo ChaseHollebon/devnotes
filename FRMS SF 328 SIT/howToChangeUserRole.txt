@@ -1,0 +1,9 @@
+FRMS/SF328/SIT NOTES
+
+How to change user within 847
+
+1. FRMS -> Backend -> SRC -> Main -> Java -> Secuirty -> AuthenticationService
+
+2. Line 403
+
+3. Change USER if necessary 

@@ -153,15 +153,21 @@ Part 2:  Have the frontend SIMULATE a REST call and load the dropdown from that 
     b. Create a public class variable called allSpecialistDispositionsObs that is an observable that holds an array of LookupDataDTO
 
     c. In ngOnInit(), initialize the observable
+
+     public ngOnInit(): void {
+        this.referralLevelsObs = this.lookupService.getAllReferralLevels();
   
 
  5. Back in your main page / HTML, use the observable to load the dropdown
 	
 	a. Setup an async-pipe *AROUND* the dropdown
-       
+       <ng-container *ngIf="(this.referralLevelsObs | async) as lookupDataDTOS">
+                   <mat-option *ngFor="let dto of lookupDataDTOS" [value]="dto.id"> {{dto.value}} </mat-option>
+                   </ng-container>
  
     b. Use an *ngFor to loop through the array of LookupDataDTO
 
+            <mat-option *ngFor="let dto of lookupDataDTOS" [value]="dto.id"> {{dto.value}} </mat-option>
 
 
  6. Verify that it works
